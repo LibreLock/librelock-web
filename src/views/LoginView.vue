@@ -49,7 +49,7 @@ async function handleSubmit() {
 
         <button
           :disabled="auth.isSubmitting"
-          class="w-full rounded-md bg-teal-600 text-white py-2 font-semibold"
+          class="w-full rounded-md bg-gray-600 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
         >
           {{ auth.isSubmitting ? 'Signing in...' : 'Sign in' }}
         </button>
@@ -57,7 +57,7 @@ async function handleSubmit() {
 
       <p class="mt-4 text-sm text-slate-600">
         No account?
-        <RouterLink to="/register" class="text-teal-600 font-semibold">Create one</RouterLink>
+        <RouterLink to="/register" class="text-blue-600 font-semibold">Create one</RouterLink>
       </p>
     </div>
   </div>
