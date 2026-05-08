@@ -8,13 +8,13 @@ const props = defineProps<{
 const sizeClasses = {
   sm: 'h-6 w-6',
   md: 'h-8 w-8',
-  lg: 'h-12 w-12',
+  lg: 'h-15 w-15',
 }
 
 const iconSizeClasses = {
   sm: 'h-3 w-3',
   md: 'h-4 w-4',
-  lg: 'h-6 w-6',
+  lg: 'h-8 w-8',
 }
 </script>
 

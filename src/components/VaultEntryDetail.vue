@@ -85,8 +85,7 @@ function strengthDot(score: number): string {
           {{ toPascalCase(entry.categoryId) }}
         </span>
       </div>
-      <!-- cateogry -->
-      <div></div>
+
       <button
         type="button"
         class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 cursor-pointer"

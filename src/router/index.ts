@@ -17,7 +17,6 @@ const router = createRouter({
           path: '',
           redirect: '/vault',
         },
-        // Vault — static paths before dynamic :id
         {
           path: 'vault',
           name: 'vault',
@@ -38,7 +37,6 @@ const router = createRouter({
           name: 'vault-entry',
           component: () => import('../views/vault/VaultView.vue'),
         },
-        // Passwords
         {
           path: 'passwords',
           name: 'passwords',
@@ -49,7 +47,6 @@ const router = createRouter({
           name: 'passwords-entry',
           component: () => import('../views/passwords/PasswordsView.vue'),
         },
-        // Notes
         {
           path: 'notes',
           name: 'notes',
@@ -60,7 +57,6 @@ const router = createRouter({
           name: 'notes-entry',
           component: () => import('../views/notes/NotesView.vue'),
         },
-        // Other
         {
           path: 'security',
           name: 'security',

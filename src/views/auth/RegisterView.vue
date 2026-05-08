@@ -55,11 +55,12 @@ async function handleSubmit() {
     return
   }
 
-  await auth.signUp({
-    username: form.username.trim(),
-    password: form.password,
-  })
-  await router.replace('/')
+  try {
+    await auth.signUp(form.username.trim(), form.password)
+    await router.replace('/')
+  } catch {
+    // error displayed via auth.error
+  }
 }
 </script>
 
@@ -67,7 +68,7 @@ async function handleSubmit() {
   <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50">
     <div class="mb-4 flex flex-col items-center gap-2">
       <IconPadlock size="lg" />
-      <span class="text-sm font-semibold text-slate-600">Vault</span>
+      <span class="text-lg font-semibold text-slate-600">Vault</span>
     </div>
 
     <div class="w-full max-w-md bg-white rounded-lg shadow-sm p-6">

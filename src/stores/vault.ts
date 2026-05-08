@@ -44,7 +44,9 @@ export const useVaultStore = defineStore('vault', () => {
   }
 
   async function editEntry(id: string, payload: UpdateEntryPayload): Promise<VaultEntry> {
-    const updated = await updateVaultEntry(id, payload)
+    const existing = entries.value.find((e) => e.id === id)
+    const merged = { ...payload, favorite: existing?.favorite ?? false }
+    const updated = await updateVaultEntry(id, merged)
     const idx = entries.value.findIndex((e) => e.id === id)
     if (idx !== -1) entries.value[idx] = updated
     return updated
