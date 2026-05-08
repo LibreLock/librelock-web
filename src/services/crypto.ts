@@ -102,3 +102,30 @@ export async function decryptBlob(
   )
   return JSON.parse(dec.decode(plaintext))
 }
+
+// Encrypts a plain string — IV (12 bytes) is prepended to ciphertext and the
+// whole thing is returned as a single base64 string.
+export async function encryptField(value: string, masterKey: CryptoKey): Promise<string> {
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    masterKey,
+    enc.encode(value),
+  )
+  const combined = new Uint8Array(12 + ciphertext.byteLength)
+  combined.set(iv, 0)
+  combined.set(new Uint8Array(ciphertext), 12)
+  return bytesToBase64(combined)
+}
+
+export async function decryptField(encrypted: string, masterKey: CryptoKey): Promise<string> {
+  const combined = base64ToBytes(encrypted)
+  const iv = combined.slice(0, 12)
+  const ciphertext = combined.slice(12)
+  const plaintext = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    masterKey,
+    ciphertext,
+  )
+  return dec.decode(plaintext)
+}

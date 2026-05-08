@@ -82,7 +82,7 @@ async function handleSubmit() {
             type="text"
             required
             autocomplete="username"
-            class="w-full rounded-md border px-3 py-2 border-slate-400"
+            class="w-full rounded-md border px-3 py-1 border-slate-400"
           />
         </div>
 
@@ -93,7 +93,7 @@ async function handleSubmit() {
             type="password"
             required
             autocomplete="new-password"
-            class="w-full rounded-md border px-3 py-2 border-slate-400"
+            class="w-full rounded-md border px-3 py-1 border-slate-400"
             @focus="passwordFocused = true"
             @blur="passwordFocused = false"
           />
@@ -128,7 +128,7 @@ async function handleSubmit() {
             type="password"
             required
             autocomplete="new-password"
-            class="w-full rounded-md border px-3 py-2 border-slate-400"
+            class="w-full rounded-md border px-3 py-1 border-slate-400"
           />
           <p v-if="passwordMismatch" class="mt-1 text-xs text-rose-600">Passwords do not match.</p>
         </div>

@@ -2,8 +2,13 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
 import { ApiError, apiRequest } from '@/services/api'
-import { deriveKeys, generateKdfSalt, type KdfParams } from '@/services/crypto'
+import { deriveKeys, encryptField, generateKdfSalt, type KdfParams } from '@/services/crypto'
 import { clearSessionKey, loadSessionKey, saveSessionKey } from '@/services/keystore'
+import { getMasterKey, setMasterKey } from '@/services/keyring'
+import { useCategoriesStore } from '@/stores/categories'
+import { useVaultStore } from '@/stores/vault'
+
+export { getMasterKey }
 
 export interface AuthUser {
   id?: string | number
@@ -25,13 +30,7 @@ interface AuthResponse {
 
 type SessionStatus = 'idle' | 'loading' | 'authenticated' | 'anonymous'
 
-// MasterKey lives outside reactive state — never serialized, never persisted as plaintext
-let _masterKey: CryptoKey | null = null
-
-export function getMasterKey(): CryptoKey | null {
-  return _masterKey
-}
-
+const DEFAULT_CATEGORIES = ['Personal', 'Work', 'Finance', 'Social', 'Development']
 
 function getErrorMessage(error: unknown) {
   if (error instanceof ApiError) return error.message
@@ -69,9 +68,10 @@ export const useAuthStore = defineStore('auth', () => {
       status.value = user.value ? 'authenticated' : 'anonymous'
 
       // Restore MasterKey from IndexedDB if JWT cookie is still valid
-      if (user.value && !_masterKey) {
-        _masterKey = await loadSessionKey()
-        if (!_masterKey) {
+      if (user.value && !getMasterKey()) {
+        const key = await loadSessionKey()
+        setMasterKey(key)
+        if (!getMasterKey()) {
           await signOut()
           return null
         }
@@ -99,7 +99,7 @@ export const useAuthStore = defineStore('auth', () => {
           body: JSON.stringify({ username, auth_credential: authCredential }),
         })) ?? {}
 
-      _masterKey = masterKey
+      setMasterKey(masterKey)
       await saveSessionKey(masterKey)
       user.value = response.user ?? null
       status.value = 'authenticated'
@@ -126,6 +126,10 @@ export const useAuthStore = defineStore('auth', () => {
       }
       const { masterKey, authCredential } = await deriveKeys(password, kdfParams)
 
+      const categories = await Promise.all(
+        DEFAULT_CATEGORIES.map(async (name) => ({ name: await encryptField(name, masterKey) })),
+      )
+
       const response =
         (await apiRequest<AuthResponse>('/auth/register', {
           method: 'POST',
@@ -136,10 +140,11 @@ export const useAuthStore = defineStore('auth', () => {
             kdf_iter: kdfParams.kdf_iter,
             kdf_memory: kdfParams.kdf_memory,
             kdf_parallelism: kdfParams.kdf_parallelism,
+            categories,
           }),
         })) ?? {}
 
-      _masterKey = masterKey
+      setMasterKey(masterKey)
       await saveSessionKey(masterKey)
       user.value = response.user ?? null
       status.value = 'authenticated'
@@ -157,8 +162,10 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await apiRequest('/auth/logout', { method: 'POST' })
     } finally {
-      _masterKey = null
+      setMasterKey(null)
       await clearSessionKey()
+      useCategoriesStore().clear()
+      useVaultStore().clear()
       user.value = null
       status.value = 'anonymous'
       isSubmitting.value = false

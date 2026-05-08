@@ -33,10 +33,10 @@ docker run -d -p 3000:3000 --name password-manager-backend password-manager-back
 ```bash
 cd password_manager_frontend
 docker build -t password-manager-frontend .
-docker run -d -p 5173:5173 --name password-manager-frontend password-manager-frontend
+docker run -d -p 1401:1401 --name password-manager-frontend password-manager-frontend
 ```
 
-4. Open [localhost:5173](http://localhost:5173) to access the password manager.
+4. Open [localhost:1401](http://localhost:1401) to access the password manager.
 
 ## Development
 

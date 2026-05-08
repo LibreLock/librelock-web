@@ -59,6 +59,12 @@ export const useVaultStore = defineStore('vault', () => {
 
   const globalSearch = ref('')
 
+  function clear() {
+    entries.value = []
+    error.value = null
+    globalSearch.value = ''
+  }
+
   return {
     entries,
     loading,
@@ -71,5 +77,6 @@ export const useVaultStore = defineStore('vault', () => {
     addEntry,
     editEntry,
     removeEntry,
+    clear,
   }
 })

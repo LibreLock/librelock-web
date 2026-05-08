@@ -1,41 +1,60 @@
-// Mock API layer for categories.
-// When the backend is ready, replace each function body with the real apiRequest call shown in comments.
-
-// import { apiRequest } from '@/services/api'
+import { apiRequest } from '@/services/api'
+import { decryptField, encryptField } from '@/services/crypto'
+import { getMasterKey } from '@/services/keyring'
 
 export interface VaultCategory {
   id: string
   name: string
 }
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-
-const mockCategories: VaultCategory[] = [
-  { id: 'work', name: 'Work' },
-  { id: 'personal', name: 'Personal' },
-  { id: 'finance', name: 'Finance' },
-  { id: 'social', name: 'Social' },
-  { id: 'development', name: 'Development' },
-]
-
-let nextCatId = 100
-
-function delay(ms = 150): Promise<void> {
-  return new Promise((res) => setTimeout(res, ms))
+interface RawCategory {
+  id: string
+  user_id: string
+  name: string
+  created_at: string
+  updated_at: string
 }
 
-// ─── API functions ────────────────────────────────────────────────────────────
+function requireMasterKey(): CryptoKey {
+  const key = getMasterKey()
+  if (!key) throw new Error('Vault is locked — please log in again.')
+  return key
+}
 
 export async function getCategories(): Promise<VaultCategory[]> {
-  // Real: return apiRequest<VaultCategory[]>('/categories')
-  await delay()
-  return mockCategories.map((c) => ({ ...c }))
+  const response = await apiRequest<{ categories: RawCategory[] }>('/categories')
+  if (!response) return []
+  const masterKey = requireMasterKey()
+  return Promise.all(
+    response.categories.map(async (c) => ({
+      id: c.id,
+      name: await decryptField(c.name, masterKey),
+    })),
+  )
 }
 
 export async function createCategory(name: string): Promise<VaultCategory> {
-  // Real: return apiRequest<VaultCategory>('/categories', { method: 'POST', body: JSON.stringify({ name }) })
-  await delay()
-  const cat: VaultCategory = { id: String(nextCatId++), name }
-  mockCategories.push(cat)
-  return { ...cat }
+  const masterKey = requireMasterKey()
+  const encryptedName = await encryptField(name, masterKey)
+  const response = await apiRequest<{ category: RawCategory }>('/categories', {
+    method: 'POST',
+    body: JSON.stringify({ name: encryptedName }),
+  })
+  if (!response) throw new Error('No response from server.')
+  return { id: response.category.id, name }
+}
+
+export async function updateCategory(id: string, name: string): Promise<VaultCategory> {
+  const masterKey = requireMasterKey()
+  const encryptedName = await encryptField(name, masterKey)
+  const response = await apiRequest<{ category: RawCategory }>(`/categories/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ name: encryptedName }),
+  })
+  if (!response) throw new Error('No response from server.')
+  return { id: response.category.id, name }
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  await apiRequest(`/categories/${id}`, { method: 'DELETE' })
 }

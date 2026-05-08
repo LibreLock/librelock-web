@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
 import { ENTRY_COLORS, DEFAULT_COLOR } from '@/api/vault'
+import CategoryPill from '@/components/CategoryPill.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -128,10 +129,10 @@ async function handleSubmit() {
 <template>
   <div class="overflow-y-auto h-full p-4 sm:p-6">
     <div class="w-full">
-      <div class="mb-4 flex items-center justify-between gap-4">
+      <div class="mb-4 flex items-center gap-4">
         <div>
           <h1 class="text-xl font-semibold text-slate-900">
-            {{ isEditMode ? 'Edit entry' : 'New entry' }}
+            {{ isEditMode ? 'Edit entry' : 'New' }}
           </h1>
         </div>
 
@@ -167,13 +168,13 @@ async function handleSubmit() {
 
       <div v-else class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200 overflow-hidden">
         <form @submit.prevent="handleSubmit">
-          <div class="grid grid-cols-1 lg:grid-cols-[1fr_220px] lg:divide-x lg:divide-slate-100">
+          <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] lg:divide-x lg:divide-slate-100">
             <div class="px-5 py-5 space-y-3">
               <template v-if="entryType === 'password'">
                 <div>
                   <label
                     class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                    >Name <span class="text-rose-400">*</span></label
+                    >Name<span class="text-rose-400">*</span></label
                   >
                   <input
                     v-model="account.name"
@@ -212,7 +213,7 @@ async function handleSubmit() {
                 <div>
                   <label
                     class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                    >Password <span class="text-rose-400">*</span></label
+                    >Password<span class="text-rose-400">*</span></label
                   >
                   <div class="relative">
                     <input
@@ -295,7 +296,7 @@ async function handleSubmit() {
                 <div>
                   <label
                     class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                    >Name <span class="text-rose-400">*</span></label
+                    >Name<span class="text-rose-400">*</span></label
                   >
                   <input
                     v-model="note.name"
@@ -308,7 +309,7 @@ async function handleSubmit() {
                 <div>
                   <label
                     class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                    >Content <span class="text-rose-400">*</span></label
+                    >Content<span class="text-rose-400">*</span></label
                   >
                   <textarea
                     v-model="note.content"
@@ -335,7 +336,7 @@ async function handleSubmit() {
                     :class="[
                       c.bg,
                       selectedColor === c.bg
-                        ? 'ring-2 ring-offset-2 ring-slate-500 scale-110'
+                        ? 'ring-2 ring-offset-2 ring-slate-400 scale-110'
                         : 'hover:scale-105',
                     ]"
                     :title="c.label"
@@ -362,20 +363,16 @@ async function handleSubmit() {
                   >
                     None
                   </button>
-                  <button
+                  <CategoryPill
                     v-for="cat in categoriesStore.categories"
                     :key="cat.id"
-                    type="button"
-                    class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
-                    :class="
-                      selectedCategoryId === cat.id
-                        ? 'bg-slate-800 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    "
+                    :category="cat"
+                    :active="selectedCategoryId === cat.id"
                     @click="selectedCategoryId = cat.id"
-                  >
-                    {{ cat.name }}
-                  </button>
+                    @removed="
+                      selectedCategoryId = selectedCategoryId === cat.id ? null : selectedCategoryId
+                    "
+                  />
                   <button
                     v-if="!showNewCategory"
                     type="button"

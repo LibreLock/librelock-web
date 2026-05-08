@@ -45,13 +45,22 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
         />
       </svg>
+
       <input
         ref="searchInput"
         v-model="vault.globalSearch"
         type="search"
-        placeholder="Search vault (Ctrl+K)"
+        placeholder="Search vault"
         class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-16 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100 [&::-webkit-search-cancel-button]:hidden"
       />
+
+      <!-- Ctrl+K hint -->
+      <div
+        class="absolute right-2.5 top-1/2 hidden -translate-y-1/2 py-0.5 rounded border border-slate-200 bg-white px-1.5 text-[10px] text-slate-400 sm:block"
+      >
+        Ctrl K
+      </div>
+
       <button
         v-if="vault.globalSearch"
         type="button"
@@ -65,7 +74,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
     <div class="ml-auto flex items-center gap-3">
       <RouterLink
         to="/vault/new"
-        class="flex items-center gap-2 rounded-md bg-gray-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-gray-700"
+        class="flex items-center justify-center gap-0 sm:gap-2 rounded-md bg-gray-600 p-2 sm:px-3 sm:py-1.5 text-white hover:bg-gray-700"
+        aria-label="Add entry"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -75,7 +85,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
             d="M12 4v16m8-8H4"
           />
         </svg>
-        Add entry
+
+        <span class="hidden sm:inline text-sm font-semibold"> Add entry </span>
       </RouterLink>
     </div>
   </header>

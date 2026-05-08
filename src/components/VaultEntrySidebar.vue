@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import type { VaultEntry } from '@/api/vault'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
+import CategoryPill from '@/components/CategoryPill.vue'
 
 const props = defineProps<{
   entries: VaultEntry[]
@@ -57,6 +58,14 @@ function toggleCategory(id: string) {
   else next.add(id)
   activeCategories.value = next
 }
+
+function handleCategoryRemoved(id: string) {
+  if (activeCategories.value.has(id)) {
+    const next = new Set(activeCategories.value)
+    next.delete(id)
+    activeCategories.value = next
+  }
+}
 </script>
 
 <template>
@@ -85,20 +94,14 @@ function toggleCategory(id: string) {
         >
           All
         </button>
-        <button
+        <CategoryPill
           v-for="category in categoriesStore.categories"
           :key="category.id"
-          type="button"
-          class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
-          :class="
-            activeCategories.has(category.id)
-              ? 'bg-slate-800 text-white'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          "
+          :category="category"
+          :active="activeCategories.has(category.id)"
           @click="toggleCategory(category.id)"
-        >
-          {{ category.name }}
-        </button>
+          @removed="handleCategoryRemoved(category.id)"
+        />
       </div>
     </div>
 

@@ -47,7 +47,7 @@ async function handleSubmit() {
             type="text"
             required
             autocomplete="username"
-            class="w-full rounded-md border px-3 py-2 border-slate-400"
+            class="w-full rounded-md border px-3 py-1 border-slate-400"
           />
         </div>
 
@@ -58,7 +58,7 @@ async function handleSubmit() {
             type="password"
             required
             autocomplete="current-password"
-            class="w-full rounded-md border px-3 py-2 border-slate-400"
+            class="w-full rounded-md border px-3 py-1 border-slate-400"
           />
         </div>
 
@@ -68,7 +68,7 @@ async function handleSubmit() {
           :disabled="auth.isSubmitting"
           class="w-full rounded-md bg-gray-600 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {{ auth.isSubmitting ? 'Signing in...' : 'Sign in' }}
+          {{ auth.isSubmitting ? 'Logging in...' : 'Log in' }}
         </button>
       </form>
 
