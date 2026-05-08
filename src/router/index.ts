@@ -25,12 +25,12 @@ const router = createRouter({
         {
           path: 'vault/new',
           name: 'vault-new',
-          component: () => import('../views/vault/AddEntryView.vue'),
+          component: () => import('../views/vault/EntryFormView.vue'),
         },
         {
           path: 'vault/edit/:id',
           name: 'vault-edit',
-          component: () => import('../views/vault/AddEntryView.vue'),
+          component: () => import('../views/vault/EntryFormView.vue'),
         },
         {
           path: 'vault/:id',

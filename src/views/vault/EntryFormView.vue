@@ -45,6 +45,14 @@ const showNewCategory = ref(false)
 const newCategoryName = ref('')
 const isAddingCategory = ref(false)
 
+function generateStrongPassword() {
+  const charset =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?'
+  const arr = new Uint32Array(24)
+  crypto.getRandomValues(arr)
+  account.password = Array.from(arr, (n) => charset[n % charset.length]).join('')
+}
+
 onMounted(async () => {
   categoriesStore.fetchCategories()
   if (!isEditMode) return
@@ -233,10 +241,19 @@ async function handleSubmit() {
                 </div>
 
                 <div>
-                  <label
-                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                    >Password<span class="text-rose-400">*</span></label
-                  >
+                  <div class="mb-1 flex items-center justify-between">
+                    <label
+                      class="block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                      >Password<span class="text-rose-400">*</span></label
+                    >
+                    <button
+                      type="button"
+                      class="text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                      @click="generateStrongPassword"
+                    >
+                      Generate
+                    </button>
+                  </div>
                   <div class="relative">
                     <input
                       v-model="account.password"
