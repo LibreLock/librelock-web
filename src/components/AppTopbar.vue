@@ -74,7 +74,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
     <div class="ml-auto flex items-center gap-3">
       <RouterLink
         to="/vault/new"
-        class="flex items-center justify-center gap-0 sm:gap-2 rounded-md bg-gray-600 p-2 sm:px-3 sm:py-1.5 text-white hover:bg-gray-700"
+        class="flex items-center justify-center gap-0 sm:gap-2 rounded-md bg-slate-800 p-2 sm:px-3 sm:py-1.5 text-white hover:bg-slate-700"
         aria-label="Add entry"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

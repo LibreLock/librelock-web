@@ -17,7 +17,7 @@ async function copy() {
 
 <template>
   <div class="overflow-y-auto h-full p-4 sm:p-6">
-    <div class="max-w-lg">
+    <div class="max-w-xl">
       <h1 class="text-xl font-semibold text-slate-900">Password Generator</h1>
       <p class="mt-1 mb-5 text-sm text-slate-500">
         Generate strong, unique passwords for your accounts.
@@ -27,7 +27,9 @@ async function copy() {
         <div>
           <div class="flex gap-2">
             <div
-              class="flex-1 min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-sm text-slate-900 truncate"
+              class="flex-1 min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-sm text-slate-900 truncate cursor-pointer transition-colors"
+              :class="copied ? 'bg-emerald-50 border-emerald-300' : ''"
+              @click="copy"
             >
               {{ generated || '—' }}
             </div>
@@ -81,14 +83,14 @@ async function copy() {
 
         <div>
           <label class="mb-2 block text-xs font-semibold text-slate-400">Characters used</label>
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-y-2">
             <label class="flex cursor-pointer items-center gap-2.5">
               <input
                 v-model="useUppercase"
                 type="checkbox"
                 class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700">Uppercase (A–Z)</span>
+              <span class="text-sm text-slate-700">Uppercase (A-Z)</span>
             </label>
             <label class="flex cursor-pointer items-center gap-2.5">
               <input
@@ -96,7 +98,7 @@ async function copy() {
                 type="checkbox"
                 class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700">Lowercase (a–z)</span>
+              <span class="text-sm text-slate-700">Lowercase (a-z)</span>
             </label>
             <label class="flex cursor-pointer items-center gap-2.5">
               <input
@@ -104,7 +106,7 @@ async function copy() {
                 type="checkbox"
                 class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700">Numbers (0–9)</span>
+              <span class="text-sm text-slate-700">Numbers (0-9)</span>
             </label>
             <label class="flex cursor-pointer items-center gap-2.5">
               <input

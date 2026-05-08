@@ -22,8 +22,12 @@ function toggleCollapse() {
 }
 
 async function handleLogout() {
-  await auth.signOut()
-  router.push('/auth/login')
+  try {
+    await auth.signOut()
+    router.push('/login')
+  } catch {
+    window.location.href = '/login'
+  }
 }
 
 function isActive(to: string) {
@@ -87,7 +91,7 @@ const navItems = [
         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
         :class="
           isActive(item.to)
-            ? 'bg-gray-200 text-gray-700'
+            ? 'bg-slate-200 text-slate-700'
             : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
         "
         :title="collapsed ? item.name : undefined"
@@ -152,7 +156,7 @@ const navItems = [
         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
         :class="
           isActive('/settings')
-            ? 'bg-gray-200 text-gray-700'
+            ? 'bg-slate-200 text-slate-700'
             : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
         "
         :title="collapsed ? 'Settings' : undefined"
