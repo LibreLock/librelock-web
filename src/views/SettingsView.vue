@@ -57,12 +57,11 @@ async function handleChangePassword() {
 
 <template>
   <div class="p-6">
-    <h1 class="text-2xl font-semibold mb-6">Settings</h1>
+    <h1 class="text-2xl font-semibold text-slate-900">Settings</h1>
+    <p class="mt-1 text-sm text-slate-500">Manage your account settings and preferences.</p>
 
-    <div class="max-w-md space-y-8">
-      <!-- Security section -->
+    <div class="max-w-md space-y-8 mt-4">
       <div>
-        <h2 class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Security</h2>
         <div class="rounded-lg bg-white shadow-sm p-6">
           <h3 class="text-lg font-semibold mb-4">Change master password</h3>
 

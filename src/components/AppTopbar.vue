@@ -1,7 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const searchQuery = ref('')
+const searchInput = ref<HTMLInputElement | null>(null)
+
+function handleKeydown(e: KeyboardEvent) {
+  const tag = (e.target as HTMLElement).tagName
+  const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+
+  if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !isTyping)) {
+    e.preventDefault()
+    searchInput.value?.focus()
+    searchInput.value?.select()
+  }
+
+  if (e.key === 'Escape' && document.activeElement === searchInput.value) {
+    searchInput.value?.blur()
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', handleKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 </script>
 
 <template>
@@ -24,10 +43,11 @@ const searchQuery = ref('')
         />
       </svg>
       <input
+        ref="searchInput"
         v-model="searchQuery"
         type="search"
-        placeholder="Search vault..."
-        class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-4 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100"
+        placeholder="Search vault (Ctrl+K)"
+        class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-16 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100"
       />
     </div>
 
