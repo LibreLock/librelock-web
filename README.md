@@ -1,55 +1,74 @@
-# password-manager-frontend
+<div align="center">
+  <img src="public/favicon.ico" alt="Password manager logo" height="70" />
+  <h1 align="center">Password manager</h1>
+</div>
 
-This template should help get you started developing with Vue 3 in Vite.
+Self-hosted web-based password manager. Built out of distrust in third-party password managers. Built with Vue and Laravel.
 
-## Recommended IDE Setup
+## Features
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **Secure by design**: All data is encrypted on the client side before being sent to the server. The server only stores encrypted data and never has access to the encryption keys.
+- **Zero-knowledge architecture**: The server cannot read or access any of the user's data, ensuring maximum privacy and security.
+- **User-friendly interface**: A clean and intuitive UI for managing passwords, with features like search, categorization, and password generation.
 
-## Recommended Browser Setup
+## Get started
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+1. Clone frontend and backend repositories:
 
-## Type Support for `.vue` Imports in TS
+```bash
+git clone https://github.com/lebaaar/password_manager.git
+git clone https://github.com/lebaaar/password_manager.git
+```
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+2.Build and run the backend:
 
-## Customize configuration
+```bash
+cd password_manager_backend
+docker build -t password-manager-backend .
+docker run -d -p 3000:3000 --name password-manager-backend password-manager-backend
+```
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+3. Build and run the frontend:
 
-## Project Setup
+```bash
+cd password_manager_frontend
+docker build -t password-manager-frontend .
+docker run -d -p 5173:5173 --name password-manager-frontend password-manager-frontend
+```
 
-```sh
+4. Open [localhost:5173](http://localhost:5173) to access the password manager.
+
+## Development
+
+Bellow find instructions for developing frontend
+
+**Install dependencies**
+
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+**Compile and Hot-Reload for Development:**
 
-```sh
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+**Type-Check, Compile and Minify for Production:**
 
-```sh
+```bash
 npm run build
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+**Run Unit Tests with [Vitest](https://vitest.dev/):**
 
-```sh
+```bash
 npm run test:unit
 ```
 
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
+**Run End-to-End Tests with [Playwright](https://playwright.dev):**
 
-```sh
+```bash
 # Install browsers for the first run
 npx playwright install
 
@@ -68,6 +87,6 @@ npm run test:e2e -- --debug
 
 ### Lint with [ESLint](https://eslint.org/)
 
-```sh
+```bash
 npm run lint
 ```
