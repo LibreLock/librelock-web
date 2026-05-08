@@ -49,19 +49,19 @@ async function handleSubmit() {
             type="text"
             required
             autocomplete="username"
-            class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+            class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
           />
         </div>
 
         <div>
-          <label class="mb-1 block text-xs font-medium text-slate-600"> Password </label>
+          <label class="mb-1 block text-xs font-semibold text-slate-500"> Password </label>
           <div class="relative">
             <input
               v-model="form.password"
               :type="showPassword ? 'text' : 'password'"
               required
               autocomplete="current-password"
-              class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-200 transition"
+              class="w-full rounded-md border px-3 py-1 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
             />
             <button
               type="button"
@@ -104,7 +104,7 @@ async function handleSubmit() {
 
         <button
           :disabled="auth.isSubmitting"
-          class="w-full rounded-md bg-slate-800 hover:bg-slate-700 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
+          class="w-full rounded-md bg-slate-800 hover:bg-slate-700 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           {{ auth.isSubmitting ? 'Logging in...' : 'Log in' }}
         </button>

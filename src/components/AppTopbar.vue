@@ -51,7 +51,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
         v-model="vault.globalSearch"
         type="search"
         placeholder="Search vault"
-        class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-16 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100 [&::-webkit-search-cancel-button]:hidden"
+        class="w-full rounded-md border px-3 py-1 pl-9 pr-16 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition [&::-webkit-search-cancel-button]:hidden"
       />
 
       <!-- Ctrl+K hint -->

@@ -77,25 +77,25 @@ async function handleSubmit() {
 
       <form class="space-y-4" @submit.prevent="handleSubmit">
         <div>
-          <label class="mb-1 block text-xs font-medium text-slate-600"> Username </label>
+          <label class="mb-1 block text-xs font-semibold text-slate-500"> Username </label>
           <input
             v-model="form.username"
             type="text"
             required
             autocomplete="username"
-            class="w-full rounded-md border px-3 py-1 border-slate-400"
+            class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
           />
         </div>
 
         <div>
-          <label class="mb-1 block text-xs font-medium text-slate-600"> Password </label>
+          <label class="mb-1 block text-xs font-semibold text-slate-500"> Password </label>
           <div class="relative">
             <input
               v-model="form.password"
               :type="showPassword ? 'text' : 'password'"
               required
               autocomplete="new-password"
-              class="w-full rounded-md border px-3 py-1 pr-10 border-slate-400"
+              class="w-full rounded-md border px-3 py-1 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
               @focus="passwordFocused = true"
               @blur="passwordFocused = false"
             />
@@ -159,14 +159,14 @@ async function handleSubmit() {
         </div>
 
         <div>
-          <label class="mb-1 block text-xs font-medium text-slate-600"> Repeat password </label>
+          <label class="mb-1 block text-xs font-semibold text-slate-500"> Repeat password </label>
           <div class="relative">
             <input
               v-model="form.repeatPassword"
               :type="showPassword ? 'text' : 'password'"
               required
               autocomplete="new-password"
-              class="w-full rounded-md border px-3 py-1 pr-10 border-slate-400"
+              class="w-full rounded-md border px-3 py-1 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
             />
             <button
               type="button"

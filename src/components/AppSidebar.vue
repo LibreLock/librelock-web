@@ -180,7 +180,7 @@ const navItems = [
 
       <button
         type="button"
-        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-60 cursor-pointer"
+        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50 cursor-pointer"
         :disabled="auth.isSubmitting"
         :title="collapsed ? 'Log out' : undefined"
         @click="handleLogout"

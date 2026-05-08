@@ -30,6 +30,7 @@ async function copy() {
               class="flex-1 min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-sm text-slate-900 truncate cursor-pointer transition-colors"
               :class="copied ? 'bg-emerald-50 border-emerald-300' : ''"
               @click="copy"
+              title="Copy"
             >
               {{ generated || '—' }}
             </div>
@@ -56,6 +57,7 @@ async function copy() {
                 copied ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-white hover:bg-slate-700'
               "
               @click="copy"
+              title="Copy"
             >
               {{ copied ? 'Copied!' : 'Copy' }}
             </button>

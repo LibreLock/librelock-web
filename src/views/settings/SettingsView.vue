@@ -135,15 +135,12 @@ async function handleChangePassword() {
         <div class="px-6 py-5">
           <form class="space-y-4" @submit.prevent="handleSaveUsername">
             <div>
-              <label
-                class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                >Display name</label
-              >
+              <label class="mb-1 block text-xs font-semibold text-slate-500">Display name</label>
               <input
                 v-model="editUsername"
                 type="text"
                 placeholder="Your username"
-                class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
               />
             </div>
 
@@ -151,7 +148,7 @@ async function handleChangePassword() {
 
             <button
               type="submit"
-              class="rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+              class="rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               :disabled="isSavingUsername || !editUsername.trim()"
             >
               {{ isSavingUsername ? 'Saving…' : 'Save changes' }}
@@ -184,33 +181,27 @@ async function handleChangePassword() {
 
           <form v-else class="space-y-4" @submit.prevent="handleChangePassword">
             <div>
-              <label
-                class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+              <label class="mb-1 block text-xs font-semibold text-slate-500"
+                >Current password</label
               >
-                Current password
-              </label>
               <input
                 v-model="currentPassword"
                 type="password"
                 required
                 autocomplete="current-password"
-                class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
               />
             </div>
 
             <div>
-              <label
-                class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-              >
-                New password
-              </label>
+              <label class="mb-1 block text-xs font-semibold text-slate-500">New password</label>
               <div class="relative">
                 <input
                   v-model="newPassword"
                   :type="showNewPassword ? 'text' : 'password'"
                   required
                   autocomplete="new-password"
-                  class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 pr-10 text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                  class="w-full rounded-md border px-3 py-1 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                   @focus="newPasswordFocused = true"
                   @blur="newPasswordFocused = false"
                 />
@@ -275,17 +266,15 @@ async function handleChangePassword() {
             </div>
 
             <div>
-              <label
-                class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+              <label class="mb-1 block text-xs font-semibold text-slate-500"
+                >Confirm new password</label
               >
-                Confirm new password
-              </label>
               <input
                 v-model="confirmPassword"
                 type="password"
                 required
                 autocomplete="new-password"
-                class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
               />
               <p v-if="passwordMismatch" class="mt-1.5 text-xs text-rose-600">
                 Passwords do not match.
@@ -296,7 +285,7 @@ async function handleChangePassword() {
 
             <button
               type="submit"
-              class="w-full rounded-lg bg-slate-800 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+              class="w-full rounded-lg bg-slate-800 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               :disabled="!canSubmit"
             >
               {{ isChangingPassword ? 'Saving…' : 'Update password' }}

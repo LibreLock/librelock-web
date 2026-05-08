@@ -202,8 +202,7 @@ async function handleSubmit() {
             <div class="px-5 py-5 space-y-3">
               <template v-if="entryType === 'password'">
                 <div>
-                  <label
-                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  <label class="mb-1 block text-xs font-semibold text-slate-500"
                     >Name<span class="text-rose-400">*</span></label
                   >
                   <input
@@ -211,39 +210,32 @@ async function handleSubmit() {
                     type="text"
                     required
                     placeholder="e.g. GitHub"
-                    class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                   />
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label
-                      class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                      >Username</label
-                    >
+                    <label class="mb-1 block text-xs font-semibold text-slate-500">Username</label>
                     <input
                       v-model="account.username"
                       type="text"
-                      class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                      class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                     />
                   </div>
                   <div>
-                    <label
-                      class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                      >Email</label
-                    >
+                    <label class="mb-1 block text-xs font-semibold text-slate-500">Email</label>
                     <input
                       v-model="account.email"
                       type="email"
-                      class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                      class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                     />
                   </div>
                 </div>
 
                 <div>
                   <div class="mb-1 flex items-center justify-between">
-                    <label
-                      class="block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                    <label class="block text-xs font-semibold text-slate-500"
                       >Password<span class="text-rose-400">*</span></label
                     >
                     <button
@@ -260,7 +252,7 @@ async function handleSubmit() {
                       :type="showPassword ? 'text' : 'password'"
                       required
                       autocomplete="new-password"
-                      class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 pr-10 font-mono text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                      class="w-full rounded-md border px-3 py-1 pr-10 font-mono border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                     />
                     <button
                       type="button"
@@ -306,23 +298,17 @@ async function handleSubmit() {
                 </div>
 
                 <div>
-                  <label
-                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                    >URL</label
-                  >
+                  <label class="mb-1 block text-xs font-semibold text-slate-500">URL</label>
                   <input
                     v-model="account.url"
                     type="text"
                     placeholder="e.g. github.com"
-                    class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                   />
                 </div>
 
                 <div>
-                  <label
-                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                    >Notes</label
-                  >
+                  <label class="mb-1 block text-xs font-semibold text-slate-500">Notes</label>
                   <textarea
                     v-model="account.notes"
                     rows="3"
@@ -333,8 +319,7 @@ async function handleSubmit() {
 
               <template v-else>
                 <div>
-                  <label
-                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  <label class="mb-1 block text-xs font-semibold text-slate-500"
                     >Name<span class="text-rose-400">*</span></label
                   >
                   <input
@@ -342,12 +327,11 @@ async function handleSubmit() {
                     type="text"
                     required
                     placeholder="e.g. Recovery codes"
-                    class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                   />
                 </div>
                 <div>
-                  <label
-                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  <label class="mb-1 block text-xs font-semibold text-slate-500"
                     >Content<span class="text-rose-400">*</span></label
                   >
                   <textarea
@@ -362,10 +346,8 @@ async function handleSubmit() {
 
             <div class="flex flex-col gap-5 px-5 py-5 border-t border-slate-100 lg:border-t-0">
               <div>
-                <label
-                  class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                  >Color</label
-                >
+                <label class="mb-1 block text-xs font-semibold text-slate-500">Color</label>
+
                 <div class="flex flex-wrap gap-2">
                   <button
                     v-for="c in ENTRY_COLORS"
@@ -385,10 +367,7 @@ async function handleSubmit() {
               </div>
 
               <div>
-                <label
-                  class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                  >Category</label
-                >
+                <label class="mb-1 block text-xs font-semibold text-slate-500">Category</label>
                 <div class="flex flex-wrap gap-1.5">
                   <button
                     type="button"
@@ -427,7 +406,7 @@ async function handleSubmit() {
                     v-model="newCategoryName"
                     type="text"
                     placeholder="Name"
-                    class="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="min-w-0 flex-1 rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                     @keydown.enter.prevent="handleAddCategory"
                     @keydown.escape="cancelNewCategory"
                   />
@@ -455,7 +434,7 @@ async function handleSubmit() {
                 <p v-if="error" class="mb-2 text-xs text-rose-600">{{ error }}</p>
                 <button
                   type="submit"
-                  class="w-full rounded-lg bg-slate-800 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                  class="w-full rounded-lg bg-slate-800 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                   :disabled="isSubmitting"
                 >
                   {{ isSubmitting ? 'Saving…' : isEditMode ? 'Save changes' : 'Save entry' }}
