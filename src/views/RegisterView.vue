@@ -76,14 +76,14 @@ async function handleSubmit() {
           type="text"
           placeholder="Name"
           required
-          class="w-full rounded-md border px-3 py-2"
+          class="w-full rounded-md border px-3 py-2 border-slate-400"
         />
         <input
           v-model="form.email"
           type="email"
           placeholder="Email"
           required
-          class="w-full rounded-md border px-3 py-2"
+          class="w-full rounded-md border px-3 py-2 border-slate-400"
         />
         <input
           v-model="form.password"
@@ -92,7 +92,7 @@ async function handleSubmit() {
           required
           @focus="passwordFocused = true"
           @blur="passwordFocused = false"
-          class="w-full rounded-md border px-3 py-2"
+          class="w-full rounded-md border px-3 py-2 border-slate-400"
         />
 
         <!-- Password checklist shown while focused -->
@@ -122,7 +122,7 @@ async function handleSubmit() {
           type="password"
           placeholder="Repeat password"
           required
-          class="w-full rounded-md border px-3 py-2"
+          class="w-full rounded-md border px-3 py-2 border-slate-400"
         />
         <p v-if="passwordMismatch" class="text-sm text-rose-600">Passwords do not match.</p>
         <p v-if="localError" class="text-sm text-rose-600">{{ localError }}</p>

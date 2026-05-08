@@ -35,14 +35,14 @@ async function handleSubmit() {
           type="email"
           placeholder="Email"
           required
-          class="w-full rounded-md border px-3 py-2"
+          class="w-full rounded-md border px-3 py-2 border-slate-400"
         />
         <input
           v-model="form.password"
           type="password"
           placeholder="Password"
           required
-          class="w-full rounded-md border px-3 py-2"
+          class="w-full rounded-md border px-3 py-2 border-slate-400"
         />
 
         <p v-if="auth.error" class="text-sm text-rose-600">{{ auth.error }}</p>

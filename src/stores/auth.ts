@@ -55,7 +55,7 @@ export const useAuthStore = defineStore('auth', () => {
     status.value = 'loading'
 
     try {
-      const response = (await apiRequest<AuthResponse>('/auth/me')) ?? {}
+      const response = (await apiRequest<AuthResponse>('/me')) ?? {}
       user.value = response.user ?? null
       status.value = user.value ? 'authenticated' : 'anonymous'
       return user.value
@@ -77,7 +77,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const response =
-        (await apiRequest<AuthResponse>('/auth/login', {
+        (await apiRequest<AuthResponse>('/login', {
           method: 'POST',
           body: JSON.stringify(payload),
         })) ?? {}
@@ -103,7 +103,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const response =
-        (await apiRequest<AuthResponse>('/auth/register', {
+        (await apiRequest<AuthResponse>('/register', {
           method: 'POST',
           body: JSON.stringify(payload),
         })) ?? {}
@@ -127,7 +127,7 @@ export const useAuthStore = defineStore('auth', () => {
     isSubmitting.value = true
 
     try {
-      await apiRequest('/auth/logout', {
+      await apiRequest('/logout', {
         method: 'POST',
       })
     } finally {
