@@ -37,6 +37,8 @@ const note = reactive({
 
 const isSubmitting = ref(false)
 const isLoading = ref(false)
+const isDeleting = ref(false)
+const showDeleteConfirm = ref(false)
 const error = ref<string | null>(null)
 
 const showNewCategory = ref(false)
@@ -95,6 +97,17 @@ async function handleAddCategory() {
     showNewCategory.value = false
   } finally {
     isAddingCategory.value = false
+  }
+}
+
+async function handleDelete() {
+  isDeleting.value = true
+  try {
+    await vault.removeEntry(editId!)
+    router.replace({ name: 'vault' })
+  } finally {
+    isDeleting.value = false
+    showDeleteConfirm.value = false
   }
 }
 
@@ -162,6 +175,15 @@ async function handleSubmit() {
             Note
           </button>
         </div>
+
+        <button
+          v-if="isEditMode"
+          type="button"
+          class="ml-auto rounded-lg border border-rose-200 px-3 py-1.5 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+          @click="showDeleteConfirm = true"
+        >
+          Delete
+        </button>
       </div>
 
       <div v-if="isLoading" class="py-12 text-center text-sm text-slate-400">Loading entry…</div>
@@ -394,7 +416,7 @@ async function handleSubmit() {
                   />
                   <button
                     type="button"
-                    class="rounded-lg bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-slate-700 disabled:opacity-50 cursor-pointer transition-colors"
+                    class="rounded-lg bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-slate-700 disabled:opacity-50 cursor-pointer transition-colors disabled:cursor-not-allowed"
                     :disabled="!newCategoryName.trim() || isAddingCategory"
                     @click="handleAddCategory"
                   >
@@ -428,4 +450,34 @@ async function handleSubmit() {
       </div>
     </div>
   </div>
+
+  <Teleport to="body">
+    <div
+      v-if="showDeleteConfirm"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      @click.self="showDeleteConfirm = false"
+    >
+      <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+        <h2 class="mb-2 text-base font-semibold text-slate-900">Delete this entry?</h2>
+        <p class="mb-5 text-sm text-slate-500">This cannot be undone.</p>
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            class="rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700 cursor-pointer transition-colors"
+            @click="showDeleteConfirm = false"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-500 disabled:opacity-50 cursor-pointer transition-colors"
+            :disabled="isDeleting"
+            @click="handleDelete"
+          >
+            {{ isDeleting ? 'Deleting…' : 'Delete' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>

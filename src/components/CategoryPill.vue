@@ -11,7 +11,6 @@ const emit = defineEmits<{ click: []; removed: [] }>()
 
 const categoriesStore = useCategoriesStore()
 
-// ── context menu ──────────────────────────────────────────────────────────────
 const menuOpen = ref(false)
 const menuX = ref(0)
 const menuY = ref(0)
@@ -33,7 +32,6 @@ function onWindowPointerDown() {
   closeMenu()
 }
 
-// ── rename modal ──────────────────────────────────────────────────────────────
 const showRename = ref(false)
 const renameName = ref('')
 const isRenaming = ref(false)
@@ -61,7 +59,6 @@ async function confirmRename() {
   }
 }
 
-// ── delete confirm ────────────────────────────────────────────────────────────
 const showDelete = ref(false)
 const isDeleting = ref(false)
 
@@ -96,7 +93,6 @@ onBeforeUnmount(closeMenu)
   </button>
 
   <Teleport to="body">
-    <!-- context menu -->
     <div
       v-if="menuOpen"
       class="fixed z-50 min-w-[130px] rounded-lg border border-slate-200 bg-white py-1 shadow-lg"
@@ -154,7 +150,6 @@ onBeforeUnmount(closeMenu)
       </div>
     </div>
 
-    <!-- delete confirm -->
     <div
       v-if="showDelete"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"

@@ -63,6 +63,11 @@ const router = createRouter({
           component: () => import('../views/security/SecurityCenterView.vue'),
         },
         {
+          path: 'generator',
+          name: 'generator',
+          component: () => import('../views/generator/GeneratorView.vue'),
+        },
+        {
           path: 'settings',
           name: 'settings',
           component: () => import('../views/settings/SettingsView.vue'),

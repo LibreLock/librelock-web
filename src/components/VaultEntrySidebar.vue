@@ -48,7 +48,7 @@ const filtered = computed(() => {
 })
 
 function entrySubtitle(entry: VaultEntry): string {
-  if (entry.type === 'password') return entry.username || entry.email || '—'
+  if (entry.type === 'password') return entry.username || entry.email || 'Password'
   return 'Note'
 }
 
