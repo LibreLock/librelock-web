@@ -10,7 +10,7 @@ const router = useRouter()
 const route = useRoute()
 
 const form = reactive({
-  email: '',
+  username: '',
   password: '',
 })
 
@@ -20,7 +20,7 @@ const redirectPath = computed(() => {
 })
 
 async function handleSubmit() {
-  await auth.signIn({ email: form.email.trim(), password: form.password })
+  await auth.signIn({ username: form.username.trim(), password: form.password })
   await router.replace(redirectPath.value)
 }
 </script>
@@ -37,12 +37,12 @@ async function handleSubmit() {
 
       <form class="space-y-4" @submit.prevent="handleSubmit">
         <div>
-          <label class="mb-1 block text-xs font-medium text-slate-600"> Email </label>
+          <label class="mb-1 block text-xs font-medium text-slate-600"> Username </label>
           <input
-            v-model="form.email"
-            type="email"
+            v-model="form.username"
+            type="text"
             required
-            autocomplete="email"
+            autocomplete="username"
             class="w-full rounded-md border px-3 py-2 border-slate-400"
           />
         </div>

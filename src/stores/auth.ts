@@ -5,17 +5,12 @@ import { ApiError, apiRequest } from '@/services/api'
 
 export interface AuthUser {
   id?: string | number
-  email: string
-  name?: string
+  username: string
 }
 
 interface AuthPayload {
-  email: string
+  username: string
   password: string
-}
-
-interface RegisterPayload extends AuthPayload {
-  name: string
 }
 
 interface AuthResponse {
@@ -45,7 +40,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => status.value === 'authenticated')
   const isSessionLoading = computed(() => status.value === 'loading')
-  const displayName = computed(() => user.value?.name ?? user.value?.email ?? 'Account')
 
   async function refreshSession() {
     if (status.value === 'loading') {
@@ -97,7 +91,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function signUp(payload: RegisterPayload) {
+  async function signUp(payload: AuthPayload) {
     isSubmitting.value = true
     error.value = null
 
@@ -143,7 +137,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     clearError,
-    displayName,
     error,
     isAuthenticated,
     isSessionLoading,

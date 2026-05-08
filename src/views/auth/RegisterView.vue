@@ -8,8 +8,7 @@ const auth = useAuthStore()
 const router = useRouter()
 
 const form = reactive({
-  name: '',
-  email: '',
+  username: '',
   password: '',
   repeatPassword: '',
 })
@@ -56,7 +55,10 @@ async function handleSubmit() {
     return
   }
 
-  await auth.signUp({ name: form.name.trim(), email: form.email.trim(), password: form.password })
+  await auth.signUp({
+    username: form.username.trim(),
+    password: form.password,
+  })
   await router.replace('/')
 }
 </script>
@@ -73,23 +75,12 @@ async function handleSubmit() {
 
       <form class="space-y-4" @submit.prevent="handleSubmit">
         <div>
-          <label class="mb-1 block text-xs font-medium text-slate-600"> Name </label>
+          <label class="mb-1 block text-xs font-medium text-slate-600"> Username </label>
           <input
-            v-model="form.name"
+            v-model="form.username"
             type="text"
             required
-            autocomplete="name"
-            class="w-full rounded-md border px-3 py-2 border-slate-400"
-          />
-        </div>
-
-        <div>
-          <label class="mb-1 block text-xs font-medium text-slate-600"> Email </label>
-          <input
-            v-model="form.email"
-            type="email"
-            required
-            autocomplete="email"
+            autocomplete="username"
             class="w-full rounded-md border px-3 py-2 border-slate-400"
           />
         </div>
