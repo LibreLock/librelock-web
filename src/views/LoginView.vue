@@ -3,6 +3,7 @@ import { computed, reactive } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
+import IconPadlock from '@/components/icons/IconPadlock.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -27,16 +28,7 @@ async function handleSubmit() {
 <template>
   <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50">
     <div class="mb-4 flex flex-col items-center gap-2">
-      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-600 text-white">
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-          />
-        </svg>
-      </div>
+      <IconPadlock size="lg" />
       <span class="text-sm font-semibold text-slate-600">Vault</span>
     </div>
 
