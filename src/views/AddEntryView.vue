@@ -60,7 +60,12 @@ async function handleSubmit() {
         class="mb-5 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
         Back to vault
       </RouterLink>
@@ -91,7 +96,7 @@ async function handleSubmit() {
           "
           @click="switchType('note')"
         >
-          Secure note
+          Note
         </button>
       </div>
 

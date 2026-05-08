@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useVaultStore } from '@/stores/vault'
 
-const searchQuery = ref('')
+const vault = useVaultStore()
+
 const searchInput = ref<HTMLInputElement | null>(null)
 
 function handleKeydown(e: KeyboardEvent) {
@@ -15,6 +17,7 @@ function handleKeydown(e: KeyboardEvent) {
   }
 
   if (e.key === 'Escape' && document.activeElement === searchInput.value) {
+    vault.globalSearch = ''
     searchInput.value?.blur()
   }
 }
@@ -44,11 +47,19 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
       </svg>
       <input
         ref="searchInput"
-        v-model="searchQuery"
+        v-model="vault.globalSearch"
         type="search"
         placeholder="Search vault (Ctrl+K)"
-        class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-16 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100"
+        class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-16 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100 [&::-webkit-search-cancel-button]:hidden"
       />
+      <button
+        v-if="vault.globalSearch"
+        type="button"
+        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
+        @click="vault.globalSearch = ''"
+      >
+        Clear
+      </button>
     </div>
 
     <div class="ml-auto flex items-center gap-3">

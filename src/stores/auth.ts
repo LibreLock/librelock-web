@@ -55,7 +55,7 @@ export const useAuthStore = defineStore('auth', () => {
     status.value = 'loading'
 
     try {
-      const response = (await apiRequest<AuthResponse>('/me')) ?? {}
+      const response = (await apiRequest<AuthResponse>('/auth/me')) ?? {}
       user.value = response.user ?? null
       status.value = user.value ? 'authenticated' : 'anonymous'
       return user.value

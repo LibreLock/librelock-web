@@ -8,7 +8,7 @@ import AppTopbar from '@/components/AppTopbar.vue'
     <AppSidebar />
     <div class="flex min-w-0 flex-1 flex-col">
       <AppTopbar />
-      <main class="flex-1 overflow-y-auto">
+      <main class="flex-1 overflow-hidden">
         <RouterView />
       </main>
     </div>

@@ -23,7 +23,7 @@ function toggleCollapse() {
 
 async function handleLogout() {
   await auth.signOut()
-  router.push('/login')
+  router.push('/auth/login')
 }
 
 function isActive(to: string) {
@@ -44,14 +44,14 @@ const navItems = [
     :class="collapsed ? 'w-16' : 'w-60'"
   >
     <div
-      class="flex flex-shrink-0 border-b border-slate-100 p-2"
+      class="flex flex-shrink-0 border-b border-slate-100 p-3"
       :class="
         collapsed ? 'h-auto flex-col items-center gap-2' : 'h-14 items-center gap-3 pl-4 pr-2'
       "
     >
       <RouterLink to="/" class="flex items-center gap-3" :class="collapsed ? 'justify-center' : ''">
         <IconPadlock size="md" />
-        <span v-if="!collapsed" class="truncate text-sm font-semibold text-slate-900">Vault</span>
+        <span v-if="!collapsed" class="truncate text-lg font-semibold text-slate-900">Vault</span>
       </RouterLink>
       <button
         type="button"
