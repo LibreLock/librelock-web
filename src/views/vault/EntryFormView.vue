@@ -457,8 +457,10 @@ async function handleSubmit() {
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       @click.self="showDeleteConfirm = false"
     >
-      <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
-        <h2 class="mb-2 text-base font-semibold text-slate-900">Delete this entry?</h2>
+      <div class="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
+        <h2 class="mb-2 text-base font-semibold text-slate-900">
+          Delete {{ entryType === 'password' ? 'password' : 'note' }}?
+        </h2>
         <p class="mb-5 text-sm text-slate-500">This cannot be undone.</p>
         <div class="flex justify-end gap-2">
           <button
