@@ -22,10 +22,18 @@ async function copy(text: string, field: string) {
 }
 
 function strengthLabel(score: number): string {
-  if (score >= 90) return 'Very strong'
+  if (score >= 90) return 'Excellent'
   if (score >= 70) return 'Strong'
   if (score >= 50) return 'Fair'
   return 'Weak'
+}
+
+function toPascalCase(value: string) {
+  return value
+    .split(/[\s-_]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('')
 }
 
 function strengthColor(score: number): string {
@@ -70,12 +78,28 @@ function strengthDot(score: number): string {
           </svg>
         </a>
         <span v-else-if="entry.type === 'note'" class="text-sm text-slate-500">Note</span>
+        <span
+          v-if="entry.categoryId"
+          class="ml-4 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
+        >
+          {{ toPascalCase(entry.categoryId) }}
+        </span>
       </div>
+      <!-- cateogry -->
+      <div></div>
       <button
         type="button"
-        class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 cursor-pointer"
+        class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 cursor-pointer"
         @click="emit('edit')"
       >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+          />
+        </svg>
         Edit
       </button>
     </div>
@@ -294,14 +318,14 @@ function strengthDot(score: number): string {
             </div>
 
             <div class="rounded-lg border border-slate-200 bg-white p-4">
-              <p class="mb-1.5 text-xs text-slate-400">Known breach</p>
+              <p class="mb-1.5 text-xs text-slate-400">Breached</p>
               <div class="flex items-center gap-1.5">
                 <span
                   class="h-2 w-2 flex-shrink-0 rounded-full"
                   :class="entry.breached ? 'bg-rose-500' : 'bg-emerald-500'"
                 ></span>
                 <span class="text-sm font-medium text-slate-700">
-                  {{ entry.breached ? 'Found in breach' : 'Clean' }}
+                  {{ entry.breached ? 'Found in breach' : 'No known breaches' }}
                 </span>
               </div>
             </div>

@@ -15,7 +15,7 @@ const mockCategories: VaultCategory[] = [
   { id: 'personal', name: 'Personal' },
   { id: 'finance', name: 'Finance' },
   { id: 'social', name: 'Social' },
-  { id: 'dev', name: 'Development' },
+  { id: 'development', name: 'Development' },
 ]
 
 let nextCatId = 100

@@ -78,6 +78,10 @@ function switchType(type: EntryType) {
   entryType.value = type
   error.value = null
 }
+function cancelNewCategory() {
+  showNewCategory.value = false
+  newCategoryName.value = ''
+}
 
 async function handleAddCategory() {
   const name = newCategoryName.value.trim()
@@ -122,332 +126,306 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="overflow-y-auto h-full p-6">
-    <div class="w-full max-w-lg">
-      <button
-        type="button"
-        class="mb-5 inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-        @click="router.back()"
-      >
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-        Back
-      </button>
+  <div class="overflow-y-auto h-full p-4 sm:p-6">
+    <div class="w-full">
+      <div class="mb-4 flex items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl font-semibold text-slate-900">
+            {{ isEditMode ? 'Edit entry' : 'New entry' }}
+          </h1>
+        </div>
 
-      <h1 class="mb-1 text-2xl font-semibold text-slate-900">
-        {{ isEditMode ? 'Edit entry' : 'New entry' }}
-      </h1>
-      <p class="mb-5 text-sm text-slate-400">
-        {{
-          isEditMode
-            ? 'Update the details for this entry.'
-            : 'Add a new password or note to your vault.'
-        }}
-      </p>
-
-      <!-- Type selector -->
-      <div v-if="!isEditMode" class="mb-5 flex w-fit gap-1 rounded-lg bg-slate-100 p-1">
-        <button
-          type="button"
-          class="rounded-md px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer"
-          :class="
-            entryType === 'password'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          "
-          @click="switchType('password')"
-        >
-          Password
-        </button>
-        <button
-          type="button"
-          class="rounded-md px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer"
-          :class="
-            entryType === 'note'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          "
-          @click="switchType('note')"
-        >
-          Note
-        </button>
+        <div v-if="!isEditMode" class="flex w-fit gap-1 rounded-lg bg-slate-100 p-1 flex-shrink-0">
+          <button
+            type="button"
+            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer"
+            :class="
+              entryType === 'password'
+                ? 'bg-white text-slate-900 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            "
+            @click="switchType('password')"
+          >
+            Password
+          </button>
+          <button
+            type="button"
+            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer"
+            :class="
+              entryType === 'note'
+                ? 'bg-white text-slate-900 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            "
+            @click="switchType('note')"
+          >
+            Note
+          </button>
+        </div>
       </div>
 
-      <div v-if="isLoading" class="py-12 text-center text-sm text-slate-400">Loading entry...</div>
+      <div v-if="isLoading" class="py-12 text-center text-sm text-slate-400">Loading entry…</div>
 
-      <div v-else class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+      <div v-else class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200 overflow-hidden">
         <form @submit.prevent="handleSubmit">
-          <!-- Fields section -->
-          <div class="px-6 pt-6 pb-5 space-y-4">
-            <template v-if="entryType === 'password'">
-              <div>
-                <label
-                  class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                >
-                  Name <span class="text-rose-400">*</span>
-                </label>
-                <input
-                  v-model="account.name"
-                  type="text"
-                  required
-                  placeholder="e.g. GitHub"
-                  class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
-                />
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 lg:grid-cols-[1fr_220px] lg:divide-x lg:divide-slate-100">
+            <div class="px-5 py-5 space-y-3">
+              <template v-if="entryType === 'password'">
                 <div>
                   <label
-                    class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                    >Username</label
+                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                    >Name <span class="text-rose-400">*</span></label
                   >
                   <input
-                    v-model="account.username"
+                    v-model="account.name"
                     type="text"
-                    class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    required
+                    placeholder="e.g. GitHub"
+                    class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                  />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label
+                      class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                      >Username</label
+                    >
+                    <input
+                      v-model="account.username"
+                      type="text"
+                      class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                      >Email</label
+                    >
+                    <input
+                      v-model="account.email"
+                      type="email"
+                      class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                    >Password <span class="text-rose-400">*</span></label
+                  >
+                  <div class="relative">
+                    <input
+                      v-model="account.password"
+                      :type="showPassword ? 'text' : 'password'"
+                      required
+                      autocomplete="new-password"
+                      class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 pr-10 font-mono text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    />
+                    <button
+                      type="button"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                      @click="showPassword = !showPassword"
+                    >
+                      <svg
+                        v-if="showPassword"
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        />
+                      </svg>
+                      <svg
+                        v-else
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                    >URL</label
+                  >
+                  <input
+                    v-model="account.url"
+                    type="text"
+                    placeholder="e.g. github.com"
+                    class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                    >Notes</label
+                  >
+                  <textarea
+                    v-model="account.notes"
+                    rows="3"
+                    class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                  />
+                </div>
+              </template>
+
+              <template v-else>
+                <div>
+                  <label
+                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                    >Name <span class="text-rose-400">*</span></label
+                  >
+                  <input
+                    v-model="note.name"
+                    type="text"
+                    required
+                    placeholder="e.g. Recovery codes"
+                    class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                   />
                 </div>
                 <div>
                   <label
-                    class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                    >Email</label
+                    class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                    >Content <span class="text-rose-400">*</span></label
                   >
-                  <input
-                    v-model="account.email"
-                    type="email"
-                    class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                  <textarea
+                    v-model="note.content"
+                    rows="8"
+                    required
+                    class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                  />
+                </div>
+              </template>
+            </div>
+
+            <div class="flex flex-col gap-5 px-5 py-5 border-t border-slate-100 lg:border-t-0">
+              <div>
+                <label
+                  class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  >Color</label
+                >
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    v-for="c in ENTRY_COLORS"
+                    :key="c.bg"
+                    type="button"
+                    class="h-6 w-6 rounded-full transition-transform cursor-pointer"
+                    :class="[
+                      c.bg,
+                      selectedColor === c.bg
+                        ? 'ring-2 ring-offset-2 ring-slate-500 scale-110'
+                        : 'hover:scale-105',
+                    ]"
+                    :title="c.label"
+                    @click="selectedColor = c.bg"
                   />
                 </div>
               </div>
 
               <div>
                 <label
-                  class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  >Category</label
                 >
-                  Password <span class="text-rose-400">*</span>
-                </label>
-                <div class="relative">
+                <div class="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
+                    :class="
+                      selectedCategoryId === null
+                        ? 'bg-slate-800 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    "
+                    @click="selectedCategoryId = null"
+                  >
+                    None
+                  </button>
+                  <button
+                    v-for="cat in categoriesStore.categories"
+                    :key="cat.id"
+                    type="button"
+                    class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
+                    :class="
+                      selectedCategoryId === cat.id
+                        ? 'bg-slate-800 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    "
+                    @click="selectedCategoryId = cat.id"
+                  >
+                    {{ cat.name }}
+                  </button>
+                  <button
+                    v-if="!showNewCategory"
+                    type="button"
+                    class="rounded-full border border-dashed border-slate-300 px-2.5 py-0.5 text-xs font-medium text-slate-400 hover:border-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                    @click="showNewCategory = true"
+                  >
+                    + New
+                  </button>
+                </div>
+
+                <div v-if="showNewCategory" class="mt-2 flex gap-1.5">
                   <input
-                    v-model="account.password"
-                    :type="showPassword ? 'text' : 'password'"
-                    required
-                    autocomplete="new-password"
-                    class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 pr-10 font-mono text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    v-model="newCategoryName"
+                    type="text"
+                    placeholder="Name"
+                    class="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    @keydown.enter.prevent="handleAddCategory"
+                    @keydown.escape="cancelNewCategory"
                   />
                   <button
                     type="button"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                    @click="showPassword = !showPassword"
+                    class="rounded-lg bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-slate-700 disabled:opacity-50 cursor-pointer transition-colors"
+                    :disabled="!newCategoryName.trim() || isAddingCategory"
+                    @click="handleAddCategory"
                   >
-                    <svg
-                      v-if="showPassword"
-                      class="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                      />
-                    </svg>
-                    <svg
-                      v-else
-                      class="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-lg px-2 py-1.5 text-xs text-slate-400 hover:text-slate-700 cursor-pointer transition-colors"
+                    @click="cancelNewCategory"
+                  >
+                    ✕
                   </button>
                 </div>
               </div>
 
-              <div>
-                <label
-                  class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                  >URL</label
-                >
-                <input
-                  v-model="account.url"
-                  type="text"
-                  placeholder="e.g. github.com"
-                  class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
-                />
-              </div>
+              <div class="flex-1" />
 
               <div>
-                <label
-                  class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                  >Notes</label
-                >
-                <textarea
-                  v-model="account.notes"
-                  rows="3"
-                  class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
-                />
-              </div>
-            </template>
-
-            <template v-else>
-              <div>
-                <label
-                  class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                >
-                  Name <span class="text-rose-400">*</span>
-                </label>
-                <input
-                  v-model="note.name"
-                  type="text"
-                  required
-                  placeholder="e.g. Recovery codes"
-                  class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
-                />
-              </div>
-
-              <div>
-                <label
-                  class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                >
-                  Content <span class="text-rose-400">*</span>
-                </label>
-                <textarea
-                  v-model="note.content"
-                  rows="10"
-                  required
-                  class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 font-mono text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
-                />
-              </div>
-            </template>
-          </div>
-
-          <hr class="border-slate-100" />
-
-          <!-- Color + Category -->
-          <div class="px-6 py-5 space-y-5">
-            <div>
-              <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                >Color</label
-              >
-              <div class="flex flex-wrap gap-2">
+                <p v-if="error" class="mb-2 text-xs text-rose-600">{{ error }}</p>
                 <button
-                  v-for="c in ENTRY_COLORS"
-                  :key="c.bg"
-                  type="button"
-                  class="h-7 w-7 rounded-full transition-transform cursor-pointer"
-                  :class="[
-                    c.bg,
-                    selectedColor === c.bg
-                      ? 'ring-2 ring-offset-2 ring-slate-500 scale-110'
-                      : 'hover:scale-105',
-                  ]"
-                  :title="c.label"
-                  @click="selectedColor = c.bg"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-                >Category</label
-              >
-              <div class="flex flex-wrap gap-1.5">
-                <button
-                  type="button"
-                  class="rounded-full px-3 py-1 text-xs font-medium transition-colors cursor-pointer"
-                  :class="
-                    selectedCategoryId === null
-                      ? 'bg-slate-800 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  "
-                  @click="selectedCategoryId = null"
+                  type="submit"
+                  class="w-full rounded-lg bg-slate-800 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                  :disabled="isSubmitting"
                 >
-                  None
-                </button>
-                <button
-                  v-for="cat in categoriesStore.categories"
-                  :key="cat.id"
-                  type="button"
-                  class="rounded-full px-3 py-1 text-xs font-medium transition-colors cursor-pointer"
-                  :class="
-                    selectedCategoryId === cat.id
-                      ? 'bg-slate-800 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  "
-                  @click="selectedCategoryId = cat.id"
-                >
-                  {{ cat.name }}
-                </button>
-                <button
-                  v-if="!showNewCategory"
-                  type="button"
-                  class="rounded-full border border-dashed border-slate-300 px-3 py-1 text-xs font-medium text-slate-400 hover:border-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                  @click="showNewCategory = true"
-                >
-                  + New
-                </button>
-              </div>
-
-              <div v-if="showNewCategory" class="mt-2.5 flex gap-2">
-                <input
-                  v-model="newCategoryName"
-                  type="text"
-                  placeholder="Category name"
-                  class="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
-                  @keydown.enter.prevent="handleAddCategory"
-                  @keydown.escape="showNewCategory = false; newCategoryName = ''"
-                />
-                <button
-                  type="button"
-                  class="rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50 cursor-pointer transition-colors"
-                  :disabled="!newCategoryName.trim() || isAddingCategory"
-                  @click="handleAddCategory"
-                >
-                  Add
-                </button>
-                <button
-                  type="button"
-                  class="rounded-lg px-3 py-1.5 text-sm text-slate-400 hover:text-slate-700 cursor-pointer transition-colors"
-                  @click="showNewCategory = false; newCategoryName = ''"
-                >
-                  Cancel
+                  {{ isSubmitting ? 'Saving…' : isEditMode ? 'Save changes' : 'Save entry' }}
                 </button>
               </div>
             </div>
-          </div>
-
-          <hr class="border-slate-100" />
-
-          <!-- Submit -->
-          <div class="px-6 py-5">
-            <p v-if="error" class="mb-3 text-sm text-rose-600">{{ error }}</p>
-            <button
-              type="submit"
-              class="w-full rounded-lg bg-slate-800 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
-              :disabled="isSubmitting"
-            >
-              {{ isSubmitting ? 'Saving…' : isEditMode ? 'Save changes' : 'Save entry' }}
-            </button>
           </div>
         </form>
       </div>

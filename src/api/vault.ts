@@ -4,24 +4,20 @@
 
 // import { apiRequest } from '@/services/api'
 
-// ─── Color palette (class names must be literal strings for Tailwind scanning) ─
-
 export const ENTRY_COLORS: Array<{ label: string; bg: string }> = [
-  { label: 'Rose', bg: 'bg-rose-500' },
+  { label: 'Red', bg: 'bg-rose-600' },
   { label: 'Orange', bg: 'bg-orange-500' },
-  { label: 'Amber', bg: 'bg-amber-500' },
-  { label: 'Emerald', bg: 'bg-emerald-600' },
-  { label: 'Teal', bg: 'bg-teal-600' },
-  { label: 'Sky', bg: 'bg-sky-500' },
+  { label: 'Yellow', bg: 'bg-amber-400' },
+  { label: 'Green', bg: 'bg-emerald-600' },
   { label: 'Blue', bg: 'bg-blue-500' },
-  { label: 'Indigo', bg: 'bg-indigo-500' },
+  { label: 'Cyan', bg: 'bg-cyan-500' },
   { label: 'Violet', bg: 'bg-violet-500' },
   { label: 'Pink', bg: 'bg-pink-500' },
+  { label: 'Slate', bg: 'bg-slate-500' },
+  { label: 'Slate Dark', bg: 'bg-slate-800' },
 ]
 
 export const DEFAULT_COLOR = 'bg-blue-500'
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface VaultPassword {
   id: string
@@ -79,8 +75,6 @@ export interface CreateNotePayload {
 export type CreateEntryPayload = CreatePasswordPayload | CreateNotePayload
 export type UpdateEntryPayload = CreatePasswordPayload | CreateNotePayload
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-
 let mockEntries: VaultEntry[] = [
   {
     id: '1',
@@ -93,7 +87,7 @@ let mockEntries: VaultEntry[] = [
     notes: 'Work account — personal repos also here.',
     favorite: true,
     color: 'bg-slate-700',
-    categoryId: 'dev',
+    categoryId: 'development',
     passwordStrength: 94,
     reused: false,
     breached: false,
@@ -183,8 +177,8 @@ let mockEntries: VaultEntry[] = [
     notes: '',
     favorite: false,
     color: 'bg-slate-800',
-    categoryId: 'dev',
-    passwordStrength: 55,
+    categoryId: 'development',
+    passwordStrength: 30,
     reused: false,
     breached: true,
     createdAt: '2025-03-15T10:00:00Z',
@@ -198,7 +192,7 @@ let mockEntries: VaultEntry[] = [
       'Account ID: 123456789012\nRoot email: aws-root@maybury.co\n\nAccess keys stored in 1Password.\nRotate annually. Last rotated: 2025-01-01.',
     favorite: false,
     color: 'bg-amber-500',
-    categoryId: 'dev',
+    categoryId: 'development',
     createdAt: '2025-01-10T10:00:00Z',
     updatedAt: '2025-01-10T10:00:00Z',
   },
@@ -210,7 +204,7 @@ let mockEntries: VaultEntry[] = [
       'Recovery codes for amaybury (use each only once):\n\n12345-abcde\n67890-fghij\n11111-klmno\n22222-pqrst\n33333-uvwxy\n\nGenerated: 2025-01-15. Regenerate if any used.',
     favorite: false,
     color: 'bg-emerald-600',
-    categoryId: 'dev',
+    categoryId: 'development',
     createdAt: '2025-01-15T10:30:00Z',
     updatedAt: '2025-01-15T10:30:00Z',
   },
@@ -221,8 +215,6 @@ let nextId = 9
 function delay(ms = 150): Promise<void> {
   return new Promise((res) => setTimeout(res, ms))
 }
-
-// ─── API functions ─────────────────────────────────────────────────────────────
 
 export async function getVaultEntries(): Promise<VaultEntry[]> {
   // Real: return apiRequest<VaultEntry[]>('/vault/entries')
@@ -303,8 +295,6 @@ export async function deleteVaultEntry(id: string): Promise<void> {
   await delay()
   mockEntries = mockEntries.filter((e) => e.id !== id)
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function scorePassword(password: string): number {
   let score = 0
