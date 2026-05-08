@@ -27,6 +27,11 @@ const router = createRouter({
           name: 'security',
           component: () => import('../views/SecurityCenterView.vue'),
         },
+        {
+          path: 'vault/new',
+          name: 'vault-new',
+          component: () => import('../views/AddEntryView.vue'),
+        },
       ],
     },
     {

@@ -109,8 +109,21 @@ async function handleLogout() {
       />
     </div>
 
-    <!-- Settings gear -->
-    <div class="relative ml-auto">
+    <div class="ml-auto flex items-center gap-3">
+      <RouterLink
+        to="/vault/new"
+        class="flex items-center gap-2 rounded-md bg-gray-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-gray-700"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Add entry
+      </RouterLink>
       <button
         type="button"
         class="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 cursor-pointer"
@@ -225,13 +238,25 @@ async function handleLogout() {
           />
 
           <div v-if="newPasswordFocused" class="text-sm">
-            <p class="text-slate-500">Choose a secure master password — at least {{ MIN_PASSWORD_LENGTH }} characters.</p>
+            <p class="text-slate-500">
+              Choose a secure master password — at least {{ MIN_PASSWORD_LENGTH }} characters.
+            </p>
             <ul class="mt-2 space-y-1">
-              <li :class="hasUpper ? 'text-emerald-600' : 'text-slate-500'">{{ hasUpper ? '✓' : '○' }} Uppercase letter</li>
-              <li :class="hasLower ? 'text-emerald-600' : 'text-slate-500'">{{ hasLower ? '✓' : '○' }} Lowercase letter</li>
-              <li :class="hasNumber ? 'text-emerald-600' : 'text-slate-500'">{{ hasNumber ? '✓' : '○' }} Number</li>
-              <li :class="hasSymbol ? 'text-emerald-600' : 'text-slate-500'">{{ hasSymbol ? '✓' : '○' }} Symbol (e.g. !@#$%)</li>
-              <li :class="passwordMinOk ? 'text-emerald-600' : 'text-slate-500'">{{ passwordMinOk ? '✓' : '○' }} At least {{ MIN_PASSWORD_LENGTH }} characters</li>
+              <li :class="hasUpper ? 'text-emerald-600' : 'text-slate-500'">
+                {{ hasUpper ? '✓' : '○' }} Uppercase letter
+              </li>
+              <li :class="hasLower ? 'text-emerald-600' : 'text-slate-500'">
+                {{ hasLower ? '✓' : '○' }} Lowercase letter
+              </li>
+              <li :class="hasNumber ? 'text-emerald-600' : 'text-slate-500'">
+                {{ hasNumber ? '✓' : '○' }} Number
+              </li>
+              <li :class="hasSymbol ? 'text-emerald-600' : 'text-slate-500'">
+                {{ hasSymbol ? '✓' : '○' }} Symbol (e.g. !@#$%)
+              </li>
+              <li :class="passwordMinOk ? 'text-emerald-600' : 'text-slate-500'">
+                {{ passwordMinOk ? '✓' : '○' }} At least {{ MIN_PASSWORD_LENGTH }} characters
+              </li>
             </ul>
           </div>
 
