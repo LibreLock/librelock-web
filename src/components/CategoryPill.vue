@@ -160,7 +160,7 @@ onBeforeUnmount(closeMenu)
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       @click.self="showDelete = false"
     >
-      <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+      <div class="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
         <h2 class="mb-2 text-base font-semibold text-slate-900">Delete "{{ category.name }}"?</h2>
         <p class="mb-5 text-sm text-slate-500">
           Entries in this category won't be deleted, but they'll become uncategorized.

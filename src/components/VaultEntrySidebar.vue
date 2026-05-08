@@ -66,6 +66,15 @@ function handleCategoryRemoved(id: string) {
     activeCategories.value = next
   }
 }
+
+const copiedId = ref<string | null>(null)
+
+async function copyPassword(entry: VaultEntry) {
+  if (entry.type !== 'password') return
+  await navigator.clipboard.writeText(entry.password)
+  copiedId.value = entry.id
+  setTimeout(() => (copiedId.value = null), 2000)
+}
 </script>
 
 <template>
@@ -109,11 +118,14 @@ function handleCategoryRemoved(id: string) {
       <li v-if="filtered.length === 0" class="px-4 py-8 text-center text-sm text-slate-400">
         No items found
       </li>
-      <li v-for="entry in filtered" :key="entry.id">
+      <li v-for="entry in filtered" :key="entry.id" class="relative group">
         <button
           type="button"
           class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 cursor-pointer"
-          :class="entry.id === selectedId ? 'bg-slate-100 hover:bg-slate-100' : ''"
+          :class="[
+            entry.id === selectedId ? 'bg-slate-100 hover:bg-slate-100' : '',
+            entry.type === 'password' ? 'pr-10' : '',
+          ]"
           @click="emit('select', entry.id)"
         >
           <span
@@ -129,6 +141,42 @@ function handleCategoryRemoved(id: string) {
             </div>
             <span class="block truncate text-xs text-slate-400">{{ entrySubtitle(entry) }}</span>
           </div>
+        </button>
+
+        <button
+          v-if="entry.type === 'password'"
+          type="button"
+          class="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+          :class="
+            copiedId === entry.id
+              ? 'text-emerald-500 opacity-100'
+              : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+          "
+          :title="copiedId === entry.id ? 'Copied!' : 'Copy password'"
+          @click="copyPassword(entry)"
+        >
+          <svg
+            v-if="copiedId !== entry.id"
+            class="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+            />
+          </svg>
+          <svg v-else class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
         </button>
       </li>
     </ul>

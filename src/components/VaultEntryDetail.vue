@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { VaultEntry } from '@/api/vault'
+import { useCategoriesStore } from '@/stores/categories'
 
 const { entry } = defineProps<{
   entry: VaultEntry
 }>()
+
+const categoriesStore = useCategoriesStore()
 
 const emit = defineEmits<{
   edit: []
@@ -26,14 +29,6 @@ function strengthLabel(score: number): string {
   if (score >= 70) return 'Strong'
   if (score >= 50) return 'Fair'
   return 'Weak'
-}
-
-function toPascalCase(value: string) {
-  return value
-    .split(/[\s-_]+/)
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join('')
 }
 
 function strengthColor(score: number): string {
@@ -77,12 +72,13 @@ function strengthDot(score: number): string {
             />
           </svg>
         </a>
+        <span v-else-if="entry.type === 'password'" class="text-sm text-slate-500">Password</span>
         <span v-else-if="entry.type === 'note'" class="text-sm text-slate-500">Note</span>
         <span
           v-if="entry.categoryId"
-          class="ml-4 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
+          class="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
         >
-          {{ toPascalCase(entry.categoryId) }}
+          {{ categoriesStore.getCategoryName(entry.categoryId) }}
         </span>
       </div>
 

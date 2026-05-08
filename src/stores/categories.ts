@@ -7,6 +7,7 @@ import {
   updateCategory,
   type VaultCategory,
 } from '@/api/categories'
+import { useVaultStore } from '@/stores/vault'
 
 export type { VaultCategory }
 
@@ -40,6 +41,9 @@ export const useCategoriesStore = defineStore('categories', () => {
   async function removeCategory(id: string): Promise<void> {
     await deleteCategory(id)
     categories.value = categories.value.filter((c) => c.id !== id)
+    for (const entry of useVaultStore().entries) {
+      if (entry.categoryId === id) entry.categoryId = null
+    }
   }
 
   function getCategoryName(id: string | null): string {
