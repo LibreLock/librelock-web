@@ -25,25 +25,46 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50">
+    <div class="mb-4 flex flex-col items-center gap-2">
+      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-600 text-white">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+          />
+        </svg>
+      </div>
+      <span class="text-sm font-semibold text-slate-600">Vault</span>
+    </div>
+
     <div class="w-full max-w-md bg-white rounded-lg shadow-sm p-6">
       <h1 class="text-2xl font-semibold mb-4">Log in</h1>
 
-      <form class="space-y-3" @submit.prevent="handleSubmit">
-        <input
-          v-model="form.email"
-          type="email"
-          placeholder="Email"
-          required
-          class="w-full rounded-md border px-3 py-2 border-slate-400"
-        />
-        <input
-          v-model="form.password"
-          type="password"
-          placeholder="Password"
-          required
-          class="w-full rounded-md border px-3 py-2 border-slate-400"
-        />
+      <form class="space-y-4" @submit.prevent="handleSubmit">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-600"> Email </label>
+          <input
+            v-model="form.email"
+            type="email"
+            required
+            autocomplete="email"
+            class="w-full rounded-md border px-3 py-2 border-slate-400"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-600"> Password </label>
+          <input
+            v-model="form.password"
+            type="password"
+            required
+            autocomplete="current-password"
+            class="w-full rounded-md border px-3 py-2 border-slate-400"
+          />
+        </div>
 
         <p v-if="auth.error" class="text-sm text-rose-600">{{ auth.error }}</p>
 

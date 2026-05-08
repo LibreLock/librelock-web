@@ -28,9 +28,24 @@ const router = createRouter({
           component: () => import('../views/SecurityCenterView.vue'),
         },
         {
+          path: 'passwords',
+          name: 'passwords',
+          component: () => import('../views/PasswordsView.vue'),
+        },
+        {
+          path: 'notes',
+          name: 'notes',
+          component: () => import('../views/NotesView.vue'),
+        },
+        {
           path: 'vault/new',
           name: 'vault-new',
           component: () => import('../views/AddEntryView.vue'),
+        },
+        {
+          path: 'settings',
+          name: 'settings',
+          component: () => import('../views/SettingsView.vue'),
         },
       ],
     },

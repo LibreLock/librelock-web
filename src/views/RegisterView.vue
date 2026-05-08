@@ -16,10 +16,6 @@ const form = reactive({
 
 const MIN_PASSWORD_LENGTH = 12
 
-const passwordHint = computed(
-  () => `Choose a secure master password - at least ${MIN_PASSWORD_LENGTH} characters.`,
-)
-
 const localError = ref('')
 
 const passwordTooShort = computed(
@@ -66,65 +62,94 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50">
+    <div class="mb-4 flex flex-col items-center gap-2">
+      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-600 text-white">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+          />
+        </svg>
+      </div>
+      <span class="text-sm font-semibold text-slate-600">Vault</span>
+    </div>
+
     <div class="w-full max-w-md bg-white rounded-lg shadow-sm p-6">
-      <h1 class="text-2xl font-semibold mb-4">Register</h1>
+      <h1 class="text-2xl font-semibold mb-4">Create account</h1>
 
-      <form class="space-y-3" @submit.prevent="handleSubmit">
-        <input
-          v-model="form.name"
-          type="text"
-          placeholder="Name"
-          required
-          class="w-full rounded-md border px-3 py-2 border-slate-400"
-        />
-        <input
-          v-model="form.email"
-          type="email"
-          placeholder="Email"
-          required
-          class="w-full rounded-md border px-3 py-2 border-slate-400"
-        />
-        <input
-          v-model="form.password"
-          type="password"
-          placeholder="Password"
-          required
-          @focus="passwordFocused = true"
-          @blur="passwordFocused = false"
-          class="w-full rounded-md border px-3 py-2 border-slate-400"
-        />
-
-        <!-- Password checklist shown while focused -->
-        <div v-if="passwordFocused" class="mt-2 text-sm">
-          <p class="text-sm text-slate-500">{{ passwordHint }}</p>
-          <ul class="mt-2 space-y-1">
-            <li :class="hasUpper ? 'text-emerald-600' : 'text-slate-500'">
-              {{ hasUpper ? '✓' : '○' }} Uppercase letter
-            </li>
-            <li :class="hasLower ? 'text-emerald-600' : 'text-slate-500'">
-              {{ hasLower ? '✓' : '○' }} Lowercase letter
-            </li>
-            <li :class="hasNumber ? 'text-emerald-600' : 'text-slate-500'">
-              {{ hasNumber ? '✓' : '○' }} Number
-            </li>
-            <li :class="hasSymbol ? 'text-emerald-600' : 'text-slate-500'">
-              {{ hasSymbol ? '✓' : '○' }} Symbol (e.g. !@#$%)
-            </li>
-            <li :class="passwordMinOk ? 'text-emerald-600' : 'text-slate-500'">
-              {{ passwordMinOk ? '✓' : '○' }} At least {{ MIN_PASSWORD_LENGTH }} characters
-            </li>
-          </ul>
+      <form class="space-y-4" @submit.prevent="handleSubmit">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-600"> Name </label>
+          <input
+            v-model="form.name"
+            type="text"
+            required
+            autocomplete="name"
+            class="w-full rounded-md border px-3 py-2 border-slate-400"
+          />
         </div>
 
-        <input
-          v-model="form.repeatPassword"
-          type="password"
-          placeholder="Repeat password"
-          required
-          class="w-full rounded-md border px-3 py-2 border-slate-400"
-        />
-        <p v-if="passwordMismatch" class="text-sm text-rose-600">Passwords do not match.</p>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-600"> Email </label>
+          <input
+            v-model="form.email"
+            type="email"
+            required
+            autocomplete="email"
+            class="w-full rounded-md border px-3 py-2 border-slate-400"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-600"> Password </label>
+          <input
+            v-model="form.password"
+            type="password"
+            required
+            autocomplete="new-password"
+            class="w-full rounded-md border px-3 py-2 border-slate-400"
+            @focus="passwordFocused = true"
+            @blur="passwordFocused = false"
+          />
+          <div v-if="passwordFocused" class="mt-2 text-sm">
+            <p class="text-slate-500">
+              Choose a secure master password — at least {{ MIN_PASSWORD_LENGTH }} characters.
+            </p>
+            <ul class="mt-2 space-y-1">
+              <li :class="hasUpper ? 'text-emerald-600' : 'text-slate-400'">
+                {{ hasUpper ? '✓' : '○' }} Uppercase letter
+              </li>
+              <li :class="hasLower ? 'text-emerald-600' : 'text-slate-400'">
+                {{ hasLower ? '✓' : '○' }} Lowercase letter
+              </li>
+              <li :class="hasNumber ? 'text-emerald-600' : 'text-slate-400'">
+                {{ hasNumber ? '✓' : '○' }} Number
+              </li>
+              <li :class="hasSymbol ? 'text-emerald-600' : 'text-slate-400'">
+                {{ hasSymbol ? '✓' : '○' }} Symbol (e.g. !@#$%)
+              </li>
+              <li :class="passwordMinOk ? 'text-emerald-600' : 'text-slate-400'">
+                {{ passwordMinOk ? '✓' : '○' }} At least {{ MIN_PASSWORD_LENGTH }} characters
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-xs font-medium text-slate-600"> Repeat password </label>
+          <input
+            v-model="form.repeatPassword"
+            type="password"
+            required
+            autocomplete="new-password"
+            class="w-full rounded-md border px-3 py-2 border-slate-400"
+          />
+          <p v-if="passwordMismatch" class="mt-1 text-xs text-rose-600">Passwords do not match.</p>
+        </div>
+
         <p v-if="localError" class="text-sm text-rose-600">{{ localError }}</p>
         <p v-if="auth.error" class="text-sm text-rose-600">{{ auth.error }}</p>
 
