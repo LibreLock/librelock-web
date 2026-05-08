@@ -3,34 +3,43 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { pinia } from '@/stores/pinia'
 import { useAuthStore } from '@/stores/auth'
 
-import HomeView from '../views/HomeView.vue'
+import AppLayout from '../layouts/AppLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
-      meta: {
-        requiresAuth: true,
-      },
+      component: AppLayout,
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: '',
+          redirect: '/vault',
+        },
+        {
+          path: 'vault',
+          name: 'vault',
+          component: () => import('../views/VaultView.vue'),
+        },
+        {
+          path: 'security',
+          name: 'security',
+          component: () => import('../views/SecurityCenterView.vue'),
+        },
+      ],
     },
     {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue'),
-      meta: {
-        guestOnly: true,
-      },
+      meta: { guestOnly: true },
     },
     {
       path: '/register',
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
-      meta: {
-        guestOnly: true,
-      },
+      meta: { guestOnly: true },
     },
     {
       path: '/:pathMatch(.*)*',
@@ -42,25 +51,21 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const auth = useAuthStore(pinia)
 
-  if (to.meta.requiresAuth || to.meta.guestOnly) {
+  const requiresAuth = to.matched.some((r) => r.meta.requiresAuth)
+  const guestOnly = to.matched.some((r) => r.meta.guestOnly)
+
+  if (requiresAuth || guestOnly) {
     if (auth.status === 'idle') {
       await auth.refreshSession()
     }
   }
 
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return {
-      name: 'login',
-      query: {
-        redirect: to.fullPath,
-      },
-    }
+  if (requiresAuth && !auth.isAuthenticated) {
+    return { name: 'login', query: { redirect: to.fullPath } }
   }
 
-  if (to.meta.guestOnly && auth.isAuthenticated) {
-    return {
-      name: 'home',
-    }
+  if (guestOnly && auth.isAuthenticated) {
+    return { name: 'vault' }
   }
 
   return true
