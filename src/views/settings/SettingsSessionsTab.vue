@@ -177,7 +177,7 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="flex-1 grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-slate-400 pt-0.5">
+          <div class="flex-1 grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-slate-500 pt-0.5">
             <span v-if="session.ip"><span class="text-slate-500">IP:</span> {{ session.ip }}</span>
             <span
               ><span class="text-slate-500">Created:</span>
