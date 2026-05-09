@@ -1,28 +1,19 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { apiRequest } from '@/services/api'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore, type KdfResponse } from '@/stores/auth'
 import { DB_NAME, KEY_ID, SESSION_FLAG, STORE } from '@/constants'
 
 const auth = useAuthStore()
 
-// KDF Info
-interface KdfInfo {
-  kdf_algo?: string
-  kdf_iter: number
-  kdf_memory: number
-  kdf_parallelism: number
-  kdf_salt: string
-}
-
-const kdfInfo = ref<KdfInfo | null>(null)
+const kdfInfo = ref<KdfResponse | null>(null)
 const kdfLoading = ref(false)
 
 async function loadKdfInfo() {
   if (kdfInfo.value || kdfLoading.value || !auth.user?.username) return
   kdfLoading.value = true
   try {
-    const data = await apiRequest<KdfInfo>(
+    const data = await apiRequest<KdfResponse>(
       `/auth/kdf?username=${encodeURIComponent(auth.user.username)}`,
     )
     kdfInfo.value = data ?? null
@@ -69,7 +60,7 @@ watch(
             <div class="flex items-center gap-4">
               <span class="w-36 shrink-0 text-xs font-medium text-slate-500">KDF algorithm</span>
               <code class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded">{{
-                kdfInfo?.kdf_algo ?? 'Argon2id'
+                kdfInfo?.kdf_algo
               }}</code>
             </div>
             <template v-if="kdfLoading">

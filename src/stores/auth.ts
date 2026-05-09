@@ -2,21 +2,31 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
 import { ApiError, apiRequest } from '@/services/api'
-import { deriveKeys, encryptField, generateKdfSalt, type KdfParams } from '@/services/crypto'
+import {
+  deriveKeys,
+  encryptString,
+  generateKdfSalt,
+  generateVaultKey,
+  wrapKey,
+  unwrapKey,
+  type KdfParams,
+} from '@/services/crypto'
 import { clearSessionKey, loadSessionKey, saveSessionKey } from '@/services/keystore'
 import { getMasterKey, setMasterKey } from '@/services/keyring'
 import { useCategoriesStore } from '@/stores/categories'
 import { useVaultStore } from '@/stores/vault'
+import { DEFAULT_CATEGORIES, KDF_ITER, KDF_MEMORY, KDF_PARALLELISM } from '@/constants'
 
 export { getMasterKey }
 
 export interface AuthUser {
   id?: string | number
   username: string
+  protected_key?: string
 }
 
-interface KdfResponse {
-  kdf_algo?: string
+export interface KdfResponse {
+  kdf_algo: string
   kdf_salt: string
   kdf_iter: number
   kdf_memory: number
@@ -30,22 +40,20 @@ interface AuthResponse {
 
 type SessionStatus = 'idle' | 'loading' | 'authenticated' | 'anonymous'
 
-const DEFAULT_CATEGORIES = ['Personal', 'Work', 'Finance', 'Social', 'Development']
-
 function getErrorMessage(error: unknown) {
   if (error instanceof ApiError) return error.message
   if (error instanceof Error) return error.message
   return 'Something went wrong.'
 }
 
-async function fetchKdfParams(username: string): Promise<KdfParams> {
+export async function fetchKdfParams(username: string): Promise<KdfParams> {
   const data = await apiRequest<KdfResponse>(`/auth/kdf?username=${encodeURIComponent(username)}`)
   if (!data) throw new Error('No KDF params returned.')
   return {
-    kdf_salt: data.kdf_salt,
-    kdf_iter: data.kdf_iter,
-    kdf_memory: data.kdf_memory,
-    kdf_parallelism: data.kdf_parallelism,
+    kdfSalt: data.kdf_salt,
+    kdfIter: data.kdf_iter,
+    kdfMemory: data.kdf_memory,
+    kdfParallelism: data.kdf_parallelism,
   }
 }
 
@@ -72,7 +80,7 @@ export const useAuthStore = defineStore('auth', () => {
         const key = await loadSessionKey()
         setMasterKey(key)
         if (!getMasterKey()) {
-          await signOut()
+          await logOut()
           return null
         }
       }
@@ -85,13 +93,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function signIn(username: string, password: string) {
+  async function logIn(username: string, password: string) {
     isSubmitting.value = true
     error.value = null
 
     try {
       const kdfParams = await fetchKdfParams(username)
-      const { masterKey, authCredential } = await deriveKeys(password, kdfParams)
+      const { wrappingKey, authCredential } = await deriveKeys(password, kdfParams)
 
       const response =
         (await apiRequest<AuthResponse>('/auth/login', {
@@ -99,8 +107,12 @@ export const useAuthStore = defineStore('auth', () => {
           body: JSON.stringify({ username, auth_credential: authCredential }),
         })) ?? {}
 
-      setMasterKey(masterKey)
-      await saveSessionKey(masterKey)
+      const protectedKey = response.user?.protected_key
+      if (!protectedKey) throw new Error('Server did not return protected_key.')
+      const vaultKey = await unwrapKey(protectedKey, wrappingKey)
+
+      setMasterKey(vaultKey)
+      await saveSessionKey(vaultKey)
       user.value = response.user ?? null
       status.value = 'authenticated'
       return user.value
@@ -112,22 +124,24 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function signUp(username: string, password: string) {
+  async function register(username: string, password: string) {
     isSubmitting.value = true
     error.value = null
 
     try {
-      const kdf_salt = generateKdfSalt()
+      const kdfSalt = generateKdfSalt()
       const kdfParams: KdfParams = {
-        kdf_salt,
-        kdf_iter: 3,
-        kdf_memory: 65536,
-        kdf_parallelism: 4,
+        kdfSalt: kdfSalt,
+        kdfIter: KDF_ITER,
+        kdfMemory: KDF_MEMORY,
+        kdfParallelism: KDF_PARALLELISM,
       }
-      const { masterKey, authCredential } = await deriveKeys(password, kdfParams)
+      const { wrappingKey, authCredential } = await deriveKeys(password, kdfParams)
+      const vaultKey = await generateVaultKey()
+      const protected_key = await wrapKey(vaultKey, wrappingKey)
 
       const categories = await Promise.all(
-        DEFAULT_CATEGORIES.map(async (name) => ({ name: await encryptField(name, masterKey) })),
+        DEFAULT_CATEGORIES.map(async (name) => ({ name: await encryptString(name, vaultKey) })),
       )
 
       const response =
@@ -136,16 +150,17 @@ export const useAuthStore = defineStore('auth', () => {
           body: JSON.stringify({
             username,
             auth_credential: authCredential,
-            kdf_salt,
-            kdf_iter: kdfParams.kdf_iter,
-            kdf_memory: kdfParams.kdf_memory,
-            kdf_parallelism: kdfParams.kdf_parallelism,
+            protected_key,
+            kdf_salt: kdfSalt,
+            kdf_iter: kdfParams.kdfIter,
+            kdf_memory: kdfParams.kdfMemory,
+            kdf_parallelism: kdfParams.kdfParallelism,
             categories,
           }),
         })) ?? {}
 
-      setMasterKey(masterKey)
-      await saveSessionKey(masterKey)
+      setMasterKey(vaultKey)
+      await saveSessionKey(vaultKey)
       user.value = response.user ?? null
       status.value = 'authenticated'
       return user.value
@@ -157,7 +172,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function signOut() {
+  async function logOut() {
     isSubmitting.value = true
     try {
       await apiRequest('/auth/logout', { method: 'POST' })
@@ -183,9 +198,9 @@ export const useAuthStore = defineStore('auth', () => {
     isSessionLoading,
     isSubmitting,
     refreshSession,
-    signIn,
-    signOut,
-    signUp,
+    logIn,
+    logOut,
+    register,
     status,
     user,
   }

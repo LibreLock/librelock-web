@@ -61,7 +61,7 @@ async function revokeAllSessions() {
     await apiRequest('/sessions', { method: 'DELETE' })
     sessions.value = []
     sessionsError.value = null
-    await auth.signOut()
+    await auth.logOut()
   } catch (err) {
     sessionsError.value = err instanceof ApiError ? err.message : 'Failed to revoke all sessions.'
   } finally {

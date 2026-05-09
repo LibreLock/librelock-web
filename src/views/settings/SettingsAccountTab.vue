@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { ApiError, apiRequest } from '@/services/api'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore, fetchKdfParams } from '@/stores/auth'
+import { deriveKeys, generateKdfSalt, wrapKey, unwrapKey, type KdfParams } from '@/services/crypto'
 import { MIN_PASSWORD_LENGTH } from '@/constants'
 
 const auth = useAuthStore()
@@ -17,8 +18,8 @@ async function handleSaveUsername() {
   usernameSuccess.value = false
   isSavingUsername.value = true
   try {
-    await apiRequest('/auth/me', {
-      method: 'PATCH',
+    await apiRequest('/settings/username', {
+      method: 'PUT',
       body: JSON.stringify({ username: editUsername.value.trim() }),
     })
     await auth.refreshSession()
@@ -66,18 +67,53 @@ async function handleChangePassword() {
   passwordError.value = null
   isChangingPassword.value = true
   try {
-    await apiRequest('/auth/me/password', {
-      method: 'PATCH',
+    const username = auth.user?.username
+    const currentProtectedKey = auth.user?.protected_key
+    if (!username || !currentProtectedKey) throw new Error('Not logged in.')
+
+    // Derive current wrapping key and verify via auth_credential
+    const currentKdfParams = await fetchKdfParams(username)
+    const { wrappingKey: currentWrappingKey, authCredential: currentAuthCredential } =
+      await deriveKeys(currentPassword.value, currentKdfParams)
+
+    // Recover vault key from current protected_key
+    const vaultKey = await unwrapKey(currentProtectedKey, currentWrappingKey)
+
+    // Derive new wrapping key with fresh salt
+    const newKdfSalt = generateKdfSalt()
+    const newKdfParams: KdfParams = {
+      kdfSalt: newKdfSalt,
+      kdfIter: currentKdfParams.kdfIter,
+      kdfMemory: currentKdfParams.kdfMemory,
+      kdfParallelism: currentKdfParams.kdfParallelism,
+    }
+    const { wrappingKey: newWrappingKey, authCredential: newAuthCredential } = await deriveKeys(
+      newPassword.value,
+      newKdfParams,
+    )
+
+    // Re-wrap same vault key with new wrapping key — no vault re-encryption needed
+    const newProtectedKey = await wrapKey(vaultKey, newWrappingKey)
+
+    await apiRequest('/settings/password', {
+      method: 'PUT',
       body: JSON.stringify({
-        current_password: currentPassword.value,
-        new_password: newPassword.value,
+        current_auth_credential: currentAuthCredential,
+        new_auth_credential: newAuthCredential,
+        new_protected_key: newProtectedKey,
+        new_kdf_salt: newKdfSalt,
+        new_kdf_iter: newKdfParams.kdfIter,
+        new_kdf_memory: newKdfParams.kdfMemory,
+        new_kdf_parallelism: newKdfParams.kdfParallelism,
       }),
     })
+
     passwordSuccess.value = true
     currentPassword.value = ''
     newPassword.value = ''
     confirmPassword.value = ''
   } catch (err) {
+    console.error(err)
     passwordError.value = err instanceof ApiError ? err.message : 'Failed to change password.'
   } finally {
     isChangingPassword.value = false

@@ -1,5 +1,5 @@
 import { apiRequest } from '@/services/api'
-import { decryptField, encryptField } from '@/services/crypto'
+import { decryptString, encryptString } from '@/services/crypto'
 import { getMasterKey } from '@/services/keyring'
 
 export interface VaultCategory {
@@ -28,14 +28,14 @@ export async function getCategories(): Promise<VaultCategory[]> {
   return Promise.all(
     response.categories.map(async (c) => ({
       id: c.id,
-      name: await decryptField(c.name, masterKey),
+      name: await decryptString(c.name, masterKey),
     })),
   )
 }
 
 export async function createCategory(name: string): Promise<VaultCategory> {
   const masterKey = requireMasterKey()
-  const encryptedName = await encryptField(name, masterKey)
+  const encryptedName = await encryptString(name, masterKey)
   const response = await apiRequest<{ category: RawCategory }>('/categories', {
     method: 'POST',
     body: JSON.stringify({ name: encryptedName }),
@@ -46,7 +46,7 @@ export async function createCategory(name: string): Promise<VaultCategory> {
 
 export async function updateCategory(id: string, name: string): Promise<VaultCategory> {
   const masterKey = requireMasterKey()
-  const encryptedName = await encryptField(name, masterKey)
+  const encryptedName = await encryptString(name, masterKey)
   const response = await apiRequest<{ category: RawCategory }>(`/categories/${id}`, {
     method: 'PUT',
     body: JSON.stringify({ name: encryptedName }),

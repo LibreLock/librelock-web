@@ -4,10 +4,10 @@ const enc = new TextEncoder()
 const dec = new TextDecoder()
 
 export interface KdfParams {
-  kdf_salt: string
-  kdf_iter: number
-  kdf_memory: number
-  kdf_parallelism: number
+  kdfSalt: string
+  kdfIter: number
+  kdfMemory: number
+  kdfParallelism: number
 }
 
 function bytesToBase64(bytes: Uint8Array): string {
@@ -29,49 +29,84 @@ function bytesToHex(bytes: Uint8Array): string {
     .join('')
 }
 
+function hexToBytes(hex: string): Uint8Array {
+  const bytes = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < hex.length; i += 2) bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16)
+  return bytes
+}
+
 export function generateKdfSalt(): string {
-  return bytesToBase64(crypto.getRandomValues(new Uint8Array(32)))
+  return bytesToHex(crypto.getRandomValues(new Uint8Array(32)))
 }
 
 export async function deriveKeys(
   password: string,
   params: KdfParams,
-): Promise<{ masterKey: CryptoKey; authCredential: string }> {
-  const salt = base64ToBytes(params.kdf_salt)
+): Promise<{ wrappingKey: CryptoKey; authCredential: string }> {
+  const salt = hexToBytes(params.kdfSalt)
 
   const masterKeyBytes = (await argon2id({
     password,
     salt,
-    parallelism: params.kdf_parallelism,
-    iterations: params.kdf_iter,
-    memorySize: params.kdf_memory,
+    parallelism: params.kdfParallelism,
+    iterations: params.kdfIter,
+    memorySize: params.kdfMemory,
     hashLength: 32,
     outputType: 'binary',
   })) as Uint8Array<ArrayBuffer>
 
-  // HKDF-SHA256(MasterKey, salt="auth") → AuthKey
-  const hkdfMaterial = await crypto.subtle.importKey('raw', masterKeyBytes, 'HKDF', false, [
+  const hkdfKey = await crypto.subtle.importKey('raw', masterKeyBytes, 'HKDF', false, [
     'deriveBits',
   ])
-  const authKeyBytes = await crypto.subtle.deriveBits(
-    { name: 'HKDF', hash: 'SHA-256', salt: enc.encode('auth'), info: new Uint8Array() },
-    hkdfMaterial,
+
+  // HKDF(MasterKey, info="auth") -> auth_credential (hex)
+  const authBits = await crypto.subtle.deriveBits(
+    { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(), info: enc.encode('auth') },
+    hkdfKey,
     256,
   )
+  const authCredential = bytesToHex(new Uint8Array(authBits))
 
-  // auth_credential = SHA-256(AuthKey) hex
-  const credHash = await crypto.subtle.digest('SHA-256', authKeyBytes)
-  const authCredential = bytesToHex(new Uint8Array(credHash))
-
-  const masterKey = await crypto.subtle.importKey(
+  // HKDF(MasterKey, info="wrap") -> WrappingKey (AES-GCM)
+  const wrapBits = await crypto.subtle.deriveBits(
+    { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(), info: enc.encode('wrap') },
+    hkdfKey,
+    256,
+  )
+  const wrappingKey = await crypto.subtle.importKey(
     'raw',
-    masterKeyBytes,
+    wrapBits,
     { name: 'AES-GCM', length: 256 },
     false,
     ['encrypt', 'decrypt'],
   )
 
-  return { masterKey, authCredential }
+  return { wrappingKey, authCredential }
+}
+
+export async function generateVaultKey(): Promise<CryptoKey> {
+  return crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt'])
+}
+
+export async function wrapKey(vaultKey: CryptoKey, wrappingKey: CryptoKey): Promise<string> {
+  const rawKey = await crypto.subtle.exportKey('raw', vaultKey)
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, wrappingKey, rawKey)
+  const combined = new Uint8Array(12 + encrypted.byteLength)
+  combined.set(iv)
+  combined.set(new Uint8Array(encrypted), 12)
+  return bytesToHex(combined)
+}
+
+export async function unwrapKey(protectedKey: string, wrappingKey: CryptoKey): Promise<CryptoKey> {
+  const combined = hexToBytes(protectedKey)
+  const iv = combined.slice(0, 12)
+  const ciphertext = combined.slice(12)
+  const rawKey = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, wrappingKey, ciphertext)
+  return crypto.subtle.importKey('raw', rawKey, { name: 'AES-GCM', length: 256 }, true, [
+    'encrypt',
+    'decrypt',
+  ])
 }
 
 export async function encryptBlob(
@@ -103,9 +138,8 @@ export async function decryptBlob(
   return JSON.parse(dec.decode(plaintext))
 }
 
-// Encrypts a plain string - IV (12 bytes) is prepended to ciphertext and the
-// whole thing is returned as a single base64 string.
-export async function encryptField(value: string, masterKey: CryptoKey): Promise<string> {
+// Encrypts a plain string - IV (12 bytes) is prepended to ciphertext and the whole thing is returned as a single base64 string
+export async function encryptString(value: string, masterKey: CryptoKey): Promise<string> {
   const iv = crypto.getRandomValues(new Uint8Array(12))
   const ciphertext = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
@@ -118,7 +152,7 @@ export async function encryptField(value: string, masterKey: CryptoKey): Promise
   return bytesToBase64(combined)
 }
 
-export async function decryptField(encrypted: string, masterKey: CryptoKey): Promise<string> {
+export async function decryptString(encrypted: string, masterKey: CryptoKey): Promise<string> {
   const combined = base64ToBytes(encrypted)
   const iv = combined.slice(0, 12)
   const ciphertext = combined.slice(12)

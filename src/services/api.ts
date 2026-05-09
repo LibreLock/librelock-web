@@ -14,13 +14,10 @@ export class ApiError extends Error {
 }
 
 function buildApiUrl(path: string) {
+  const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
 
-  if (!API_BASE_URL) {
-    return normalizedPath
-  }
-
-  return `${API_BASE_URL}${normalizedPath}`
+  return `${baseUrl}${normalizedPath}`
 }
 
 function extractMessage(payload: unknown, fallback: string) {

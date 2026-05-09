@@ -56,7 +56,7 @@ async function handleSubmit() {
   }
 
   try {
-    await auth.signUp(form.username.trim(), form.password)
+    await auth.register(form.username.trim(), form.password)
     await router.replace('/')
   } catch {
     // error displayed via auth.error

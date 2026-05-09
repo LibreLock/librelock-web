@@ -23,7 +23,7 @@ function toggleCollapse() {
 
 async function handleLogout() {
   try {
-    await auth.signOut()
+    await auth.logOut()
     router.push('/login')
   } catch {
     window.location.href = '/login'

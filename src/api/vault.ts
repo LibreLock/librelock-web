@@ -26,7 +26,6 @@ export interface VaultPassword {
   password: string
   url: string
   notes: string
-  favorite: boolean
   color: string
   categoryId: string | null
   passwordStrength: number
@@ -41,7 +40,6 @@ export interface VaultNote {
   type: 'note'
   name: string
   content: string
-  favorite: boolean
   color: string
   categoryId: string | null
   createdAt: string
@@ -60,7 +58,6 @@ export interface CreatePasswordPayload {
   notes: string
   color?: string
   categoryId?: string | null
-  favorite?: boolean
 }
 
 export interface CreateNotePayload {
@@ -69,7 +66,6 @@ export interface CreateNotePayload {
   content: string
   color?: string
   categoryId?: string | null
-  favorite?: boolean
 }
 
 export type CreateEntryPayload = CreatePasswordPayload | CreateNotePayload
@@ -95,12 +91,11 @@ interface VaultBlobData {
   notes?: string
   content?: string
   color: string
-  favorite: boolean
 }
 
 function requireMasterKey(): CryptoKey {
   const key = getMasterKey()
-  if (!key) throw new Error('Vault is locked - please log in again.')
+  if (!key) throw new Error('Vault is locked -  log in again.')
   return key
 }
 
@@ -109,7 +104,6 @@ function rawToEntry(raw: RawVaultEntry, blob: VaultBlobData): VaultEntry {
     id: raw.id,
     categoryId: raw.category_id,
     color: blob.color ?? DEFAULT_COLOR,
-    favorite: blob.favorite ?? false,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
   }
@@ -157,13 +151,11 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
           url: payload.url,
           notes: payload.notes,
           color: payload.color ?? DEFAULT_COLOR,
-          favorite: payload.favorite ?? false,
         }
       : {
           name: payload.name,
           content: payload.content,
           color: payload.color ?? DEFAULT_COLOR,
-          favorite: payload.favorite ?? false,
         }
 
   const { encrypted_blob, iv } = await encryptBlob(blobData, masterKey)

@@ -23,7 +23,7 @@ const redirectPath = computed(() => {
 
 async function handleSubmit() {
   try {
-    await auth.signIn(form.username.trim(), form.password)
+    await auth.logIn(form.username.trim(), form.password)
     await router.replace(redirectPath.value)
   } catch {
     // error displayed via auth.error
