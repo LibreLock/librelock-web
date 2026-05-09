@@ -126,7 +126,7 @@ onBeforeUnmount(closeMenu)
           ref="renameInput"
           v-model="renameName"
           type="text"
-          class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+          class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
           @keydown.enter.prevent="confirmRename"
           @keydown.escape="showRename = false"
         />

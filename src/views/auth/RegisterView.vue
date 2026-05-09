@@ -83,7 +83,7 @@ async function handleSubmit() {
             type="text"
             required
             autocomplete="username"
-            class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+            class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
           />
         </div>
 
@@ -95,7 +95,7 @@ async function handleSubmit() {
               :type="showPassword ? 'text' : 'password'"
               required
               autocomplete="new-password"
-              class="w-full rounded-md border px-3 py-1 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+              class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
               @focus="passwordFocused = true"
               @blur="passwordFocused = false"
             />
@@ -166,7 +166,7 @@ async function handleSubmit() {
               :type="showPassword ? 'text' : 'password'"
               required
               autocomplete="new-password"
-              class="w-full rounded-md border px-3 py-1 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+              class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
             />
             <button
               type="button"
@@ -203,7 +203,7 @@ async function handleSubmit() {
               </svg>
             </button>
           </div>
-          <p v-if="passwordMismatch" class="mt-1 text-xs text-rose-600">Passwords do not match.</p>
+          <p v-if="passwordMismatch" class="mt-1 text-xs text-rose-600">Passwords do not match</p>
         </div>
 
         <p v-if="localError" class="text-sm text-rose-600">{{ localError }}</p>

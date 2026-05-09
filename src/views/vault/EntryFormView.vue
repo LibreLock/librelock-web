@@ -210,7 +210,7 @@ async function handleSubmit() {
                     type="text"
                     required
                     placeholder="e.g. GitHub"
-                    class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                   />
                 </div>
 
@@ -220,7 +220,7 @@ async function handleSubmit() {
                     <input
                       v-model="account.username"
                       type="text"
-                      class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                      class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                     />
                   </div>
                   <div>
@@ -228,7 +228,7 @@ async function handleSubmit() {
                     <input
                       v-model="account.email"
                       type="email"
-                      class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                      class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                     />
                   </div>
                 </div>
@@ -252,7 +252,7 @@ async function handleSubmit() {
                       :type="showPassword ? 'text' : 'password'"
                       required
                       autocomplete="new-password"
-                      class="w-full rounded-md border px-3 py-1 pr-10 font-mono border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                      class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                     />
                     <button
                       type="button"
@@ -303,7 +303,7 @@ async function handleSubmit() {
                     v-model="account.url"
                     type="text"
                     placeholder="e.g. github.com"
-                    class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                   />
                 </div>
 
@@ -329,7 +329,7 @@ async function handleSubmit() {
                     type="text"
                     required
                     placeholder="e.g. Recovery codes"
-                    class="w-full rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                   />
                 </div>
                 <div>
@@ -408,7 +408,7 @@ async function handleSubmit() {
                     v-model="newCategoryName"
                     type="text"
                     placeholder="Name"
-                    class="min-w-0 flex-1 rounded-md border px-3 py-1 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="min-w-0 flex-1 rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
                     @keydown.enter.prevent="handleAddCategory"
                     @keydown.escape="cancelNewCategory"
                   />
@@ -459,7 +459,7 @@ async function handleSubmit() {
         <h2 class="mb-2 text-base font-semibold text-slate-900">
           Delete {{ entryType === 'password' ? 'password' : 'note' }}?
         </h2>
-        <p class="mb-5 text-sm text-slate-500">This cannot be undone.</p>
+        <p class="mb-5 text-sm text-slate-500">This cannot be undone</p>
         <div class="flex justify-end gap-2">
           <button
             type="button"
