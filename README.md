@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="public/favicon.ico" alt="Password manager logo" height="70" />
-  <h1 align="center">Password manager</h1>
+  <img src="public/favicon.ico" alt="LibreLock logo" height="70" />
+  <h1 align="center">LibreLock</h1>
 </div>
 
-Self-hosted web-based password manager. Built out of distrust in third-party password managers. Built with Vue and Laravel.
+LibreLock is a self-hosted web-based password manager. Built out of distrust in third-party password managers. Built with Vue and Laravel.
 
 ## Features
 
