@@ -56,7 +56,9 @@ const navItems = [
     >
       <RouterLink to="/" class="flex items-center gap-3" :class="collapsed ? 'justify-center' : ''">
         <IconPadlock size="md" />
-        <span v-if="!collapsed" class="truncate text-lg font-semibold text-slate-900">Vault</span>
+        <span v-if="!collapsed" class="truncate text-lg font-semibold text-slate-900"
+          >LibreLock</span
+        >
       </RouterLink>
       <button
         type="button"

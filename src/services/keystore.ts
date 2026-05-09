@@ -1,7 +1,4 @@
-const DB_NAME = 'vault'
-const STORE = 'session'
-const KEY_ID = 'master_key'
-const SESSION_FLAG = 'vault_unlocked'
+import { DB_NAME, KEY_ID, SESSION_FLAG, STORE } from '@/constants'
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -18,8 +15,14 @@ export async function saveSessionKey(key: CryptoKey): Promise<void> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, 'readwrite')
     tx.objectStore(STORE).put(key, KEY_ID)
-    tx.oncomplete = () => { db.close(); resolve() }
-    tx.onerror = () => { db.close(); reject(tx.error) }
+    tx.oncomplete = () => {
+      db.close()
+      resolve()
+    }
+    tx.onerror = () => {
+      db.close()
+      reject(tx.error)
+    }
   })
 }
 
@@ -29,8 +32,14 @@ export async function loadSessionKey(): Promise<CryptoKey | null> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, 'readonly')
     const req = tx.objectStore(STORE).get(KEY_ID)
-    req.onsuccess = () => { db.close(); resolve((req.result as CryptoKey) ?? null) }
-    req.onerror = () => { db.close(); reject(req.error) }
+    req.onsuccess = () => {
+      db.close()
+      resolve((req.result as CryptoKey) ?? null)
+    }
+    req.onerror = () => {
+      db.close()
+      reject(req.error)
+    }
   })
 }
 
@@ -40,8 +49,14 @@ export async function clearSessionKey(): Promise<void> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, 'readwrite')
     tx.objectStore(STORE).delete(KEY_ID)
-    tx.oncomplete = () => { db.close(); resolve() }
-    tx.onerror = () => { db.close(); reject(tx.error) }
+    tx.oncomplete = () => {
+      db.close()
+      resolve()
+    }
+    tx.onerror = () => {
+      db.close()
+      reject(tx.error)
+    }
   })
 }
 

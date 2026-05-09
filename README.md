@@ -16,24 +16,24 @@ Self-hosted web-based password manager. Built out of distrust in third-party pas
 1. Clone frontend and backend repositories:
 
 ```bash
-git clone https://github.com/lebaaar/password_manager.git
-git clone https://github.com/lebaaar/password_manager.git
+git clone https://github.com/lebaaar/librelock-web.git
+git clone https://github.com/lebaaar/librelock-server.git
 ```
 
 2.Build and run the backend:
 
 ```bash
-cd password_manager_backend
-docker build -t password-manager-backend .
-docker run -d -p 3000:3000 --name password-manager-backend password-manager-backend
+cd librelock-server
+docker build -t librelock-server .
+docker run -d -p 3000:3000 --name librelock-server librelock-server
 ```
 
 3. Build and run the frontend:
 
 ```bash
-cd password_manager_frontend
-docker build -t password-manager-frontend .
-docker run -d -p 1401:1401 --name password-manager-frontend password-manager-frontend
+cd librelock-web
+docker build -t librelock-web .
+docker run -d -p 1401:1401 --name librelock-web librelock-web
 ```
 
 4. Open [localhost:1401](http://localhost:1401) to access the password manager.

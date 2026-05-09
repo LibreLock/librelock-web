@@ -35,7 +35,7 @@ async function handleSubmit() {
   <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50">
     <div class="mb-4 flex flex-col items-center gap-2">
       <IconPadlock size="lg" />
-      <span class="text-lg font-semibold text-slate-600">Vault</span>
+      <span class="text-lg font-semibold text-slate-600">LibreLock</span>
     </div>
 
     <div class="w-full max-w-md bg-white rounded-lg shadow-sm p-6">
