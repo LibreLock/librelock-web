@@ -180,7 +180,7 @@ async function handleSubmit() {
             "
             @click="switchType('note')"
           >
-            Note
+            Secure Note
           </button>
         </div>
 
@@ -308,7 +308,9 @@ async function handleSubmit() {
                 </div>
 
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-slate-500">Notes</label>
+                  <label class="mb-1 block text-xs font-semibold text-slate-500"
+                    >Secure notes
+                  </label>
                   <textarea
                     v-model="account.notes"
                     rows="3"

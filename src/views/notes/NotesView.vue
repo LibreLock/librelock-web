@@ -32,7 +32,7 @@ function onEdit() {
     <VaultEntrySidebar
       :entries="vault.notes"
       :selected-id="selectedId"
-      title="Notes"
+      title="Secure Notes"
       @select="onSelect"
     />
 
@@ -47,7 +47,7 @@ function onEdit() {
 
     <div v-else class="flex flex-1 flex-col items-center justify-center gap-1">
       <p class="text-sm font-medium text-slate-500">Select a note to view details</p>
-      <p class="text-xs text-slate-400">{{ vault.notes.length }} notes saved</p>
+      <p class="text-xs text-slate-400">{{ vault.notes.length }} secure notes saved</p>
     </div>
   </div>
 </template>

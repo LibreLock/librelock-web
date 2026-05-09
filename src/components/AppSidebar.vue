@@ -37,7 +37,7 @@ function isActive(to: string) {
 const navItems = [
   { name: 'All Items', to: '/vault', icon: 'vault' },
   { name: 'Passwords', to: '/passwords', icon: 'password' },
-  { name: 'Notes', to: '/notes', icon: 'note' },
+  { name: 'Secure Notes', to: '/notes', icon: 'note' },
   { name: 'Security Center', to: '/security', icon: 'shield' },
   { name: 'Password Generator', to: '/generator', icon: 'generator' },
 ]

@@ -73,7 +73,7 @@ function strengthDot(score: number): string {
           </svg>
         </a>
         <span v-else-if="entry.type === 'password'" class="text-sm text-slate-500">Password</span>
-        <span v-else-if="entry.type === 'note'" class="text-sm text-slate-500">Note</span>
+        <span v-else-if="entry.type === 'note'" class="text-sm text-slate-500">Secure Note</span>
         <span
           v-if="entry.categoryId"
           class="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
@@ -329,7 +329,7 @@ function strengthDot(score: number): string {
 
         <section v-if="entry.notes">
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Notes
+            Secure Notes
           </h2>
           <div class="rounded-lg border border-slate-200 bg-white p-4">
             <p class="whitespace-pre-wrap text-sm text-slate-700">{{ entry.notes }}</p>
