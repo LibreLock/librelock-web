@@ -60,7 +60,6 @@ export async function clearSessionKey(): Promise<void> {
   })
 }
 
-// Synchronous — safe to call in beforeunload
 export function clearSessionFlag(): void {
   sessionStorage.removeItem(SESSION_FLAG)
 }

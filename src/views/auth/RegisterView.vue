@@ -136,7 +136,7 @@ async function handleSubmit() {
           </div>
           <div v-if="passwordFocused" class="mt-2 text-sm">
             <p class="text-slate-500">
-              Choose a secure master password — at least {{ MIN_PASSWORD_LENGTH }} characters.
+              Choose a secure master password - at least {{ MIN_PASSWORD_LENGTH }} characters.
             </p>
             <ul class="mt-2 space-y-1">
               <li :class="hasUpper ? 'text-emerald-600' : 'text-slate-400'">

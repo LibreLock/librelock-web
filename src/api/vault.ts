@@ -100,7 +100,7 @@ interface VaultBlobData {
 
 function requireMasterKey(): CryptoKey {
   const key = getMasterKey()
-  if (!key) throw new Error('Vault is locked — please log in again.')
+  if (!key) throw new Error('Vault is locked - please log in again.')
   return key
 }
 
