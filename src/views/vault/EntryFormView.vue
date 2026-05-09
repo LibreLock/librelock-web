@@ -5,6 +5,7 @@ import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
 import { ENTRY_COLORS, DEFAULT_COLOR } from '@/api/vault'
 import CategoryPill from '@/components/CategoryPill.vue'
+import { usePasswordGenerator } from '@/composables/usePasswordGenerator'
 
 const route = useRoute()
 const router = useRouter()
@@ -45,12 +46,11 @@ const showNewCategory = ref(false)
 const newCategoryName = ref('')
 const isAddingCategory = ref(false)
 
+const { generated, generate } = usePasswordGenerator()
+
 function generateStrongPassword() {
-  const charset =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?'
-  const arr = new Uint32Array(24)
-  crypto.getRandomValues(arr)
-  account.password = Array.from(arr, (n) => charset[n % charset.length]).join('')
+  generate()
+  account.password = generated.value
 }
 
 onMounted(async () => {
@@ -234,13 +234,14 @@ async function handleSubmit() {
                 </div>
 
                 <div>
-                  <div class="mb-1 flex items-center justify-between">
+                  <div class="mb-1 flex items-center">
                     <label class="block text-xs font-semibold text-slate-500"
                       >Password<span class="text-rose-400">*</span></label
                     >
+                    <span class="text-xs font-semibold text-slate-500 px-1">—</span>
                     <button
                       type="button"
-                      class="text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                      class="text-xs font-semibold text-slate-500 hover:text-slate-600 transition-colors cursor-pointer hover:underline"
                       @click="generateStrongPassword"
                     >
                       Generate

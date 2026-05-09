@@ -56,6 +56,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 
       <!-- Ctrl+K hint -->
       <div
+        v-if="!vault.globalSearch"
         class="absolute right-2.5 top-1/2 hidden -translate-y-1/2 py-0.5 rounded border border-slate-200 bg-white px-1.5 text-[10px] text-slate-400 sm:block"
       >
         Ctrl K
@@ -64,7 +65,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
       <button
         v-if="vault.globalSearch"
         type="button"
-        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
+        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
         @click="vault.globalSearch = ''"
       >
         Clear
