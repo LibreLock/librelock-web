@@ -14,7 +14,7 @@ function onTabChange(tab: Tab) {
 
 <template>
   <div class="overflow-y-auto h-full p-6">
-    <div class="max-w-2xl">
+    <div class="max-w-3xl">
       <h1 class="text-2xl font-semibold text-slate-900">Settings</h1>
       <p class="mt-1 mb-6 text-sm text-slate-400">Manage your account and security preferences</p>
 

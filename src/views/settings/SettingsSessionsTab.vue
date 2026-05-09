@@ -118,7 +118,7 @@ onMounted(() => {
         </button>
         <button
           type="button"
-          class="text-xs text-slate-500 hover:text-slate-700 transition-colors cursor-pointer disabled:opacity-50"
+          class="text-xs text-slate-500 mr-4 hover:text-slate-700 transition-colors cursor-pointer disabled:opacity-50"
           :disabled="sessionsLoading"
           @click="loadSessions"
         >
