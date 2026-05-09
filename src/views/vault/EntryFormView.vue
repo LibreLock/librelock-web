@@ -241,7 +241,7 @@ async function handleSubmit() {
                     <span class="text-xs font-semibold text-slate-500 px-1">—</span>
                     <button
                       type="button"
-                      class="text-xs font-semibold text-slate-500 hover:text-slate-600 transition-colors cursor-pointer hover:underline"
+                      class="text-xs font-semibold text-slate-600 cursor-pointer hover:underline"
                       @click="generateStrongPassword"
                     >
                       Generate
