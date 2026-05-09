@@ -4,3 +4,5 @@ export const DB_NAME = 'librelock'
 export const STORE = 'session'
 export const KEY_ID = 'master_key'
 export const SESSION_FLAG = 'vault_unlocked'
+
+export const MIN_PASSWORD_LENGTH = 12

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { ApiError, apiRequest } from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
+import { MIN_PASSWORD_LENGTH } from '@/constants'
 
 const auth = useAuthStore()
 
@@ -37,9 +38,9 @@ const passwordError = ref<string | null>(null)
 const passwordSuccess = ref(false)
 const isChangingPassword = ref(false)
 const newPasswordFocused = ref(false)
-const showNewPassword = ref(false)
 
-const MIN_PASSWORD_LENGTH = 12
+const showCurrentPassword = ref(false)
+const showNewPasswords = ref(false)
 
 const hasUpper = computed(() => /[A-Z]/.test(newPassword.value))
 const hasLower = computed(() => /[a-z]/.test(newPassword.value))
@@ -86,14 +87,13 @@ async function handleChangePassword() {
 
 <template>
   <div class="space-y-4">
-    <!-- Profile -->
     <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
       <div class="px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-slate-800">Profile</h2>
         <p class="mt-0.5 text-sm text-slate-400">Update your profile settings</p>
       </div>
 
-      <hr class="mt-2 border-slate-100" />
+      <hr class="mt-3 border-slate-100" />
 
       <div class="px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleSaveUsername">
@@ -127,14 +127,13 @@ async function handleChangePassword() {
       </div>
     </div>
 
-    <!-- Master Password -->
     <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
       <div class="px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-slate-800">Master password</h2>
         <p class="mt-0.5 text-sm text-slate-400">Change the password used to unlock your vault</p>
       </div>
 
-      <hr class="mt-2 border-slate-100" />
+      <hr class="mt-3 border-slate-100" />
 
       <div class="px-6 py-5">
         <div
@@ -145,56 +144,27 @@ async function handleChangePassword() {
         </div>
 
         <form v-else class="space-y-4" @submit.prevent="handleChangePassword">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="mb-1 block text-xs font-semibold text-slate-500"
-                >Current password</label
-              >
-              <input
-                v-model="currentPassword"
-                type="password"
-                required
-                autocomplete="current-password"
-                class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
-              />
-            </div>
-
-            <div>
-              <label class="mb-1 block text-xs font-semibold text-slate-500"
-                >Confirm new password</label
-              >
-              <input
-                v-model="confirmPassword"
-                type="password"
-                required
-                autocomplete="new-password"
-                class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
-              />
-              <p v-if="passwordMismatch" class="mt-1.5 text-xs text-rose-600">
-                Passwords do not match.
-              </p>
-            </div>
-          </div>
-
           <div>
-            <label class="mb-1 block text-xs font-semibold text-slate-500">New password</label>
+            <label class="mb-1 block text-xs font-semibold text-slate-500">
+              Current password
+            </label>
+
             <div class="relative">
               <input
-                v-model="newPassword"
-                :type="showNewPassword ? 'text' : 'password'"
+                v-model="currentPassword"
+                :type="showCurrentPassword ? 'text' : 'password'"
                 required
-                autocomplete="new-password"
+                autocomplete="current-password"
                 class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
-                @focus="newPasswordFocused = true"
-                @blur="newPasswordFocused = false"
               />
+
               <button
                 type="button"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                @click="showNewPassword = !showNewPassword"
+                @click="showCurrentPassword = !showCurrentPassword"
               >
                 <svg
-                  v-if="showNewPassword"
+                  v-if="showCurrentPassword"
                   class="h-4 w-4"
                   fill="none"
                   stroke="currentColor"
@@ -207,6 +177,60 @@ async function handleChangePassword() {
                     d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
                   />
                 </svg>
+
+                <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- New password -->
+          <div>
+            <label class="mb-1 block text-xs font-semibold text-slate-500"> New password </label>
+
+            <div class="relative">
+              <input
+                v-model="newPassword"
+                :type="showNewPasswords ? 'text' : 'password'"
+                required
+                autocomplete="new-password"
+                class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                @focus="newPasswordFocused = true"
+                @blur="newPasswordFocused = false"
+              />
+
+              <button
+                type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                @click="showNewPasswords = !showNewPasswords"
+              >
+                <svg
+                  v-if="showNewPasswords"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                  />
+                </svg>
+
                 <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
@@ -226,27 +250,51 @@ async function handleChangePassword() {
 
             <div
               v-if="newPasswordFocused || newPassword.length > 0"
-              class="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-1 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5 text-xs"
+              class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5 text-xs"
             >
-              <span :class="hasUpper ? 'text-emerald-600' : 'text-slate-400'"
-                >{{ hasUpper ? '✓' : '○' }} Uppercase</span
-              >
-              <span :class="hasLower ? 'text-emerald-600' : 'text-slate-400'"
-                >{{ hasLower ? '✓' : '○' }} Lowercase</span
-              >
-              <span :class="hasNumber ? 'text-emerald-600' : 'text-slate-400'"
-                >{{ hasNumber ? '✓' : '○' }} Number</span
-              >
-              <span :class="hasSymbol ? 'text-emerald-600' : 'text-slate-400'"
-                >{{ hasSymbol ? '✓' : '○' }} Symbol</span
-              >
-              <span :class="passwordMinOk ? 'text-emerald-600' : 'text-slate-400'"
-                >{{ passwordMinOk ? '✓' : '○' }} {{ MIN_PASSWORD_LENGTH }}+ chars</span
-              >
+              <span :class="hasUpper ? 'text-emerald-600' : 'text-slate-400'">
+                {{ hasUpper ? '✓' : '○' }} Uppercase
+              </span>
+
+              <span :class="hasLower ? 'text-emerald-600' : 'text-slate-400'">
+                {{ hasLower ? '✓' : '○' }} Lowercase
+              </span>
+
+              <span :class="hasNumber ? 'text-emerald-600' : 'text-slate-400'">
+                {{ hasNumber ? '✓' : '○' }} Number
+              </span>
+
+              <span :class="hasSymbol ? 'text-emerald-600' : 'text-slate-400'">
+                {{ hasSymbol ? '✓' : '○' }} Symbol
+              </span>
+
+              <span :class="passwordMinOk ? 'text-emerald-600' : 'text-slate-400'">
+                {{ passwordMinOk ? '✓' : '○' }} {{ MIN_PASSWORD_LENGTH }}+ characters
+              </span>
             </div>
           </div>
 
-          <p v-if="passwordError" class="text-sm text-rose-600">{{ passwordError }}</p>
+          <div>
+            <label class="mb-1 block text-xs font-semibold text-slate-500">
+              Confirm new password
+            </label>
+
+            <input
+              v-model="confirmPassword"
+              :type="showNewPasswords ? 'text' : 'password'"
+              required
+              autocomplete="new-password"
+              class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+            />
+
+            <p v-if="passwordMismatch" class="mt-1.5 text-xs text-rose-600">
+              Passwords do not match.
+            </p>
+          </div>
+
+          <p v-if="passwordError" class="text-sm text-rose-600">
+            {{ passwordError }}
+          </p>
 
           <button
             type="submit"

@@ -4,6 +4,7 @@ import { RouterLink, useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
 import IconPadlock from '@/components/icons/IconPadlock.vue'
+import { MIN_PASSWORD_LENGTH } from '@/constants'
 const auth = useAuthStore()
 const router = useRouter()
 
@@ -12,8 +13,6 @@ const form = reactive({
   password: '',
   repeatPassword: '',
 })
-
-const MIN_PASSWORD_LENGTH = 12
 
 const localError = ref('')
 
@@ -88,7 +87,7 @@ async function handleSubmit() {
         </div>
 
         <div>
-          <label class="mb-1 block text-xs font-semibold text-slate-500"> Password </label>
+          <label class="mb-1 block text-xs font-semibold text-slate-500">Master Password</label>
           <div class="relative">
             <input
               v-model="form.password"
@@ -134,32 +133,34 @@ async function handleSubmit() {
               </svg>
             </button>
           </div>
-          <div v-if="passwordFocused" class="mt-2 text-sm">
-            <p class="text-slate-500">
-              Choose a secure master password - at least {{ MIN_PASSWORD_LENGTH }} characters.
-            </p>
-            <ul class="mt-2 space-y-1">
+          <div
+            v-if="passwordFocused"
+            class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5 text-xs"
+          >
+            <ul class="space-y-1">
               <li :class="hasUpper ? 'text-emerald-600' : 'text-slate-400'">
-                {{ hasUpper ? '✓' : '○' }} Uppercase letter
+                {{ hasUpper ? '✓' : '○' }} Uppercase
               </li>
               <li :class="hasLower ? 'text-emerald-600' : 'text-slate-400'">
-                {{ hasLower ? '✓' : '○' }} Lowercase letter
+                {{ hasLower ? '✓' : '○' }} Lowercase
               </li>
               <li :class="hasNumber ? 'text-emerald-600' : 'text-slate-400'">
                 {{ hasNumber ? '✓' : '○' }} Number
               </li>
               <li :class="hasSymbol ? 'text-emerald-600' : 'text-slate-400'">
-                {{ hasSymbol ? '✓' : '○' }} Symbol (e.g. !@#$%)
+                {{ hasSymbol ? '✓' : '○' }} Symbol
               </li>
               <li :class="passwordMinOk ? 'text-emerald-600' : 'text-slate-400'">
-                {{ passwordMinOk ? '✓' : '○' }} At least {{ MIN_PASSWORD_LENGTH }} characters
+                {{ passwordMinOk ? '✓' : '○' }} {{ MIN_PASSWORD_LENGTH }}+ characters
               </li>
             </ul>
           </div>
         </div>
 
         <div>
-          <label class="mb-1 block text-xs font-semibold text-slate-500"> Repeat password </label>
+          <label class="mb-1 block text-xs font-semibold text-slate-500">
+            Repeat master password
+          </label>
           <div class="relative">
             <input
               v-model="form.repeatPassword"

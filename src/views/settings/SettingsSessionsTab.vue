@@ -104,9 +104,7 @@ onMounted(() => {
     <div class="px-6 pt-6 pb-1 flex items-center justify-between">
       <div>
         <h2 class="text-base font-semibold text-slate-800">Active sessions</h2>
-        <p class="mt-0.5 text-sm text-slate-400">
-          All devices currently logged in to your account.
-        </p>
+        <p class="mt-0.5 text-sm text-slate-400">All devices currently logged in to your account</p>
       </div>
       <div class="flex items-center gap-2">
         <button
@@ -129,7 +127,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <hr class="mt-5 border-slate-100" />
+    <hr class="mt-3 border-slate-100" />
 
     <div class="px-6 py-5">
       <!-- Loading -->

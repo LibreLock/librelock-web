@@ -79,7 +79,7 @@ watch(
         <h2 class="text-base font-semibold text-slate-800">Server</h2>
         <p class="mt-0.5 text-sm text-slate-400">Configure server settings</p>
       </div>
-      <hr class="mt-2 border-slate-100" />
+      <hr class="mt-3 border-slate-100" />
       <div class="px-6 py-5">
         <div class="space-y-4">
           <label class="mb-1 block text-xs font-semibold text-slate-500">API endpoint</label>
