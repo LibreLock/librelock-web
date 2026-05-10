@@ -28,13 +28,13 @@ npm run build
 npm run preview
 ```
 
-**Run Unit Tests with [Vitest](https://vitest.dev/):**
+**Run Unit Tests with [Vitest](https://vitest.dev/)**
 
 ```bash
 npm run test:unit
 ```
 
-**Run End-to-End Tests with [Playwright](https://playwright.dev):**
+**Run End-to-End Tests with [Playwright](https://playwright.dev)**
 
 ```bash
 # Install browsers for the first run
