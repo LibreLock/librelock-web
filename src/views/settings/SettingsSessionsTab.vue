@@ -175,7 +175,7 @@ onMounted(() => {
             <div class="mb-0.5">
               <span
                 class="text-sm font-medium text-slate-800 dark:text-slate-200"
-                title="Session ID: {{ session.id }}"
+                :title="`Session ID: ${session.id}`"
                 >{{ shortDeviceName(session.device_name) }}</span
               >
             </div>
