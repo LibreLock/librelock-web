@@ -18,7 +18,6 @@ function onTabChange(tab: Tab) {
       <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Settings</h1>
       <p class="mt-1 mb-6 text-sm text-slate-400">Manage your account and security preferences</p>
 
-      <!-- Tabs -->
       <div class="mb-6 flex gap-1 border-b border-slate-200 dark:border-slate-700">
         <button
           type="button"
@@ -58,13 +57,8 @@ function onTabChange(tab: Tab) {
         </button>
       </div>
 
-      <!-- Account Tab -->
       <SettingsAccountTab v-if="activeTab === 'account'" />
-
-      <!-- Security Tab -->
       <SettingsSecurityTab v-if="activeTab === 'security'" />
-
-      <!-- Sessions Tab -->
       <SettingsSessionsTab v-if="activeTab === 'sessions'" />
     </div>
   </div>

@@ -100,7 +100,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
+  <div
+    class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+  >
     <div class="px-6 pt-6 pb-1 flex items-center justify-between">
       <div>
         <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Active sessions</h2>
@@ -130,7 +132,6 @@ onMounted(() => {
     <hr class="mt-3 border-slate-100 dark:border-slate-700" />
 
     <div class="px-6 py-5">
-      <!-- Loading -->
       <div
         v-if="sessionsLoading"
         class="flex items-center justify-center gap-2 py-8 text-sm text-slate-400"
@@ -153,7 +154,10 @@ onMounted(() => {
         Loading sessions…
       </div>
 
-      <div v-else-if="sessionsError" class="rounded-lg bg-rose-50 dark:bg-rose-950/50 px-4 py-3 text-sm text-rose-600 dark:text-rose-400">
+      <div
+        v-else-if="sessionsError"
+        class="rounded-lg bg-rose-50 dark:bg-rose-950/50 px-4 py-3 text-sm text-rose-600 dark:text-rose-400"
+      >
         {{ sessionsError }}
       </div>
 
@@ -193,7 +197,6 @@ onMounted(() => {
             >
           </div>
 
-          <!-- Actions -->
           <div class="shrink-0 pt-0.5">
             <button
               type="button"

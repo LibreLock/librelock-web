@@ -59,11 +59,6 @@ const router = createRouter({
           component: () => import('../views/notes/NotesView.vue'),
         },
         {
-          path: 'security',
-          name: 'security',
-          component: () => import('../views/security/SecurityCenterView.vue'),
-        },
-        {
           path: 'generator',
           name: 'generator',
           component: () => import('../views/generator/GeneratorView.vue'),

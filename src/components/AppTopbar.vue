@@ -31,7 +31,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
   <header
     class="flex h-14 flex-shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4"
   >
-    <!-- Search bar -->
     <div class="relative w-full max-w-md">
       <svg
         class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
@@ -55,10 +54,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
         class="w-full rounded-md border px-3 py-1.5 pl-9 pr-16 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition [&::-webkit-search-cancel-button]:hidden text-sm"
       />
 
-      <!-- Ctrl+K hint -->
       <div
         v-if="!vault.globalSearch"
-        class="absolute right-2.5 top-1/2 hidden -translate-y-1/2 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-1.5 text-[10px] text-slate-400 dark:text-slate-500 sm:block"
+        class="absolute right-2.5 top-1/2 hidden -translate-y-1/2 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-1.5 text-[10px] text-slate-400 dark:text-slate-500 sm:block"
       >
         Ctrl K
       </div>

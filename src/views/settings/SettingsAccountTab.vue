@@ -180,7 +180,9 @@ async function handleDeleteAccount() {
 
 <template>
   <div class="space-y-4">
-    <div class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
+    <div
+      class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+    >
       <div class="px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Profile</h2>
         <p class="mt-0.5 text-sm text-slate-400">Update your profile settings</p>
@@ -191,13 +193,18 @@ async function handleDeleteAccount() {
       <div class="px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleSaveUsername">
           <div>
-            <label class="mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400 mr-2">User ID</label>
-            <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-2 py-1.5 rounded">{{
-              auth.user?.id
-            }}</code>
+            <label class="mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400 mr-2"
+              >User ID</label
+            >
+            <code
+              class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-2 py-1.5 rounded"
+              >{{ auth.user?.id }}</code
+            >
           </div>
           <div>
-            <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Username</label>
+            <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+              >Username</label
+            >
             <input
               v-model="editUsername"
               type="text"
@@ -220,7 +227,9 @@ async function handleDeleteAccount() {
       </div>
     </div>
 
-    <div class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
+    <div
+      class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+    >
       <div class="px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Master password</h2>
         <p class="mt-0.5 text-sm text-slate-400">Change the password used to unlock your vault</p>
@@ -289,9 +298,10 @@ async function handleDeleteAccount() {
             </div>
           </div>
 
-          <!-- New password -->
           <div>
-            <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"> New password </label>
+            <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+              New password
+            </label>
 
             <div class="relative">
               <input
@@ -353,15 +363,21 @@ async function handleDeleteAccount() {
                 {{ hasLower ? '✓' : '○' }} Lowercase
               </span>
 
-              <span :class="hasNumber ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
+              <span
+                :class="hasNumber ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'"
+              >
                 {{ hasNumber ? '✓' : '○' }} Number
               </span>
 
-              <span :class="hasSymbol ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
+              <span
+                :class="hasSymbol ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'"
+              >
                 {{ hasSymbol ? '✓' : '○' }} Symbol
               </span>
 
-              <span :class="passwordMinOk ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
+              <span
+                :class="passwordMinOk ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'"
+              >
                 {{ passwordMinOk ? '✓' : '○' }} {{ MIN_PASSWORD_LENGTH }}+ characters
               </span>
             </div>
@@ -400,7 +416,9 @@ async function handleDeleteAccount() {
       </div>
     </div>
 
-    <div class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
+    <div
+      class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+    >
       <div class="px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Delete account</h2>
         <p class="mt-0.5 text-sm text-slate-400">

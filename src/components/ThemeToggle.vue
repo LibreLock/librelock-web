@@ -17,7 +17,6 @@ const label = computed(() =>
     :title="label"
     @click="theme.toggle()"
   >
-    <!-- Dark mode: show sun (click to go light) -->
     <svg
       v-if="theme.theme === 'dark'"
       class="h-5 w-5 transition-transform duration-300 hover:rotate-12"
@@ -38,10 +37,9 @@ const label = computed(() =>
       </g>
     </svg>
 
-    <!-- Light mode: show moon (click to go dark) -->
     <svg
       v-else
-      class="h-[18px] w-[18px] transition-transform duration-300 hover:-rotate-6"
+      class="h-5 w-5 transition-transform duration-300 hover:-rotate-6"
       viewBox="0 0 24 24"
       fill="currentColor"
     >
