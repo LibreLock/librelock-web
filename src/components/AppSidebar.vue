@@ -45,25 +45,25 @@ const navItems = [
 
 <template>
   <aside
-    class="flex h-screen flex-shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-200"
+    class="flex h-screen flex-shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition-all duration-200"
     :class="collapsed ? 'w-16' : 'w-60'"
   >
     <div
-      class="flex flex-shrink-0 border-b border-slate-100 p-3"
+      class="flex flex-shrink-0 border-b border-slate-100 dark:border-slate-700/60 p-3"
       :class="
         collapsed ? 'h-auto flex-col items-center gap-2' : 'h-14 items-center gap-3 pl-4 pr-2'
       "
     >
       <RouterLink to="/" class="flex items-center gap-3" :class="collapsed ? 'justify-center' : ''">
         <IconPadlock size="md" />
-        <span v-if="!collapsed" class="truncate text-lg font-semibold text-slate-900"
+        <span v-if="!collapsed" class="truncate text-lg font-semibold text-slate-900 dark:text-slate-100"
           >LibreLock</span
         >
       </RouterLink>
       <button
         type="button"
         :class="[
-          'flex items-center justify-center rounded-lg px-2 py-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 cursor-pointer',
+          'flex items-center justify-center rounded-lg px-2 py-2 text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer',
           !collapsed && 'ml-auto',
         ]"
         @click="toggleCollapse"
@@ -93,8 +93,8 @@ const navItems = [
         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
         :class="
           isActive(item.to)
-            ? 'bg-slate-200 text-slate-700'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-100'
+            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
         "
         :title="collapsed ? item.name : undefined"
       >
@@ -152,14 +152,14 @@ const navItems = [
       </RouterLink>
     </nav>
 
-    <div class="flex-shrink-0 space-y-1 border-t border-slate-100 p-2">
+    <div class="flex-shrink-0 space-y-1 border-t border-slate-100 dark:border-slate-700/60 p-2">
       <RouterLink
         to="/settings"
         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
         :class="
           isActive('/settings')
-            ? 'bg-slate-200 text-slate-700'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-100'
+            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
         "
         :title="collapsed ? 'Settings' : undefined"
       >
@@ -182,7 +182,7 @@ const navItems = [
 
       <button
         type="button"
-        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50 cursor-pointer"
+        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-950/40 disabled:opacity-50 cursor-pointer"
         :disabled="auth.isSubmitting"
         :title="collapsed ? 'Log out' : undefined"
         @click="handleLogout"

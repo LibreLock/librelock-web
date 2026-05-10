@@ -152,19 +152,19 @@ async function handleSubmit() {
     <div class="w-full">
       <div class="mb-4 flex items-center gap-4">
         <div>
-          <h1 class="text-xl font-semibold text-slate-900">
+          <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {{ isEditMode ? 'Edit entry' : 'New' }}
           </h1>
         </div>
 
-        <div v-if="!isEditMode" class="flex w-fit gap-1 rounded-lg bg-slate-100 p-1 flex-shrink-0">
+        <div v-if="!isEditMode" class="flex w-fit gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1 flex-shrink-0">
           <button
             type="button"
             class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer"
             :class="
               entryType === 'password'
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             "
             @click="switchType('password')"
           >
@@ -175,8 +175,8 @@ async function handleSubmit() {
             class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer"
             :class="
               entryType === 'note'
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             "
             @click="switchType('note')"
           >
@@ -187,7 +187,7 @@ async function handleSubmit() {
         <button
           v-if="isEditMode"
           type="button"
-          class="ml-auto rounded-lg border border-rose-200 px-3 py-1.5 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+          class="ml-auto rounded-lg border border-rose-200 dark:border-rose-900 px-3 py-1.5 text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
           @click="showDeleteConfirm = true"
         >
           Delete
@@ -196,13 +196,13 @@ async function handleSubmit() {
 
       <div v-if="isLoading" class="py-12 text-center text-sm text-slate-400">Loading entry…</div>
 
-      <div v-else class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200 overflow-hidden">
+      <div v-else class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 overflow-hidden">
         <form @submit.prevent="handleSubmit">
-          <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] lg:divide-x lg:divide-slate-100">
+          <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] lg:divide-x lg:divide-slate-100 dark:lg:divide-slate-700">
             <div class="px-5 py-5 space-y-3">
               <template v-if="entryType === 'password'">
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-slate-500"
+                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
                     >Name<span class="text-rose-400">*</span></label
                   >
                   <input
@@ -210,38 +210,38 @@ async function handleSubmit() {
                     type="text"
                     required
                     placeholder="e.g. GitHub"
-                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                   />
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-slate-500">Username</label>
+                    <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Username</label>
                     <input
                       v-model="account.username"
                       type="text"
-                      class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                      class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                     />
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-slate-500">Email</label>
+                    <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Email</label>
                     <input
                       v-model="account.email"
                       type="email"
-                      class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                      class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                     />
                   </div>
                 </div>
 
                 <div>
                   <div class="mb-1 flex items-center">
-                    <label class="block text-xs font-semibold text-slate-500"
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400"
                       >Password<span class="text-rose-400">*</span></label
                     >
-                    <span class="text-xs font-semibold text-slate-500 px-1">—</span>
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 px-1">—</span>
                     <button
                       type="button"
-                      class="text-xs font-semibold text-slate-600 cursor-pointer hover:underline"
+                      class="text-xs font-semibold text-slate-600 dark:text-slate-300 cursor-pointer hover:underline"
                       @click="generateStrongPassword"
                     >
                       Generate
@@ -253,11 +253,11 @@ async function handleSubmit() {
                       :type="showPassword ? 'text' : 'password'"
                       required
                       autocomplete="new-password"
-                      class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                      class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                     />
                     <button
                       type="button"
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
                       @click="showPassword = !showPassword"
                     >
                       <svg
@@ -299,30 +299,30 @@ async function handleSubmit() {
                 </div>
 
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-slate-500">URL</label>
+                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">URL</label>
                   <input
                     v-model="account.url"
                     type="text"
                     placeholder="e.g. github.com"
-                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                   />
                 </div>
 
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-slate-500"
+                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
                     >Secure notes
                   </label>
                   <textarea
                     v-model="account.notes"
                     rows="3"
-                    class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full resize-none rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-slate-400 dark:focus:border-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                   />
                 </div>
               </template>
 
               <template v-else>
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-slate-500"
+                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
                     >Name<span class="text-rose-400">*</span></label
                   >
                   <input
@@ -330,26 +330,26 @@ async function handleSubmit() {
                     type="text"
                     required
                     placeholder="e.g. Recovery codes"
-                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                   />
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-slate-500"
+                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
                     >Content<span class="text-rose-400">*</span></label
                   >
                   <textarea
                     v-model="note.content"
                     rows="8"
                     required
-                    class="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-sm text-slate-900 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="w-full resize-none rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 px-3 py-2 font-mono text-sm text-slate-900 dark:text-slate-100 focus:border-slate-400 dark:focus:border-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                   />
                 </div>
               </template>
             </div>
 
-            <div class="flex flex-col gap-5 px-5 py-5 border-t border-slate-100 lg:border-t-0">
+            <div class="flex flex-col gap-5 px-5 py-5 border-t border-slate-100 dark:border-slate-700 lg:border-t-0">
               <div>
-                <label class="mb-1 block text-xs font-semibold text-slate-500">Color</label>
+                <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Color</label>
 
                 <div class="flex flex-wrap gap-2">
                   <button
@@ -360,7 +360,7 @@ async function handleSubmit() {
                     :class="[
                       c.bg,
                       selectedColor === c.bg
-                        ? 'ring-2 ring-offset-2 ring-slate-400 scale-110'
+                        ? 'ring-2 ring-offset-2 ring-slate-400 dark:ring-offset-slate-900 scale-110'
                         : 'hover:scale-105',
                     ]"
                     :title="c.label"
@@ -370,7 +370,7 @@ async function handleSubmit() {
               </div>
 
               <div>
-                <label class="mb-1 block text-xs font-semibold text-slate-500">Category</label>
+                <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Category</label>
                 <div class="flex flex-wrap gap-1.5">
                   <button
                     type="button"
@@ -378,7 +378,7 @@ async function handleSubmit() {
                     :class="
                       selectedCategoryId === null
                         ? 'bg-slate-800 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                     "
                     @click="selectedCategoryId = null"
                   >
@@ -397,7 +397,7 @@ async function handleSubmit() {
                   <button
                     v-if="!showNewCategory"
                     type="button"
-                    class="rounded-full border border-dashed border-slate-300 px-2.5 py-0.5 text-xs font-medium text-slate-400 hover:border-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                    class="rounded-full border border-dashed border-slate-300 dark:border-slate-600 px-2.5 py-0.5 text-xs font-medium text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
                     @click="showNewCategory = true"
                   >
                     + New
@@ -409,7 +409,7 @@ async function handleSubmit() {
                     v-model="newCategoryName"
                     type="text"
                     placeholder="Name"
-                    class="min-w-0 flex-1 rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+                    class="min-w-0 flex-1 rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                     @keydown.enter.prevent="handleAddCategory"
                     @keydown.escape="cancelNewCategory"
                   />
@@ -423,7 +423,7 @@ async function handleSubmit() {
                   </button>
                   <button
                     type="button"
-                    class="rounded-lg px-2 py-1.5 text-xs text-slate-400 hover:text-slate-700 cursor-pointer transition-colors"
+                    class="rounded-lg px-2 py-1.5 text-xs text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer transition-colors"
                     @click="cancelNewCategory"
                   >
                     ✕
@@ -453,18 +453,18 @@ async function handleSubmit() {
   <Teleport to="body">
     <div
       v-if="showDeleteConfirm"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
       @click.self="showDeleteConfirm = false"
     >
-      <div class="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
-        <h2 class="mb-2 text-base font-semibold text-slate-900">
+      <div class="w-full max-w-sm rounded-xl bg-white dark:bg-slate-800 p-4 shadow-xl">
+        <h2 class="mb-2 text-base font-semibold text-slate-900 dark:text-slate-100">
           Delete {{ entryType === 'password' ? 'password' : 'note' }}?
         </h2>
-        <p class="mb-5 text-sm text-slate-500">This cannot be undone</p>
+        <p class="mb-5 text-sm text-slate-500 dark:text-slate-400">This cannot be undone</p>
         <div class="flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700 cursor-pointer transition-colors"
+            class="rounded-lg px-3 py-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer transition-colors"
             @click="showDeleteConfirm = false"
           >
             Cancel

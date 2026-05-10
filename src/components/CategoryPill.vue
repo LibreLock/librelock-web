@@ -85,7 +85,7 @@ onBeforeUnmount(closeMenu)
   <button
     type="button"
     class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
-    :class="active ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+    :class="active ? 'bg-slate-800 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
     @click="emit('click')"
     @contextmenu="openMenu"
   >
@@ -95,20 +95,20 @@ onBeforeUnmount(closeMenu)
   <Teleport to="body">
     <div
       v-if="menuOpen"
-      class="fixed z-50 min-w-[130px] rounded-lg border border-slate-200 bg-white py-1 shadow-lg"
+      class="fixed z-50 min-w-[130px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-1 shadow-lg"
       :style="{ left: menuX + 'px', top: menuY + 'px' }"
       @pointerdown.stop
     >
       <button
         type="button"
-        class="flex w-full items-center px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer"
+        class="flex w-full items-center px-3 py-1.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer"
         @click="startRename"
       >
         Rename
       </button>
       <button
         type="button"
-        class="flex w-full items-center px-3 py-1.5 text-sm text-rose-600 hover:bg-rose-50 cursor-pointer"
+        class="flex w-full items-center px-3 py-1.5 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 cursor-pointer"
         @click="startDelete"
       >
         Delete
@@ -117,23 +117,23 @@ onBeforeUnmount(closeMenu)
 
     <div
       v-if="showRename"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
       @click.self="showRename = false"
     >
-      <div class="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
-        <h2 class="mb-4 text-base font-semibold text-slate-900">Rename category</h2>
+      <div class="w-full max-w-sm rounded-xl bg-white dark:bg-slate-800 p-4 shadow-xl">
+        <h2 class="mb-4 text-base font-semibold text-slate-900 dark:text-slate-100">Rename category</h2>
         <input
           ref="renameInput"
           v-model="renameName"
           type="text"
-          class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+          class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
           @keydown.enter.prevent="confirmRename"
           @keydown.escape="showRename = false"
         />
         <div class="mt-4 flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700 cursor-pointer transition-colors"
+            class="rounded-lg px-3 py-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer transition-colors"
             @click="showRename = false"
           >
             Cancel
@@ -152,18 +152,18 @@ onBeforeUnmount(closeMenu)
 
     <div
       v-if="showDelete"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
       @click.self="showDelete = false"
     >
-      <div class="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
-        <h2 class="mb-2 text-base font-semibold text-slate-900">Delete "{{ category.name }}"?</h2>
-        <p class="mb-5 text-sm text-slate-500">
+      <div class="w-full max-w-sm rounded-xl bg-white dark:bg-slate-800 p-4 shadow-xl">
+        <h2 class="mb-2 text-base font-semibold text-slate-900 dark:text-slate-100">Delete "{{ category.name }}"?</h2>
+        <p class="mb-5 text-sm text-slate-500 dark:text-slate-400">
           Entries in this category won't be deleted, but they'll become uncategorized.
         </p>
         <div class="flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700 cursor-pointer transition-colors"
+            class="rounded-lg px-3 py-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer transition-colors"
             @click="showDelete = false"
           >
             Cancel

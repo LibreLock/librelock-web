@@ -41,25 +41,25 @@ watch(
 
 <template>
   <div class="space-y-4">
-    <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+    <div class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
       <div class="px-6 pt-6 pb-1">
-        <h2 class="text-base font-semibold text-slate-800">Security & Storage</h2>
+        <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Security & Storage</h2>
         <p class="mt-0.5 text-sm text-slate-400">View cryptography and key storage details</p>
       </div>
-      <hr class="mt-4 border-slate-100" />
-      <div class="px-6 py-2 divide-y divide-slate-100">
+      <hr class="mt-4 border-slate-100 dark:border-slate-700" />
+      <div class="px-6 py-2 divide-y divide-slate-100 dark:divide-slate-700">
         <div class="py-3">
-          <h3 class="text-xs font-semibold text-slate-600 mb-4">Cryptography</h3>
+          <h3 class="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-4">Cryptography</h3>
           <div class="space-y-3">
             <div class="flex items-center gap-4">
               <span class="w-36 shrink-0 text-xs font-medium text-slate-500">Vault cipher</span>
-              <code class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded"
+              <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded"
                 >AES-GCM · 256-bit</code
               >
             </div>
             <div class="flex items-center gap-4">
               <span class="w-36 shrink-0 text-xs font-medium text-slate-500">KDF algorithm</span>
-              <code class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded">{{
+              <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">{{
                 kdfInfo?.kdf_algo
               }}</code>
             </div>
@@ -72,19 +72,19 @@ watch(
             <template v-else-if="kdfInfo">
               <div class="flex items-center gap-4">
                 <span class="w-36 shrink-0 text-xs font-medium text-slate-500">Iterations</span>
-                <code class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded">{{
+                <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">{{
                   kdfInfo.kdf_iter
                 }}</code>
               </div>
               <div class="flex items-center gap-4">
                 <span class="w-36 shrink-0 text-xs font-medium text-slate-500">Memory</span>
-                <code class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded">{{
+                <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">{{
                   formatMemory(kdfInfo.kdf_memory)
                 }}</code>
               </div>
               <div class="flex items-center gap-4">
                 <span class="w-36 shrink-0 text-xs font-medium text-slate-500">Parallelism</span>
-                <code class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded">{{
+                <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">{{
                   kdfInfo.kdf_parallelism
                 }}</code>
               </div>
@@ -93,7 +93,7 @@ watch(
                   >KDF salt</span
                 >
                 <code
-                  class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded break-all"
+                  class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded break-all"
                   >{{ kdfInfo.kdf_salt }}</code
                 >
               </div>
@@ -102,14 +102,14 @@ watch(
         </div>
 
         <div class="py-3">
-          <h3 class="text-xs font-semibold text-slate-600 mb-4">Key Storage</h3>
+          <h3 class="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-4">Key Storage</h3>
           <div class="space-y-3">
             <div class="flex items-start gap-4">
               <span class="w-36 shrink-0 text-xs font-medium text-slate-500 pt-0.5"
                 >Master key</span
               >
               <div>
-                <code class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded"
+                <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded"
                   >JavaScript heap (in-memory)</code
                 >
               </div>
@@ -119,14 +119,14 @@ watch(
                 >Session key</span
               >
               <div>
-                <code class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded"
+                <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded"
                   >IndexedDB > {{ DB_NAME }} > {{ STORE }} > {{ KEY_ID }}</code
                 >
               </div>
             </div>
             <div class="flex items-center gap-4">
               <span class="w-36 shrink-0 text-xs font-medium text-slate-500">Session flag</span>
-              <code class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded"
+              <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded"
                 >sessionStorage["{{ SESSION_FLAG }}"]</code
               >
             </div>
@@ -135,7 +135,7 @@ watch(
                 >Auth session</span
               >
               <div>
-                <code class="text-xs font-mono text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded"
+                <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded"
                   >HttpOnly cookie (server-managed)</code
                 >
               </div>

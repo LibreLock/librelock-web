@@ -18,17 +18,17 @@ async function copy() {
 <template>
   <div class="overflow-y-auto h-full p-4 sm:p-6">
     <div class="max-w-xl">
-      <h1 class="text-xl font-semibold text-slate-900">Password Generator</h1>
+      <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Password Generator</h1>
       <p class="mt-1 mb-5 text-sm text-slate-500">
         Generate strong, unique passwords for your accounts.
       </p>
 
-      <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200 p-5 space-y-5">
+      <div class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 p-5 space-y-5">
         <div>
           <div class="flex gap-2">
             <div
-              class="flex-1 min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-sm text-slate-900 truncate cursor-pointer transition-colors"
-              :class="copied ? 'bg-emerald-50 border-emerald-300' : ''"
+              class="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 px-3 py-2 font-mono text-sm text-slate-900 dark:text-slate-100 truncate cursor-pointer transition-colors"
+              :class="copied ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700' : ''"
               @click="copy"
               title="Copy"
             >
@@ -37,7 +37,7 @@ async function copy() {
             <button
               type="button"
               title="Regenerate"
-              class="flex-shrink-0 rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+              class="flex-shrink-0 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
               @click="generate"
             >
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,7 +79,8 @@ async function copy() {
             type="range"
             min="1"
             max="64"
-            class="w-full accent-slate-800 cursor-pointer"
+            class="w-full slider"
+            :style="{ '--slider-fill': `${((length - 1) / 63) * 100}%` }"
           />
         </div>
 
@@ -92,7 +93,7 @@ async function copy() {
                 type="checkbox"
                 class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700">Uppercase (A-Z)</span>
+              <span class="text-sm text-slate-700 dark:text-slate-300">Uppercase (A-Z)</span>
             </label>
             <label class="flex cursor-pointer items-center gap-2.5">
               <input
@@ -100,7 +101,7 @@ async function copy() {
                 type="checkbox"
                 class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700">Lowercase (a-z)</span>
+              <span class="text-sm text-slate-700 dark:text-slate-300">Lowercase (a-z)</span>
             </label>
             <label class="flex cursor-pointer items-center gap-2.5">
               <input
@@ -108,7 +109,7 @@ async function copy() {
                 type="checkbox"
                 class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700">Numbers (0-9)</span>
+              <span class="text-sm text-slate-700 dark:text-slate-300">Numbers (0-9)</span>
             </label>
             <label class="flex cursor-pointer items-center gap-2.5">
               <input
@@ -116,7 +117,7 @@ async function copy() {
                 type="checkbox"
                 class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700">Symbols (!@#…)</span>
+              <span class="text-sm text-slate-700 dark:text-slate-300">Symbols (!@#…)</span>
             </label>
           </div>
         </div>

@@ -13,4 +13,6 @@ export const KDF_PARALLELISM = 4
 
 export const MIN_PASSWORD_LENGTH = 12
 
+export const THEME_STORAGE_KEY = 'theme'
+
 export const DEFAULT_CATEGORIES = ['Personal', 'Work', 'Finance', 'Social', 'Development']

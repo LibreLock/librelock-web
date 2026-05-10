@@ -100,17 +100,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+  <div class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
     <div class="px-6 pt-6 pb-1 flex items-center justify-between">
       <div>
-        <h2 class="text-base font-semibold text-slate-800">Active sessions</h2>
+        <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Active sessions</h2>
         <p class="mt-0.5 text-sm text-slate-400">All devices currently logged in to your account</p>
       </div>
       <div class="flex items-center gap-2">
         <button
           v-if="sessions.length > 1"
           type="button"
-          class="text-xs text-rose-500 hover:text-rose-700 mr-2 transition-colors cursor-pointer disabled:opacity-50"
+          class="text-xs text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 mr-2 transition-colors cursor-pointer disabled:opacity-50"
           :disabled="revokingAll"
           @click="revokeAllSessions"
         >
@@ -118,7 +118,7 @@ onMounted(() => {
         </button>
         <button
           type="button"
-          class="text-xs text-slate-500 mr-4 hover:text-slate-700 transition-colors cursor-pointer disabled:opacity-50"
+          class="text-xs text-slate-500 dark:text-slate-400 mr-4 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer disabled:opacity-50"
           :disabled="sessionsLoading"
           @click="loadSessions"
         >
@@ -127,7 +127,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <hr class="mt-3 border-slate-100" />
+    <hr class="mt-3 border-slate-100 dark:border-slate-700" />
 
     <div class="px-6 py-5">
       <!-- Loading -->
@@ -153,7 +153,7 @@ onMounted(() => {
         Loading sessions…
       </div>
 
-      <div v-else-if="sessionsError" class="rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-600">
+      <div v-else-if="sessionsError" class="rounded-lg bg-rose-50 dark:bg-rose-950/50 px-4 py-3 text-sm text-rose-600 dark:text-rose-400">
         {{ sessionsError }}
       </div>
 
@@ -165,12 +165,12 @@ onMounted(() => {
         <div
           v-for="session in sessions"
           :key="session.id"
-          class="flex items-start gap-4 rounded-lg border border-slate-200 px-4 py-4"
+          class="flex items-start gap-4 rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-4"
         >
           <div class="w-22 shrink-0">
             <div class="mb-0.5">
               <span
-                class="text-sm font-medium text-slate-800"
+                class="text-sm font-medium text-slate-800 dark:text-slate-200"
                 title="Session ID: {{ session.id }}"
                 >{{ shortDeviceName(session.device_name) }}</span
               >
@@ -197,7 +197,7 @@ onMounted(() => {
           <div class="shrink-0 pt-0.5">
             <button
               type="button"
-              class="text-xs text-rose-500 hover:text-rose-700 transition-colors cursor-pointer disabled:opacity-50"
+              class="text-xs text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 transition-colors cursor-pointer disabled:opacity-50"
               :disabled="revokingId === session.id"
               @click="revokeSession(session.id)"
             >

@@ -46,7 +46,7 @@ function strengthDot(score: number): string {
 
 <template>
   <div class="flex flex-1 flex-col overflow-y-auto">
-    <div class="flex flex-shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-6 py-4">
+    <div class="flex flex-shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4">
       <span
         class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white"
         :class="entry.color"
@@ -54,13 +54,13 @@ function strengthDot(score: number): string {
         {{ entry.name.charAt(0).toUpperCase() }}
       </span>
       <div class="min-w-0 flex-1">
-        <h1 class="text-xl font-semibold text-slate-900">{{ entry.name }}</h1>
+        <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ entry.name }}</h1>
         <a
           v-if="entry.type === 'password' && entry.url"
           :href="`https://${entry.url}`"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700"
+          class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
         >
           {{ entry.url }}
           <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +76,7 @@ function strengthDot(score: number): string {
         <span v-else-if="entry.type === 'note'" class="text-sm text-slate-500">Secure Note</span>
         <span
           v-if="entry.categoryId"
-          class="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
+          class="ml-2 rounded-full bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-300"
         >
           {{ categoriesStore.getCategoryName(entry.categoryId) }}
         </span>
@@ -84,7 +84,7 @@ function strengthDot(score: number): string {
 
       <button
         type="button"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 cursor-pointer"
+        class="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-600 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
         @click="emit('edit')"
       >
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,18 +105,18 @@ function strengthDot(score: number): string {
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Credentials
           </h2>
-          <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
-            <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+          <div class="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3">
               <div class="min-w-0">
                 <p class="text-xs text-slate-400">Username</p>
-                <p class="truncate text-sm font-medium text-slate-800">
+                <p class="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
                   {{ entry.username || '—' }}
                 </p>
               </div>
               <button
                 v-if="entry.username"
                 type="button"
-                class="ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-slate-600 cursor-pointer"
+                class="ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 title="Copy username"
                 @click="copy(entry.username, 'username')"
               >
@@ -151,17 +151,17 @@ function strengthDot(score: number): string {
               </button>
             </div>
 
-            <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3">
               <div class="min-w-0">
                 <p class="text-xs text-slate-400">Email</p>
-                <p class="truncate text-sm font-medium text-slate-800">
+                <p class="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
                   {{ entry.email || '—' }}
                 </p>
               </div>
               <button
                 v-if="entry.email"
                 type="button"
-                class="ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-slate-600 cursor-pointer"
+                class="ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 title="Copy email"
                 @click="copy(entry.email, 'email')"
               >
@@ -196,10 +196,10 @@ function strengthDot(score: number): string {
               </button>
             </div>
 
-            <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3">
               <div class="min-w-0 flex-1">
                 <p class="text-xs text-slate-400">Password</p>
-                <p class="font-mono text-sm text-slate-800">
+                <p class="font-mono text-sm text-slate-800 dark:text-slate-200">
                   {{
                     showPassword ? entry.password : '•'.repeat(Math.min(entry.password.length, 18))
                   }}
@@ -208,7 +208,7 @@ function strengthDot(score: number): string {
               <div class="ml-3 flex flex-shrink-0 gap-2">
                 <button
                   type="button"
-                  class="text-slate-400 transition-colors hover:text-slate-600 cursor-pointer"
+                  class="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                   :title="showPassword ? 'Hide password' : 'Show password'"
                   @click="showPassword = !showPassword"
                 >
@@ -243,7 +243,7 @@ function strengthDot(score: number): string {
                 </button>
                 <button
                   type="button"
-                  class="text-slate-400 transition-colors hover:text-slate-600 cursor-pointer"
+                  class="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                   title="Copy password"
                   @click="copy(entry.password, 'password')"
                 >
@@ -286,7 +286,7 @@ function strengthDot(score: number): string {
             Security
           </h2>
           <div class="grid grid-cols-3 gap-2">
-            <div class="rounded-lg border border-slate-200 bg-white p-4">
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
               <p class="mb-1.5 text-xs text-slate-400">Password strength</p>
               <div class="flex items-center gap-1.5">
                 <span
@@ -299,27 +299,27 @@ function strengthDot(score: number): string {
               </div>
             </div>
 
-            <div class="rounded-lg border border-slate-200 bg-white p-4">
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
               <p class="mb-1.5 text-xs text-slate-400">Reused</p>
               <div class="flex items-center gap-1.5">
                 <span
                   class="h-2 w-2 flex-shrink-0 rounded-full"
                   :class="entry.reused ? 'bg-amber-500' : 'bg-emerald-500'"
                 ></span>
-                <span class="text-sm font-medium text-slate-700">
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {{ entry.reused ? 'Yes' : 'No' }}
                 </span>
               </div>
             </div>
 
-            <div class="rounded-lg border border-slate-200 bg-white p-4">
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
               <p class="mb-1.5 text-xs text-slate-400">Breached</p>
               <div class="flex items-center gap-1.5">
                 <span
                   class="h-2 w-2 flex-shrink-0 rounded-full"
                   :class="entry.breached ? 'bg-rose-500' : 'bg-emerald-500'"
                 ></span>
-                <span class="text-sm font-medium text-slate-700">
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {{ entry.breached ? 'Found in breach' : 'No known breaches' }}
                 </span>
               </div>
@@ -331,8 +331,8 @@ function strengthDot(score: number): string {
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Secure Notes
           </h2>
-          <div class="rounded-lg border border-slate-200 bg-white p-4">
-            <p class="whitespace-pre-wrap text-sm text-slate-700">{{ entry.notes }}</p>
+          <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+            <p class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">{{ entry.notes }}</p>
           </div>
         </section>
       </template>
@@ -342,8 +342,8 @@ function strengthDot(score: number): string {
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Content
           </h2>
-          <div class="rounded-lg border border-slate-200 bg-white p-4">
-            <p class="whitespace-pre-wrap font-mono text-sm leading-relaxed text-slate-700">
+          <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+            <p class="whitespace-pre-wrap font-mono text-sm leading-relaxed text-slate-700 dark:text-slate-300">
               {{ entry.content }}
             </p>
           </div>

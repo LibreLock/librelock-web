@@ -1,1 +1,53 @@
 @import 'tailwindcss';
+
+@variant dark (&:where(.dark, .dark *));
+
+input[type='range'].slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    #1e293b var(--slider-fill, 50%),
+    #cbd5e1 var(--slider-fill, 50%)
+  );
+  outline: none;
+}
+
+input[type='range'].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: #1e293b;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+input[type='range'].slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: #1e293b;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.dark input[type='range'].slider {
+  background: linear-gradient(
+    to right,
+    #e2e8f0 var(--slider-fill, 50%),
+    #475569 var(--slider-fill, 50%)
+  );
+}
+
+.dark input[type='range'].slider::-webkit-slider-thumb {
+  background: #e2e8f0;
+}
+
+.dark input[type='range'].slider::-moz-range-thumb {
+  background: #e2e8f0;
+}
