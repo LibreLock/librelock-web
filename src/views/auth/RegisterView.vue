@@ -65,42 +65,42 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50">
+  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-950">
     <div class="mb-4 flex flex-col items-center gap-2">
       <IconPadlock size="lg" />
-      <span class="text-lg font-semibold text-slate-600">LibreLock</span>
+      <span class="text-lg font-semibold text-slate-600 dark:text-slate-300">LibreLock</span>
     </div>
 
-    <div class="w-full max-w-md bg-white rounded-lg shadow-sm p-6">
-      <h1 class="text-2xl font-semibold mb-4">Create account</h1>
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-lg shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 p-6">
+      <h1 class="text-2xl font-semibold mb-4 text-slate-900 dark:text-slate-100">Create account</h1>
 
       <form class="space-y-4" @submit.prevent="handleSubmit">
         <div>
-          <label class="mb-1 block text-xs font-semibold text-slate-500"> Username </label>
+          <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Username</label>
           <input
             v-model="form.username"
             type="text"
             required
             autocomplete="username"
-            class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+            class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
           />
         </div>
 
         <div>
-          <label class="mb-1 block text-xs font-semibold text-slate-500">Master Password</label>
+          <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Master Password</label>
           <div class="relative">
             <input
               v-model="form.password"
               :type="showPassword ? 'text' : 'password'"
               required
               autocomplete="new-password"
-              class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+              class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
               @focus="passwordFocused = true"
               @blur="passwordFocused = false"
             />
             <button
               type="button"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
               @click="showPassword = !showPassword"
             >
               <svg
@@ -135,22 +135,22 @@ async function handleSubmit() {
           </div>
           <div
             v-if="passwordFocused"
-            class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5 text-xs"
+            class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2.5 text-xs"
           >
             <ul class="space-y-1">
-              <li :class="hasUpper ? 'text-emerald-600' : 'text-slate-400'">
+              <li :class="hasUpper ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
                 {{ hasUpper ? '✓' : '○' }} Uppercase
               </li>
-              <li :class="hasLower ? 'text-emerald-600' : 'text-slate-400'">
+              <li :class="hasLower ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
                 {{ hasLower ? '✓' : '○' }} Lowercase
               </li>
-              <li :class="hasNumber ? 'text-emerald-600' : 'text-slate-400'">
+              <li :class="hasNumber ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
                 {{ hasNumber ? '✓' : '○' }} Number
               </li>
-              <li :class="hasSymbol ? 'text-emerald-600' : 'text-slate-400'">
+              <li :class="hasSymbol ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
                 {{ hasSymbol ? '✓' : '○' }} Symbol
               </li>
-              <li :class="passwordMinOk ? 'text-emerald-600' : 'text-slate-400'">
+              <li :class="passwordMinOk ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
                 {{ passwordMinOk ? '✓' : '○' }} {{ MIN_PASSWORD_LENGTH }}+ characters
               </li>
             </ul>
@@ -158,7 +158,7 @@ async function handleSubmit() {
         </div>
 
         <div>
-          <label class="mb-1 block text-xs font-semibold text-slate-500">
+          <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
             Repeat master password
           </label>
           <div class="relative">
@@ -167,11 +167,11 @@ async function handleSubmit() {
               :type="showPassword ? 'text' : 'password'"
               required
               autocomplete="new-password"
-              class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+              class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
             />
             <button
               type="button"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
               @click="showPassword = !showPassword"
             >
               <svg
@@ -212,15 +212,15 @@ async function handleSubmit() {
 
         <button
           :disabled="!canSubmit"
-          class="w-full rounded-md bg-slate-800 hover:bg-slate-700 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+          class="w-full rounded-md bg-slate-800 hover:bg-slate-700 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
         >
           {{ auth.isSubmitting ? 'Creating account...' : 'Create account' }}
         </button>
       </form>
 
-      <p class="mt-4 text-sm text-slate-600">
+      <p class="mt-4 text-sm text-slate-600 dark:text-slate-400">
         Already have an account?
-        <RouterLink to="/login" class="text-blue-600 font-semibold">Log in</RouterLink>
+        <RouterLink to="/login" class="text-blue-600 dark:text-blue-400 font-semibold">Log in</RouterLink>
       </p>
     </div>
   </div>

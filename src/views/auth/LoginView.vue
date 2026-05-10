@@ -30,40 +30,40 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50">
+  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-950">
     <div class="mb-4 flex flex-col items-center gap-2">
       <IconPadlock size="lg" />
-      <span class="text-lg font-semibold text-slate-600">LibreLock</span>
+      <span class="text-lg font-semibold text-slate-600 dark:text-slate-300">LibreLock</span>
     </div>
 
-    <div class="w-full max-w-md bg-white rounded-lg shadow-sm p-6">
-      <h1 class="text-2xl font-semibold mb-4">Log in</h1>
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-lg shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 p-6">
+      <h1 class="text-2xl font-semibold mb-4 text-slate-900 dark:text-slate-100">Log in</h1>
 
       <form class="space-y-4" @submit.prevent="handleSubmit">
         <div>
-          <label class="mb-1 block text-xs font-semibold text-slate-500"> Username </label>
+          <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Username</label>
           <input
             v-model="form.username"
             type="text"
             required
             autocomplete="username"
-            class="w-full rounded-md border px-3 py-1.5 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+            class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
           />
         </div>
 
         <div>
-          <label class="mb-1 block text-xs font-semibold text-slate-500"> Password </label>
+          <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Password</label>
           <div class="relative">
             <input
               v-model="form.password"
               :type="showPassword ? 'text' : 'password'"
               required
               autocomplete="current-password"
-              class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 transition"
+              class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
             />
             <button
               type="button"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
               @click="showPassword = !showPassword"
             >
               <svg
@@ -102,15 +102,15 @@ async function handleSubmit() {
 
         <button
           :disabled="auth.isSubmitting"
-          class="w-full rounded-md bg-slate-800 hover:bg-slate-700 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+          class="w-full rounded-md bg-slate-800 hover:bg-slate-700 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
         >
           {{ auth.isSubmitting ? 'Logging in...' : 'Log in' }}
         </button>
       </form>
 
-      <p class="mt-4 text-sm text-slate-600">
+      <p class="mt-4 text-sm text-slate-600 dark:text-slate-400">
         No account?
-        <RouterLink to="/register" class="text-blue-600 font-semibold">Create one</RouterLink>
+        <RouterLink to="/register" class="text-blue-600 dark:text-blue-400 font-semibold">Create one</RouterLink>
       </p>
     </div>
   </div>
