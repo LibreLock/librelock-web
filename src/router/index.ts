@@ -4,6 +4,7 @@ import { pinia } from '@/stores/pinia'
 import { useAuthStore } from '@/stores/auth'
 
 import AppLayout from '../layouts/AppLayout.vue'
+import NotFoundView from '../views/not-found/NotFoundView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -88,7 +89,15 @@ const router = createRouter({
     },
     {
       path: '/:pathMatch(.*)*',
-      redirect: '/',
+      component: AppLayout,
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: '',
+          name: 'not-found',
+          component: NotFoundView,
+        },
+      ],
     },
   ],
 })

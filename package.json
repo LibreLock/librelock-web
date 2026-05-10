@@ -16,7 +16,7 @@
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
     "generate:sitemap": "node scripts/sitemap.ts",
-    "postbuild": "npm run generate:sitemap"
+    "prebuild": "npm run generate:sitemap"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.4",
