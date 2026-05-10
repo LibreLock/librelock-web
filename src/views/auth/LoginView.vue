@@ -25,9 +25,7 @@ async function handleSubmit() {
   try {
     await auth.logIn(form.username.trim(), form.password)
     await router.replace(redirectPath.value)
-  } catch {
-    // error displayed via auth.error
-  }
+  } catch {}
 }
 </script>
 

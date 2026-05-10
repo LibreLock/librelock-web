@@ -25,21 +25,21 @@ async function copy(text: string, field: string) {
 }
 
 function strengthLabel(score: number): string {
-  if (score >= 90) return 'Excellent'
-  if (score >= 70) return 'Strong'
-  if (score >= 50) return 'Fair'
+  if (score >= 9) return 'Excellent'
+  if (score >= 7) return 'Strong'
+  if (score >= 5) return 'Fair'
   return 'Weak'
 }
 
 function strengthColor(score: number): string {
-  if (score >= 70) return 'text-emerald-600'
-  if (score >= 50) return 'text-amber-600'
+  if (score >= 7) return 'text-emerald-600'
+  if (score >= 5) return 'text-amber-600'
   return 'text-rose-600'
 }
 
 function strengthDot(score: number): string {
-  if (score >= 70) return 'bg-emerald-500'
-  if (score >= 50) return 'bg-amber-500'
+  if (score >= 7) return 'bg-emerald-500'
+  if (score >= 5) return 'bg-amber-500'
   return 'bg-rose-500'
 }
 </script>
@@ -294,7 +294,7 @@ function strengthDot(score: number): string {
                   :class="strengthDot(entry.passwordStrength)"
                 ></span>
                 <span class="text-sm font-medium" :class="strengthColor(entry.passwordStrength)">
-                  {{ strengthLabel(entry.passwordStrength) }} · {{ entry.passwordStrength }}/100
+                  {{ strengthLabel(entry.passwordStrength) }} · {{ entry.passwordStrength }}/10
                 </span>
               </div>
             </div>

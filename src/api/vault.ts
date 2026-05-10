@@ -169,14 +169,14 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
 
 function scorePassword(password: string): number {
   let score = 0
-  if (password.length >= 8) score += 20
-  if (password.length >= 12) score += 20
-  if (password.length >= 16) score += 10
-  if (/[A-Z]/.test(password)) score += 10
-  if (/[a-z]/.test(password)) score += 10
-  if (/[0-9]/.test(password)) score += 10
-  if (/[^A-Za-z0-9]/.test(password)) score += 20
-  return Math.min(score, 100)
+  if (password.length >= 8) score += 2
+  if (password.length >= 12) score += 2
+  if (password.length >= 16) score += 1
+  if (/[A-Z]/.test(password)) score += 1
+  if (/[a-z]/.test(password)) score += 1
+  if (/[0-9]/.test(password)) score += 1
+  if (/[^A-Za-z0-9]/.test(password)) score += 2
+  return Math.min(score, 10)
 }
 
 export async function getVaultEntries(): Promise<VaultEntry[]> {
