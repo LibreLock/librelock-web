@@ -49,6 +49,16 @@ const router = createRouter({
           component: () => import('../views/passwords/PasswordsView.vue'),
         },
         {
+          path: 'cards',
+          name: 'cards',
+          component: () => import('../views/cards/CardsView.vue'),
+        },
+        {
+          path: 'cards/:id',
+          name: 'cards-entry',
+          component: () => import('../views/cards/CardsView.vue'),
+        },
+        {
           path: 'notes',
           name: 'notes',
           component: () => import('../views/notes/NotesView.vue'),

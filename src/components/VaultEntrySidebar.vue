@@ -4,6 +4,7 @@ import type { VaultEntry } from '@/api/vault'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
 import CategoryPill from '@/components/CategoryPill.vue'
+import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 
 const props = defineProps<{
   entries: VaultEntry[]
@@ -49,6 +50,10 @@ const filtered = computed(() => {
 
 function entrySubtitle(entry: VaultEntry): string {
   if (entry.type === 'password') return entry.username || entry.email || 'Password'
+  if (entry.type === 'card') {
+    const digits = entry.cardNumber.replace(/\D/g, '')
+    return digits.length >= 4 ? `•••• ${digits.slice(-4)}` : 'Card'
+  }
   return 'Note'
 }
 
@@ -78,7 +83,9 @@ async function copyPassword(entry: VaultEntry) {
 </script>
 
 <template>
-  <aside class="flex w-72 flex-shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+  <aside
+    class="flex w-72 flex-shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+  >
     <div class="flex-shrink-0 px-4 pb-1 pt-3">
       <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ title }}</h2>
       <span class="text-xs text-slate-400">
@@ -123,12 +130,22 @@ async function copyPassword(entry: VaultEntry) {
           type="button"
           class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
           :class="[
-            entry.id === selectedId ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800' : '',
+            entry.id === selectedId
+              ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
+              : '',
             entry.type === 'password' ? 'pr-10' : '',
           ]"
           @click="emit('select', entry.id)"
         >
           <span
+            v-if="entry.type === 'card'"
+            class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg"
+            :class="entry.network ? 'bg-slate-800 dark:bg-slate-700' : entry.color"
+          >
+            <CardNetworkLogo :network="entry.network" size="sm" />
+          </span>
+          <span
+            v-else
             class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
             :class="entry.color"
           >
@@ -137,7 +154,9 @@ async function copyPassword(entry: VaultEntry) {
 
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
-              <span class="truncate text-sm font-medium text-slate-800 dark:text-slate-200">{{ entry.name }}</span>
+              <span class="truncate text-sm font-medium text-slate-800 dark:text-slate-200">{{
+                entry.name
+              }}</span>
             </div>
             <span class="block truncate text-xs text-slate-400">{{ entrySubtitle(entry) }}</span>
           </div>

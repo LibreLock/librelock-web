@@ -7,12 +7,13 @@ import {
   updateVaultEntry,
   type CreateEntryPayload,
   type UpdateEntryPayload,
+  type VaultCard,
   type VaultEntry,
   type VaultPassword,
 } from '@/api/vault'
 import { checkPasswordBreach } from '@/composables/useBreachCheck'
 
-export { type VaultEntry, type VaultPassword, type VaultNote } from '@/api/vault'
+export { type VaultEntry, type VaultPassword, type VaultNote, type VaultCard } from '@/api/vault'
 
 export const useVaultStore = defineStore('vault', () => {
   const entries = ref<VaultEntry[]>([])
@@ -23,6 +24,7 @@ export const useVaultStore = defineStore('vault', () => {
     entries.value.filter((e): e is VaultPassword => e.type === 'password'),
   )
   const notes = computed(() => entries.value.filter((e) => e.type === 'note'))
+  const cards = computed(() => entries.value.filter((e): e is VaultCard => e.type === 'card'))
 
   const reusedPasswordMap = computed(() => {
     const map = new Map<string, VaultPassword[]>()
@@ -112,6 +114,7 @@ export const useVaultStore = defineStore('vault', () => {
     error,
     passwords,
     notes,
+    cards,
     globalSearch,
     breachCheckingIds,
     checkEntryBreach,

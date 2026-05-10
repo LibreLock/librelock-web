@@ -37,6 +37,7 @@ function isActive(to: string) {
 const navItems = [
   { name: 'All Items', to: '/vault', icon: 'vault' },
   { name: 'Passwords', to: '/passwords', icon: 'password' },
+  { name: 'Cards', to: '/cards', icon: 'card' },
   { name: 'Secure Notes', to: '/notes', icon: 'note' },
   { name: 'Password Generator', to: '/generator', icon: 'generator' },
 ]
@@ -117,6 +118,11 @@ const navItems = [
               stroke-width="2"
               d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
             />
+          </svg>
+        </template>
+        <template v-else-if="item.icon === 'card'">
+          <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
         </template>
         <template v-else-if="item.icon === 'note'">

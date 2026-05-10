@@ -3,6 +3,16 @@ import { apiRequest } from '@/services/api'
 import { encryptBlob, decryptBlob } from '@/services/crypto'
 import { getMasterKey } from '@/services/keyring'
 
+export type CardNetwork = 'visa' | 'mastercard' | null
+
+export function detectCardNetwork(number: string): CardNetwork {
+  const n = number.replace(/\D/g, '')
+  if (n.length < 2) return null
+  if (/^(5[1-5]|2[2-7])/.test(n)) return 'mastercard'
+  if (/^4/.test(n)) return 'visa'
+  return null
+}
+
 export interface VaultPassword {
   id: string
   type: 'password'
@@ -32,7 +42,23 @@ export interface VaultNote {
   updatedAt: string
 }
 
-export type VaultEntry = VaultPassword | VaultNote
+export interface VaultCard {
+  id: string
+  type: 'card'
+  name: string
+  cardholderName: string
+  cardNumber: string
+  expiration: string
+  cvv: string
+  notes: string
+  network: CardNetwork
+  color: string
+  categoryId: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type VaultEntry = VaultPassword | VaultNote | VaultCard
 
 export interface CreatePasswordPayload {
   type: 'password'
@@ -54,12 +80,24 @@ export interface CreateNotePayload {
   categoryId?: string | null
 }
 
-export type CreateEntryPayload = CreatePasswordPayload | CreateNotePayload
-export type UpdateEntryPayload = CreatePasswordPayload | CreateNotePayload
+export interface CreateCardPayload {
+  type: 'card'
+  name: string
+  cardholderName: string
+  cardNumber: string
+  expiration: string
+  cvv: string
+  notes: string
+  color?: string
+  categoryId?: string | null
+}
+
+export type CreateEntryPayload = CreatePasswordPayload | CreateNotePayload | CreateCardPayload
+export type UpdateEntryPayload = CreatePasswordPayload | CreateNotePayload | CreateCardPayload
 
 interface RawVaultEntry {
   id: string
-  type: 'password_entry' | 'note'
+  type: 'password_entry' | 'note' | 'card'
   category_id: string | null
   encrypted_blob: string
   iv: string
@@ -76,6 +114,10 @@ interface VaultBlobData {
   url?: string
   notes?: string
   content?: string
+  cardholderName?: string
+  cardNumber?: string
+  expiration?: string
+  cvv?: string
   color: string
 }
 
@@ -96,6 +138,21 @@ function rawToEntry(raw: RawVaultEntry, blob: VaultBlobData): VaultEntry {
 
   if (raw.type === 'note') {
     return { ...base, type: 'note', name: blob.name, content: blob.content ?? '' }
+  }
+
+  if (raw.type === 'card') {
+    const cardNumber = blob.cardNumber ?? ''
+    return {
+      ...base,
+      type: 'card',
+      name: blob.name,
+      cardholderName: blob.cardholderName ?? '',
+      cardNumber,
+      expiration: blob.expiration ?? '',
+      cvv: blob.cvv ?? '',
+      notes: blob.notes ?? '',
+      network: detectCardNetwork(cardNumber),
+    }
   }
 
   const password = blob.password ?? ''
@@ -124,33 +181,46 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
   encrypted_blob: string
   iv: string
   category_id: string | null | undefined
-  serverType: 'password_entry' | 'note'
+  serverType: 'password_entry' | 'note' | 'card'
 }> {
   const masterKey = requireMasterKey()
-  const blobData: VaultBlobData =
-    payload.type === 'password'
-      ? {
-          name: payload.name,
-          username: payload.username,
-          email: payload.email,
-          password: payload.password,
-          url: payload.url,
-          notes: payload.notes,
-          color: payload.color ?? DEFAULT_COLOR,
-        }
-      : {
-          name: payload.name,
-          content: payload.content,
-          color: payload.color ?? DEFAULT_COLOR,
-        }
+
+  let blobData: VaultBlobData
+  let serverType: 'password_entry' | 'note' | 'card'
+
+  if (payload.type === 'password') {
+    blobData = {
+      name: payload.name,
+      username: payload.username,
+      email: payload.email,
+      password: payload.password,
+      url: payload.url,
+      notes: payload.notes,
+      color: payload.color ?? DEFAULT_COLOR,
+    }
+    serverType = 'password_entry'
+  } else if (payload.type === 'card') {
+    blobData = {
+      name: payload.name,
+      cardholderName: payload.cardholderName,
+      cardNumber: payload.cardNumber,
+      expiration: payload.expiration,
+      cvv: payload.cvv,
+      notes: payload.notes,
+      color: payload.color ?? DEFAULT_COLOR,
+    }
+    serverType = 'card'
+  } else {
+    blobData = {
+      name: payload.name,
+      content: payload.content,
+      color: payload.color ?? DEFAULT_COLOR,
+    }
+    serverType = 'note'
+  }
 
   const { encrypted_blob, iv } = await encryptBlob(blobData, masterKey)
-  return {
-    encrypted_blob,
-    iv,
-    category_id: payload.categoryId,
-    serverType: payload.type === 'password' ? 'password_entry' : 'note',
-  }
+  return { encrypted_blob, iv, category_id: payload.categoryId, serverType }
 }
 
 function scorePassword(password: string): number {

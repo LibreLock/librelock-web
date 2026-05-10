@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { VaultEntry } from '@/api/vault'
 import { useCategoriesStore } from '@/stores/categories'
 import { useVaultStore } from '@/stores/vault'
+import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 
 const { entry } = defineProps<{
   entry: VaultEntry
@@ -16,8 +17,17 @@ const emit = defineEmits<{
 }>()
 
 const showPassword = ref(false)
+const showCardNumber = ref(false)
+const showCvv = ref(false)
 const copiedField = ref<string | null>(null)
 const showReusedTooltip = ref(false)
+
+const maskedCardNumber = computed(() => {
+  if (entry.type !== 'card') return ''
+  const digits = entry.cardNumber.replace(/\D/g, '')
+  const masked = '•'.repeat(Math.max(0, digits.length - 4)) + digits.slice(-4)
+  return masked.replace(/(.{4})/g, '$1 ').trim()
+})
 
 const isReused = computed(() =>
   entry.type === 'password' ? vault.isPasswordReused(entry.password) : false,
@@ -70,6 +80,14 @@ function strengthDot(score: number): string {
       class="flex flex-shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4"
     >
       <span
+        v-if="entry.type === 'card'"
+        class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
+        :class="entry.network ? 'bg-slate-800 dark:bg-slate-700' : entry.color"
+      >
+        <CardNetworkLogo :network="entry.network" size="md" />
+      </span>
+      <span
+        v-else
         class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white"
         :class="entry.color"
       >
@@ -96,6 +114,7 @@ function strengthDot(score: number): string {
         </a>
         <span v-else-if="entry.type === 'password'" class="text-sm text-slate-500">Password</span>
         <span v-else-if="entry.type === 'note'" class="text-sm text-slate-500">Secure Note</span>
+        <span v-else-if="entry.type === 'card'" class="text-sm text-slate-500">Credit Card</span>
         <span
           v-if="entry.categoryId"
           class="ml-2 rounded-full bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-300"
@@ -373,8 +392,12 @@ function strengthDot(score: number): string {
               <p class="mb-1.5 text-xs text-slate-400">Breached</p>
               <div class="flex items-center gap-1.5">
                 <template v-if="isBreachChecking">
-                  <span class="h-2 w-2 flex-shrink-0 animate-pulse rounded-full bg-slate-300 dark:bg-slate-600"></span>
-                  <span class="text-sm font-medium text-slate-400 dark:text-slate-500">Checking…</span>
+                  <span
+                    class="h-2 w-2 flex-shrink-0 animate-pulse rounded-full bg-slate-300 dark:bg-slate-600"
+                  ></span>
+                  <span class="text-sm font-medium text-slate-400 dark:text-slate-500"
+                    >Checking…</span
+                  >
                 </template>
                 <template v-else>
                   <span
@@ -393,6 +416,255 @@ function strengthDot(score: number): string {
         <section v-if="entry.notes">
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Secure Notes
+          </h2>
+          <div
+            class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"
+          >
+            <p class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+              {{ entry.notes }}
+            </p>
+          </div>
+        </section>
+      </template>
+
+      <template v-else-if="entry.type === 'card'">
+        <section>
+          <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Details
+          </h2>
+          <div
+            class="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+          >
+            <div
+              class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3"
+            >
+              <div class="min-w-0 flex-1">
+                <p class="text-xs text-slate-400">Card number</p>
+                <p class="font-mono text-sm text-slate-800 dark:text-slate-200 tracking-wider">
+                  {{ showCardNumber ? entry.cardNumber : maskedCardNumber }}
+                </p>
+              </div>
+              <div class="ml-3 flex flex-shrink-0 gap-2">
+                <button
+                  type="button"
+                  class="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  :title="showCardNumber ? 'Hide number' : 'Show number'"
+                  @click="showCardNumber = !showCardNumber"
+                >
+                  <svg
+                    v-if="!showCardNumber"
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                  <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                    />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  title="Copy card number"
+                  @click="copy(entry.cardNumber.replace(/\s/g, ''), 'cardNumber')"
+                >
+                  <svg
+                    v-if="copiedField !== 'cardNumber'"
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <svg
+                    v-else
+                    class="h-4 w-4 text-emerald-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div
+              class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3"
+            >
+              <div class="min-w-0">
+                <p class="text-xs text-slate-400">Cardholder name</p>
+                <p class="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
+                  {{ entry.cardholderName || '—' }}
+                </p>
+              </div>
+              <button
+                v-if="entry.cardholderName"
+                type="button"
+                class="ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                title="Copy cardholder name"
+                @click="copy(entry.cardholderName, 'cardholderName')"
+              >
+                <svg
+                  v-if="copiedField !== 'cardholderName'"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+                <svg
+                  v-else
+                  class="h-4 w-4 text-emerald-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-700">
+              <div class="px-4 py-3">
+                <p class="text-xs text-slate-400">Expiration</p>
+                <p class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">
+                  {{ entry.expiration || '—' }}
+                </p>
+              </div>
+              <div class="flex items-center justify-between px-4 py-3">
+                <div>
+                  <p class="text-xs text-slate-400">CVV</p>
+                  <p class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">
+                    {{ showCvv ? entry.cvv : '•'.repeat(entry.cvv.length || 3) }}
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    class="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                    :title="showCvv ? 'Hide CVV' : 'Show CVV'"
+                    @click="showCvv = !showCvv"
+                  >
+                    <svg
+                      v-if="!showCvv"
+                      class="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                    <svg
+                      v-else
+                      class="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                    title="Copy CVV"
+                    @click="copy(entry.cvv, 'cvv')"
+                  >
+                    <svg
+                      v-if="copiedField !== 'cvv'"
+                      class="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <svg
+                      v-else
+                      class="h-4 w-4 text-emerald-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section v-if="entry.notes">
+          <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Notes
           </h2>
           <div
             class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"

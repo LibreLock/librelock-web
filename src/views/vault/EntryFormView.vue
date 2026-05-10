@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
 import CategoryPill from '@/components/CategoryPill.vue'
+import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import { usePasswordGenerator } from '@/composables/usePasswordGenerator'
 import { DEFAULT_COLOR, ENTRY_COLORS } from '@/constants'
+import { detectCardNetwork } from '@/api/vault'
 
 const route = useRoute()
 const router = useRouter()
@@ -15,12 +17,13 @@ const categoriesStore = useCategoriesStore()
 const editId = route.params.id as string | undefined
 const isEditMode = Boolean(editId)
 
-type EntryType = 'password' | 'note'
+type EntryType = 'password' | 'note' | 'card'
 
 const entryType = ref<EntryType>('password')
 const selectedColor = ref(DEFAULT_COLOR)
 const selectedCategoryId = ref<string | null>(null)
 const showPassword = ref(false)
+const showCvv = ref(false)
 
 const account = reactive({
   name: '',
@@ -35,6 +38,31 @@ const note = reactive({
   name: '',
   content: '',
 })
+
+const card = reactive({
+  name: '',
+  cardholderName: '',
+  cardNumber: '',
+  expiration: '',
+  cvv: '',
+  notes: '',
+})
+
+const cardNetwork = computed(() => detectCardNetwork(card.cardNumber))
+
+function handleCardNumberInput(e: Event) {
+  const input = e.target as HTMLInputElement
+  const digits = input.value.replace(/\D/g, '').slice(0, 16)
+  card.cardNumber = digits.replace(/(\d{4})(?=\d)/g, '$1 ')
+  input.value = card.cardNumber
+}
+
+function handleExpiryInput(e: Event) {
+  const input = e.target as HTMLInputElement
+  const digits = input.value.replace(/\D/g, '').slice(0, 4)
+  card.expiration = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits
+  input.value = card.expiration
+}
 
 const isSubmitting = ref(false)
 const isLoading = ref(false)
@@ -74,6 +102,13 @@ onMounted(async () => {
       account.password = entry.password
       account.url = entry.url
       account.notes = entry.notes
+    } else if (entry.type === 'card') {
+      card.name = entry.name
+      card.cardholderName = entry.cardholderName
+      card.cardNumber = entry.cardNumber
+      card.expiration = entry.expiration
+      card.cvv = entry.cvv
+      card.notes = entry.notes
     } else {
       note.name = entry.name
       note.content = entry.content
@@ -89,6 +124,7 @@ function switchType(type: EntryType) {
   entryType.value = type
   error.value = null
 }
+
 function cancelNewCategory() {
   showNewCategory.value = false
   newCategoryName.value = ''
@@ -124,18 +160,18 @@ async function handleSubmit() {
   isSubmitting.value = true
   try {
     const shared = { color: selectedColor.value, categoryId: selectedCategoryId.value }
+    let payload
+    if (entryType.value === 'password') {
+      payload = { type: 'password' as const, ...account, ...shared }
+    } else if (entryType.value === 'card') {
+      payload = { type: 'card' as const, ...card, ...shared }
+    } else {
+      payload = { type: 'note' as const, ...note, ...shared }
+    }
     if (isEditMode) {
-      const payload =
-        entryType.value === 'password'
-          ? { type: 'password' as const, ...account, ...shared }
-          : { type: 'note' as const, ...note, ...shared }
       const updated = await vault.editEntry(editId!, payload)
       router.push({ name: 'vault-entry', params: { id: updated.id } })
     } else {
-      const payload =
-        entryType.value === 'password'
-          ? { type: 'password' as const, ...account, ...shared }
-          : { type: 'note' as const, ...note, ...shared }
       const created = await vault.addEntry(payload)
       router.push({ name: 'vault-entry', params: { id: created.id } })
     }
@@ -172,6 +208,18 @@ async function handleSubmit() {
             @click="switchType('password')"
           >
             Password
+          </button>
+          <button
+            type="button"
+            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer"
+            :class="
+              entryType === 'card'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+            "
+            @click="switchType('card')"
+          >
+            Card
           </button>
           <button
             type="button"
@@ -217,7 +265,7 @@ async function handleSubmit() {
                     v-model="account.name"
                     type="text"
                     required
-                    placeholder="e.g. GitHub"
+                    placeholder="GitHub"
                     class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                   />
                 </div>
@@ -321,17 +369,151 @@ async function handleSubmit() {
                   <input
                     v-model="account.url"
                     type="text"
-                    placeholder="e.g. github.com"
+                    placeholder="github.com"
                     class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                   />
                 </div>
 
                 <div>
                   <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
-                    >Secure notes
-                  </label>
+                    >Secure notes</label
+                  >
                   <textarea
                     v-model="account.notes"
+                    rows="3"
+                    class="w-full resize-none rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-slate-400 dark:focus:border-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+                  />
+                </div>
+              </template>
+
+              <!-- Card form -->
+              <template v-else-if="entryType === 'card'">
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                    >Name<span class="text-red-400">*</span></label
+                  >
+                  <input
+                    v-model="card.name"
+                    type="text"
+                    required
+                    placeholder="N26 Metal"
+                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+                  />
+                </div>
+
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                    >Cardholder name</label
+                  >
+                  <input
+                    v-model="card.cardholderName"
+                    type="text"
+                    class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+                  />
+                </div>
+
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                    >Card number<span class="text-red-400">*</span></label
+                  >
+                  <div class="relative">
+                    <input
+                      :value="card.cardNumber"
+                      type="text"
+                      required
+                      inputmode="numeric"
+                      placeholder="1234 5678 9012 3456"
+                      class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono tracking-wider border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+                      @input="handleCardNumberInput"
+                    />
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                      <CardNetworkLogo :network="cardNetwork" size="sm" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label
+                      class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                      >Expiration<span class="text-red-400">*</span></label
+                    >
+                    <input
+                      :value="card.expiration"
+                      type="text"
+                      required
+                      inputmode="numeric"
+                      placeholder="MM/YY"
+                      maxlength="5"
+                      class="w-full rounded-md border px-3 py-1.5 font-mono border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+                      @input="handleExpiryInput"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                      >CVV<span class="text-red-400">*</span></label
+                    >
+                    <div class="relative">
+                      <input
+                        v-model="card.cvv"
+                        :type="showCvv ? 'text' : 'password'"
+                        required
+                        inputmode="numeric"
+                        placeholder="•••"
+                        maxlength="4"
+                        class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+                      />
+                      <button
+                        type="button"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                        @click="showCvv = !showCvv"
+                      >
+                        <svg
+                          v-if="showCvv"
+                          class="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                          />
+                        </svg>
+                        <svg
+                          v-else
+                          class="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                    >Notes</label
+                  >
+                  <textarea
+                    v-model="card.notes"
                     rows="3"
                     class="w-full resize-none rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-slate-400 dark:focus:border-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                   />
@@ -347,7 +529,7 @@ async function handleSubmit() {
                     v-model="note.name"
                     type="text"
                     required
-                    placeholder="e.g. Recovery codes"
+                    placeholder="Recovery codes"
                     class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
                   />
                 </div>
@@ -372,7 +554,6 @@ async function handleSubmit() {
                 <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
                   >Color</label
                 >
-
                 <div class="flex flex-wrap gap-2">
                   <button
                     v-for="c in ENTRY_COLORS"
@@ -482,7 +663,8 @@ async function handleSubmit() {
     >
       <div class="w-full max-w-sm rounded-xl bg-white dark:bg-slate-800 p-4 shadow-xl">
         <h2 class="mb-2 text-base font-semibold text-slate-900 dark:text-slate-100">
-          Delete {{ entryType === 'password' ? 'password' : 'note' }}?
+          Delete
+          {{ entryType === 'password' ? 'password' : entryType === 'card' ? 'card' : 'note' }}?
         </h2>
         <p class="mb-5 text-sm text-slate-500 dark:text-slate-400">This cannot be undone</p>
         <div class="flex justify-end gap-2">

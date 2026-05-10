@@ -28,4 +28,4 @@ export const ENTRY_COLORS: Array<{ label: string; bg: string }> = [
   { label: 'Slate', bg: 'bg-slate-500' },
   { label: 'Slate Dark', bg: 'bg-slate-700' },
 ]
-export const DEFAULT_COLOR = 'bg-slate-800'
+export const DEFAULT_COLOR = 'bg-slate-700'
