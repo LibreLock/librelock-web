@@ -47,15 +47,15 @@ export async function clearSessionKey(): Promise<void> {
   sessionStorage.removeItem(SESSION_FLAG)
   const db = await openDb()
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE, 'readwrite')
-    tx.objectStore(STORE).delete(KEY_ID)
-    tx.oncomplete = () => {
+    const transaction = db.transaction(STORE, 'readwrite')
+    transaction.objectStore(STORE).delete(KEY_ID)
+    transaction.oncomplete = () => {
       db.close()
       resolve()
     }
-    tx.onerror = () => {
+    transaction.onerror = () => {
       db.close()
-      reject(tx.error)
+      reject(transaction.error)
     }
   })
 }
