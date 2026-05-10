@@ -17,7 +17,7 @@ export const THEME_STORAGE_KEY = 'theme'
 
 export const DEFAULT_CATEGORIES: string[] = ['Personal', 'Work', 'Finance', 'Social', 'Development']
 export const ENTRY_COLORS: Array<{ label: string; bg: string }> = [
-  { label: 'Red', bg: 'bg-rose-600' },
+  { label: 'Red', bg: 'bg-red-600' },
   { label: 'Orange', bg: 'bg-orange-500' },
   { label: 'Yellow', bg: 'bg-amber-400' },
   { label: 'Green', bg: 'bg-emerald-600' },

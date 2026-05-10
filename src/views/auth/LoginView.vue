@@ -98,7 +98,7 @@ async function handleSubmit() {
           </div>
         </div>
 
-        <p v-if="auth.error" class="text-sm text-rose-600">{{ auth.error }}</p>
+        <p v-if="auth.error" class="text-sm text-red-600">{{ auth.error }}</p>
 
         <button
           :disabled="auth.isSubmitting"

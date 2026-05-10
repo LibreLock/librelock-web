@@ -85,7 +85,11 @@ onBeforeUnmount(closeMenu)
   <button
     type="button"
     class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
-    :class="active ? 'bg-slate-800 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
+    :class="
+      active
+        ? 'bg-slate-800 text-white'
+        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+    "
     @click="emit('click')"
     @contextmenu="openMenu"
   >
@@ -108,7 +112,7 @@ onBeforeUnmount(closeMenu)
       </button>
       <button
         type="button"
-        class="flex w-full items-center px-3 py-1.5 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 cursor-pointer"
+        class="flex w-full items-center px-3 py-1.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 cursor-pointer"
         @click="startDelete"
       >
         Delete
@@ -121,7 +125,9 @@ onBeforeUnmount(closeMenu)
       @click.self="showRename = false"
     >
       <div class="w-full max-w-sm rounded-xl bg-white dark:bg-slate-800 p-4 shadow-xl">
-        <h2 class="mb-4 text-base font-semibold text-slate-900 dark:text-slate-100">Rename category</h2>
+        <h2 class="mb-4 text-base font-semibold text-slate-900 dark:text-slate-100">
+          Rename category
+        </h2>
         <input
           ref="renameInput"
           v-model="renameName"
@@ -156,7 +162,9 @@ onBeforeUnmount(closeMenu)
       @click.self="showDelete = false"
     >
       <div class="w-full max-w-sm rounded-xl bg-white dark:bg-slate-800 p-4 shadow-xl">
-        <h2 class="mb-2 text-base font-semibold text-slate-900 dark:text-slate-100">Delete "{{ category.name }}"?</h2>
+        <h2 class="mb-2 text-base font-semibold text-slate-900 dark:text-slate-100">
+          Delete "{{ category.name }}"?
+        </h2>
         <p class="mb-5 text-sm text-slate-500 dark:text-slate-400">
           Entries in this category won't be deleted, but they'll become uncategorized.
         </p>
@@ -170,7 +178,7 @@ onBeforeUnmount(closeMenu)
           </button>
           <button
             type="button"
-            class="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-500 disabled:opacity-50 cursor-pointer transition-colors"
+            class="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-50 cursor-pointer transition-colors"
             :disabled="isDeleting"
             @click="confirmDelete"
           >

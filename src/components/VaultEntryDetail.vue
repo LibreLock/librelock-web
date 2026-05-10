@@ -34,19 +34,21 @@ function strengthLabel(score: number): string {
 function strengthColor(score: number): string {
   if (score >= 7) return 'text-emerald-600'
   if (score >= 5) return 'text-amber-600'
-  return 'text-rose-600'
+  return 'text-red-600'
 }
 
 function strengthDot(score: number): string {
   if (score >= 7) return 'bg-emerald-500'
   if (score >= 5) return 'bg-amber-500'
-  return 'bg-rose-500'
+  return 'bg-red-500'
 }
 </script>
 
 <template>
   <div class="flex flex-1 flex-col overflow-y-auto">
-    <div class="flex flex-shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4">
+    <div
+      class="flex flex-shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4"
+    >
       <span
         class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white"
         :class="entry.color"
@@ -105,8 +107,12 @@ function strengthDot(score: number): string {
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Credentials
           </h2>
-          <div class="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3">
+          <div
+            class="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+          >
+            <div
+              class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3"
+            >
               <div class="min-w-0">
                 <p class="text-xs text-slate-400">Username</p>
                 <p class="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
@@ -151,7 +157,9 @@ function strengthDot(score: number): string {
               </button>
             </div>
 
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3">
+            <div
+              class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3"
+            >
               <div class="min-w-0">
                 <p class="text-xs text-slate-400">Email</p>
                 <p class="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
@@ -196,7 +204,9 @@ function strengthDot(score: number): string {
               </button>
             </div>
 
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3">
+            <div
+              class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 px-4 py-3"
+            >
               <div class="min-w-0 flex-1">
                 <p class="text-xs text-slate-400">Password</p>
                 <p class="font-mono text-sm text-slate-800 dark:text-slate-200">
@@ -286,7 +296,9 @@ function strengthDot(score: number): string {
             Security
           </h2>
           <div class="grid grid-cols-3 gap-2">
-            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+            <div
+              class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"
+            >
               <p class="mb-1.5 text-xs text-slate-400">Password strength</p>
               <div class="flex items-center gap-1.5">
                 <span
@@ -299,7 +311,9 @@ function strengthDot(score: number): string {
               </div>
             </div>
 
-            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+            <div
+              class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"
+            >
               <p class="mb-1.5 text-xs text-slate-400">Reused</p>
               <div class="flex items-center gap-1.5">
                 <span
@@ -312,12 +326,14 @@ function strengthDot(score: number): string {
               </div>
             </div>
 
-            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+            <div
+              class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"
+            >
               <p class="mb-1.5 text-xs text-slate-400">Breached</p>
               <div class="flex items-center gap-1.5">
                 <span
                   class="h-2 w-2 flex-shrink-0 rounded-full"
-                  :class="entry.breached ? 'bg-rose-500' : 'bg-emerald-500'"
+                  :class="entry.breached ? 'bg-red-500' : 'bg-emerald-500'"
                 ></span>
                 <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {{ entry.breached ? 'Found in breach' : 'No known breaches' }}
@@ -331,8 +347,12 @@ function strengthDot(score: number): string {
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Secure Notes
           </h2>
-          <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
-            <p class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">{{ entry.notes }}</p>
+          <div
+            class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"
+          >
+            <p class="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+              {{ entry.notes }}
+            </p>
           </div>
         </section>
       </template>
@@ -342,8 +362,12 @@ function strengthDot(score: number): string {
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Content
           </h2>
-          <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
-            <p class="whitespace-pre-wrap font-mono text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          <div
+            class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"
+          >
+            <p
+              class="whitespace-pre-wrap font-mono text-sm leading-relaxed text-slate-700 dark:text-slate-300"
+            >
               {{ entry.content }}
             </p>
           </div>

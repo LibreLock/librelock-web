@@ -23,12 +23,18 @@ async function copy() {
         Generate strong, unique passwords for your accounts.
       </p>
 
-      <div class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 p-5 space-y-5">
+      <div
+        class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 p-5 space-y-5"
+      >
         <div>
           <div class="flex gap-2">
             <div
               class="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 px-3 py-2 font-mono text-sm text-slate-900 dark:text-slate-100 truncate cursor-pointer transition-colors"
-              :class="copied ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700' : ''"
+              :class="
+                copied
+                  ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700'
+                  : ''
+              "
               @click="copy"
               title="Copy"
             >
@@ -62,7 +68,7 @@ async function copy() {
               {{ copied ? 'Copied!' : 'Copy' }}
             </button>
           </div>
-          <p v-if="!generated" class="mt-1.5 text-xs text-rose-500">
+          <p v-if="!generated" class="mt-1.5 text-xs text-red-500">
             Select at least one character type.
           </p>
         </div>

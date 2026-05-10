@@ -396,12 +396,12 @@ async function handleDeleteAccount() {
               class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
             />
 
-            <p v-if="passwordMismatch" class="mt-1.5 text-xs text-rose-600">
+            <p v-if="passwordMismatch" class="mt-1.5 text-xs text-red-600">
               Passwords do not match.
             </p>
           </div>
 
-          <p v-if="passwordError" class="text-sm text-rose-600">
+          <p v-if="passwordError" class="text-sm text-red-600">
             {{ passwordError }}
           </p>
 
@@ -482,13 +482,13 @@ async function handleDeleteAccount() {
             </div>
           </div>
 
-          <p v-if="deletePasswordError" class="text-sm text-rose-600">
+          <p v-if="deletePasswordError" class="text-sm text-red-600">
             {{ deletePasswordError }}
           </p>
 
           <button
             type="submit"
-            class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
             :disabled="isDeletingAccount || !deletePassword.trim()"
           >
             {{

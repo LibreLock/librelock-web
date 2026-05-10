@@ -112,7 +112,7 @@ onMounted(() => {
         <button
           v-if="sessions.length > 1"
           type="button"
-          class="text-xs text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 mr-2 transition-colors cursor-pointer disabled:opacity-50"
+          class="text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 mr-2 transition-colors cursor-pointer disabled:opacity-50"
           :disabled="revokingAll"
           @click="revokeAllSessions"
         >
@@ -156,7 +156,7 @@ onMounted(() => {
 
       <div
         v-else-if="sessionsError"
-        class="rounded-lg bg-rose-50 dark:bg-rose-950/50 px-4 py-3 text-sm text-rose-600 dark:text-rose-400"
+        class="rounded-lg bg-red-50 dark:bg-red-950/50 px-4 py-3 text-sm text-red-600 dark:text-red-400"
       >
         {{ sessionsError }}
       </div>
@@ -200,7 +200,7 @@ onMounted(() => {
           <div class="shrink-0 pt-0.5">
             <button
               type="button"
-              class="text-xs text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 transition-colors cursor-pointer disabled:opacity-50"
+              class="text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
               :disabled="revokingId === session.id"
               @click="revokeSession(session.id)"
             >

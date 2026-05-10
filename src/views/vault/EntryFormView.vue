@@ -190,7 +190,7 @@ async function handleSubmit() {
         <button
           v-if="isEditMode"
           type="button"
-          class="ml-auto rounded-lg border border-rose-200 dark:border-rose-900 px-3 py-1.5 text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+          class="ml-auto rounded-lg border border-red-200 dark:border-red-900 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
           @click="showDeleteConfirm = true"
         >
           Delete
@@ -211,7 +211,7 @@ async function handleSubmit() {
               <template v-if="entryType === 'password'">
                 <div>
                   <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
-                    >Name<span class="text-rose-400">*</span></label
+                    >Name<span class="text-red-400">*</span></label
                   >
                   <input
                     v-model="account.name"
@@ -250,7 +250,7 @@ async function handleSubmit() {
                 <div>
                   <div class="mb-1 flex items-center">
                     <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400"
-                      >Password<span class="text-rose-400">*</span></label
+                      >Password<span class="text-red-400">*</span></label
                     >
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 px-1"
                       >—</span
@@ -341,7 +341,7 @@ async function handleSubmit() {
               <template v-else>
                 <div>
                   <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
-                    >Name<span class="text-rose-400">*</span></label
+                    >Name<span class="text-red-400">*</span></label
                   >
                   <input
                     v-model="note.name"
@@ -353,7 +353,7 @@ async function handleSubmit() {
                 </div>
                 <div>
                   <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
-                    >Content<span class="text-rose-400">*</span></label
+                    >Content<span class="text-red-400">*</span></label
                   >
                   <textarea
                     v-model="note.content"
@@ -458,7 +458,7 @@ async function handleSubmit() {
               <div class="flex-1" />
 
               <div>
-                <p v-if="error" class="mb-2 text-xs text-rose-600">{{ error }}</p>
+                <p v-if="error" class="mb-2 text-xs text-red-600">{{ error }}</p>
                 <button
                   type="submit"
                   class="w-full rounded-lg bg-slate-800 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
@@ -495,7 +495,7 @@ async function handleSubmit() {
           </button>
           <button
             type="button"
-            class="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-500 disabled:opacity-50 cursor-pointer transition-colors"
+            class="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-50 cursor-pointer transition-colors"
             :disabled="isDeleting"
             @click="handleDelete"
           >

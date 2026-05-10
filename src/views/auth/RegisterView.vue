@@ -204,11 +204,11 @@ async function handleSubmit() {
               </svg>
             </button>
           </div>
-          <p v-if="passwordMismatch" class="mt-1 text-xs text-rose-600">Passwords do not match</p>
+          <p v-if="passwordMismatch" class="mt-1 text-xs text-red-600">Passwords do not match</p>
         </div>
 
-        <p v-if="localError" class="text-sm text-rose-600">{{ localError }}</p>
-        <p v-if="auth.error" class="text-sm text-rose-600">{{ auth.error }}</p>
+        <p v-if="localError" class="text-sm text-red-600">{{ localError }}</p>
+        <p v-if="auth.error" class="text-sm text-red-600">{{ auth.error }}</p>
 
         <button
           :disabled="!canSubmit"
