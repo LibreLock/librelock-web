@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { VaultEntry } from '@/api/vault'
 import { useCategoriesStore } from '@/stores/categories'
+import { useVaultStore } from '@/stores/vault'
 
 const { entry } = defineProps<{
   entry: VaultEntry
 }>()
 
 const categoriesStore = useCategoriesStore()
+const vault = useVaultStore()
 
 const emit = defineEmits<{
   edit: []
@@ -15,6 +17,15 @@ const emit = defineEmits<{
 
 const showPassword = ref(false)
 const copiedField = ref<string | null>(null)
+const showReusedTooltip = ref(false)
+
+const isReused = computed(() =>
+  entry.type === 'password' ? vault.isPasswordReused(entry.password) : false,
+)
+
+const reusedWith = computed(() =>
+  entry.type === 'password' ? vault.getReusedWith(entry.password, entry.id) : [],
+)
 
 async function copy(text: string, field: string) {
   await navigator.clipboard.writeText(text)
@@ -312,17 +323,38 @@ function strengthDot(score: number): string {
             </div>
 
             <div
-              class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"
+              class="relative rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"
+              @mouseenter="showReusedTooltip = true"
+              @mouseleave="showReusedTooltip = false"
             >
               <p class="mb-1.5 text-xs text-slate-400">Reused</p>
               <div class="flex items-center gap-1.5">
                 <span
                   class="h-2 w-2 flex-shrink-0 rounded-full"
-                  :class="entry.reused ? 'bg-amber-500' : 'bg-emerald-500'"
+                  :class="isReused ? 'bg-red-500' : 'bg-emerald-500'"
                 ></span>
                 <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  {{ entry.reused ? 'Yes' : 'No' }}
+                  {{ isReused ? 'Yes' : 'No' }}
                 </span>
+              </div>
+
+              <div
+                v-if="showReusedTooltip && isReused && reusedWith.length > 0"
+                class="absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 shadow-lg"
+              >
+                <p class="mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Also used by
+                </p>
+                <ul class="space-y-0.5">
+                  <li
+                    v-for="e in reusedWith"
+                    :key="e.id"
+                    class="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300"
+                  >
+                    <span class="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-red-500"></span>
+                    {{ e.name }}
+                  </li>
+                </ul>
               </div>
             </div>
 
