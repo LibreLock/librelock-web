@@ -1,21 +1,7 @@
+import { DEFAULT_COLOR } from '@/constants'
 import { apiRequest } from '@/services/api'
 import { encryptBlob, decryptBlob } from '@/services/crypto'
 import { getMasterKey } from '@/services/keyring'
-
-export const ENTRY_COLORS: Array<{ label: string; bg: string }> = [
-  { label: 'Red', bg: 'bg-rose-600' },
-  { label: 'Orange', bg: 'bg-orange-500' },
-  { label: 'Yellow', bg: 'bg-amber-400' },
-  { label: 'Green', bg: 'bg-emerald-600' },
-  { label: 'Blue', bg: 'bg-blue-500' },
-  { label: 'Cyan', bg: 'bg-cyan-500' },
-  { label: 'Violet', bg: 'bg-violet-500' },
-  { label: 'Pink', bg: 'bg-pink-500' },
-  { label: 'Slate', bg: 'bg-slate-500' },
-  { label: 'Slate Dark', bg: 'bg-slate-800' },
-]
-
-export const DEFAULT_COLOR = 'bg-slate-800'
 
 export interface VaultPassword {
   id: string

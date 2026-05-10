@@ -3,9 +3,9 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
-import { ENTRY_COLORS, DEFAULT_COLOR } from '@/api/vault'
 import CategoryPill from '@/components/CategoryPill.vue'
 import { usePasswordGenerator } from '@/composables/usePasswordGenerator'
+import { DEFAULT_COLOR, ENTRY_COLORS } from '@/constants'
 
 const route = useRoute()
 const router = useRouter()
@@ -157,7 +157,10 @@ async function handleSubmit() {
           </h1>
         </div>
 
-        <div v-if="!isEditMode" class="flex w-fit gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1 flex-shrink-0">
+        <div
+          v-if="!isEditMode"
+          class="flex w-fit gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1 flex-shrink-0"
+        >
           <button
             type="button"
             class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer"
@@ -196,9 +199,14 @@ async function handleSubmit() {
 
       <div v-if="isLoading" class="py-12 text-center text-sm text-slate-400">Loading entry…</div>
 
-      <div v-else class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 overflow-hidden">
+      <div
+        v-else
+        class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 overflow-hidden"
+      >
         <form @submit.prevent="handleSubmit">
-          <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] lg:divide-x lg:divide-slate-100 dark:lg:divide-slate-700">
+          <div
+            class="grid grid-cols-1 lg:grid-cols-[1fr_360px] lg:divide-x lg:divide-slate-100 dark:lg:divide-slate-700"
+          >
             <div class="px-5 py-5 space-y-3">
               <template v-if="entryType === 'password'">
                 <div>
@@ -216,7 +224,10 @@ async function handleSubmit() {
 
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Username</label>
+                    <label
+                      class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                      >Username</label
+                    >
                     <input
                       v-model="account.username"
                       type="text"
@@ -224,7 +235,10 @@ async function handleSubmit() {
                     />
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Email</label>
+                    <label
+                      class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                      >Email</label
+                    >
                     <input
                       v-model="account.email"
                       type="email"
@@ -238,7 +252,9 @@ async function handleSubmit() {
                     <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400"
                       >Password<span class="text-rose-400">*</span></label
                     >
-                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 px-1">—</span>
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 px-1"
+                      >—</span
+                    >
                     <button
                       type="button"
                       class="text-xs font-semibold text-slate-600 dark:text-slate-300 cursor-pointer hover:underline"
@@ -299,7 +315,9 @@ async function handleSubmit() {
                 </div>
 
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">URL</label>
+                  <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                    >URL</label
+                  >
                   <input
                     v-model="account.url"
                     type="text"
@@ -347,9 +365,13 @@ async function handleSubmit() {
               </template>
             </div>
 
-            <div class="flex flex-col gap-5 px-5 py-5 border-t border-slate-100 dark:border-slate-700 lg:border-t-0">
+            <div
+              class="flex flex-col gap-5 px-5 py-5 border-t border-slate-100 dark:border-slate-700 lg:border-t-0"
+            >
               <div>
-                <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Color</label>
+                <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                  >Color</label
+                >
 
                 <div class="flex flex-wrap gap-2">
                   <button
@@ -370,7 +392,9 @@ async function handleSubmit() {
               </div>
 
               <div>
-                <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">Category</label>
+                <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+                  >Category</label
+                >
                 <div class="flex flex-wrap gap-1.5">
                   <button
                     type="button"
