@@ -82,7 +82,7 @@ function strengthDot(score: number): string {
       <span
         v-if="entry.type === 'card'"
         class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
-        :class="entry.network ? 'bg-slate-800 dark:bg-slate-700' : entry.color"
+        :class="entry.network ? 'dark:bg-slate-700' : entry.color"
       >
         <CardNetworkLogo :network="entry.network" size="md" />
       </span>
@@ -415,7 +415,7 @@ function strengthDot(score: number): string {
 
         <section v-if="entry.notes">
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Secure Notes
+            Notes
           </h2>
           <div
             class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"

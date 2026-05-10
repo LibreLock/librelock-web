@@ -140,7 +140,7 @@ async function copyPassword(entry: VaultEntry) {
           <span
             v-if="entry.type === 'card'"
             class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg"
-            :class="entry.network ? 'bg-slate-800 dark:bg-slate-700' : entry.color"
+            :class="entry.network ? 'dark:bg-slate-700' : entry.color"
           >
             <CardNetworkLogo :network="entry.network" size="sm" />
           </span>
