@@ -10,6 +10,7 @@ import {
   type VaultEntry,
   type VaultPassword,
 } from '@/api/vault'
+import { checkPasswordBreach } from '@/composables/useBreachCheck'
 
 export { type VaultEntry, type VaultPassword, type VaultNote } from '@/api/vault'
 
@@ -18,7 +19,9 @@ export const useVaultStore = defineStore('vault', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const passwords = computed(() => entries.value.filter((e): e is VaultPassword => e.type === 'password'))
+  const passwords = computed(() =>
+    entries.value.filter((e): e is VaultPassword => e.type === 'password'),
+  )
   const notes = computed(() => entries.value.filter((e) => e.type === 'note'))
 
   const reusedPasswordMap = computed(() => {
@@ -41,6 +44,24 @@ export const useVaultStore = defineStore('vault', () => {
 
   function getEntry(id: string): VaultEntry | null {
     return entries.value.find((e) => e.id === id) ?? null
+  }
+
+  const breachCheckingIds = ref(new Set<string>())
+  const checkedBreachIds = ref(new Set<string>())
+
+  async function checkEntryBreach(entry: VaultPassword): Promise<void> {
+    if (checkedBreachIds.value.has(entry.id) || breachCheckingIds.value.has(entry.id)) return
+
+    breachCheckingIds.value.add(entry.id)
+    try {
+      const breached = await checkPasswordBreach(entry.password)
+      const live = entries.value.find((e) => e.id === entry.id)
+      if (live && live.type === 'password') live.breached = breached
+      checkedBreachIds.value.add(entry.id)
+    } catch {
+    } finally {
+      breachCheckingIds.value.delete(entry.id)
+    }
   }
 
   async function fetchEntries() {
@@ -66,6 +87,7 @@ export const useVaultStore = defineStore('vault', () => {
     const updated = await updateVaultEntry(id, { ...payload })
     const index = entries.value.findIndex((e) => e.id === id)
     if (index !== -1) entries.value[index] = updated
+    checkedBreachIds.value.delete(id)
     return updated
   }
 
@@ -80,6 +102,8 @@ export const useVaultStore = defineStore('vault', () => {
     entries.value = []
     error.value = null
     globalSearch.value = ''
+    breachCheckingIds.value.clear()
+    checkedBreachIds.value.clear()
   }
 
   return {
@@ -89,6 +113,8 @@ export const useVaultStore = defineStore('vault', () => {
     passwords,
     notes,
     globalSearch,
+    breachCheckingIds,
+    checkEntryBreach,
     getEntry,
     fetchEntries,
     addEntry,

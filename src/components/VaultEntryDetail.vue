@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { VaultEntry } from '@/api/vault'
 import { useCategoriesStore } from '@/stores/categories'
 import { useVaultStore } from '@/stores/vault'
@@ -26,6 +26,15 @@ const isReused = computed(() =>
 const reusedWith = computed(() =>
   entry.type === 'password' ? vault.getReusedWith(entry.password, entry.id) : [],
 )
+
+const isBreachChecking = computed(() => vault.breachCheckingIds.has(entry.id))
+
+function triggerBreachCheck() {
+  if (entry.type === 'password') vault.checkEntryBreach(entry)
+}
+
+onMounted(triggerBreachCheck)
+watch(() => entry.id, triggerBreachCheck)
 
 async function copy(text: string, field: string) {
   await navigator.clipboard.writeText(text)
@@ -363,13 +372,19 @@ function strengthDot(score: number): string {
             >
               <p class="mb-1.5 text-xs text-slate-400">Breached</p>
               <div class="flex items-center gap-1.5">
-                <span
-                  class="h-2 w-2 flex-shrink-0 rounded-full"
-                  :class="entry.breached ? 'bg-red-500' : 'bg-emerald-500'"
-                ></span>
-                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  {{ entry.breached ? 'Found in breach' : 'No known breaches' }}
-                </span>
+                <template v-if="isBreachChecking">
+                  <span class="h-2 w-2 flex-shrink-0 animate-pulse rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                  <span class="text-sm font-medium text-slate-400 dark:text-slate-500">Checking…</span>
+                </template>
+                <template v-else>
+                  <span
+                    class="h-2 w-2 flex-shrink-0 rounded-full"
+                    :class="entry.breached ? 'bg-red-500' : 'bg-emerald-500'"
+                  ></span>
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {{ entry.breached ? 'Found in breach' : 'No known breaches' }}
+                  </span>
+                </template>
               </div>
             </div>
           </div>
