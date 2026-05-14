@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import IconPadlock from './icons/IconPadlock.vue'
 
 const STORAGE_KEY = 'sidebar-collapsed'
+const SMALL_SCREEN_BREAKPOINT = 768
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -12,8 +13,22 @@ const route = useRoute()
 
 const collapsed = ref(false)
 
+function syncCollapseToScreenSize() {
+  if (window.innerWidth < SMALL_SCREEN_BREAKPOINT) {
+    collapsed.value = true
+  } else {
+    collapsed.value = localStorage.getItem(STORAGE_KEY) === 'true'
+  }
+}
+
 onMounted(() => {
   collapsed.value = localStorage.getItem(STORAGE_KEY) === 'true'
+  syncCollapseToScreenSize()
+  window.addEventListener('resize', syncCollapseToScreenSize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', syncCollapseToScreenSize)
 })
 
 function toggleCollapse() {

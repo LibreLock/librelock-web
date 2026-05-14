@@ -334,7 +334,7 @@ function strengthDot(score: number): string {
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Security
           </h2>
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div
               class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"
             >
@@ -565,7 +565,7 @@ function strengthDot(score: number): string {
               </button>
             </div>
 
-            <div class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-700">
+            <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-700">
               <div class="px-4 py-3">
                 <p class="text-xs text-slate-400">Expiration</p>
                 <p class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">
