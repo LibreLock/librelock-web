@@ -346,7 +346,7 @@ function strengthDot(score: number): string {
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Security
           </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
             <div
               class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4"
             >
