@@ -169,19 +169,27 @@ onMounted(() => {
         <div
           v-for="session in sessions"
           :key="session.id"
-          class="flex items-start gap-4 rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-4"
+          class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-4"
         >
-          <div class="w-22 shrink-0">
-            <div class="mb-0.5">
-              <span
-                class="text-sm font-medium text-slate-800 dark:text-slate-200"
-                :title="`Session ID: ${session.id}`"
-                >{{ shortDeviceName(session.device_name) }}</span
-              >
-            </div>
+          <div class="flex items-center justify-between sm:block sm:w-22 sm:shrink-0">
+            <span
+              class="text-sm font-medium text-slate-800 dark:text-slate-200"
+              :title="`Session ID: ${session.id}`"
+              >{{ shortDeviceName(session.device_name) }}</span
+            >
+            <button
+              type="button"
+              class="sm:hidden text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
+              :disabled="revokingId === session.id"
+              @click="revokeSession(session.id)"
+            >
+              {{ revokingId === session.id ? 'Revoking…' : 'Revoke' }}
+            </button>
           </div>
 
-          <div class="flex-1 grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-slate-500 pt-0.5">
+          <div
+            class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-slate-500"
+          >
             <span v-if="session.ip"><span class="text-slate-500">IP:</span> {{ session.ip }}</span>
             <span
               ><span class="text-slate-500">Created:</span>
@@ -197,7 +205,7 @@ onMounted(() => {
             >
           </div>
 
-          <div class="shrink-0 pt-0.5">
+          <div class="hidden sm:block shrink-0 pt-0.5">
             <button
               type="button"
               class="text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors cursor-pointer disabled:opacity-50"

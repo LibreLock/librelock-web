@@ -21,7 +21,7 @@ function onTabChange(tab: Tab) {
       <div class="mb-6 flex gap-1 border-b border-slate-200 dark:border-slate-700">
         <button
           type="button"
-          class="px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px"
+          class="sm:px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px"
           :class="
             activeTab === 'account'
               ? 'border-slate-800 dark:border-slate-100 text-slate-900 dark:text-slate-100'

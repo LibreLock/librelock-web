@@ -51,45 +51,45 @@ watch(
         <div class="py-3">
           <h3 class="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-4">Cryptography</h3>
           <div class="space-y-3">
-            <div class="flex items-center gap-4">
-              <span class="w-36 shrink-0 text-xs font-medium text-slate-500">Vault cipher</span>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+              <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500">Vault cipher</span>
               <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded"
                 >AES-GCM · 256-bit</code
               >
             </div>
-            <div class="flex items-center gap-4">
-              <span class="w-36 shrink-0 text-xs font-medium text-slate-500">KDF algorithm</span>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+              <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500">KDF algorithm</span>
               <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">{{
                 kdfInfo?.kdf_algo
               }}</code>
             </div>
             <template v-if="kdfLoading">
-              <div class="flex items-center gap-4">
-                <span class="w-36 shrink-0 text-xs font-medium text-slate-500">KDF params</span>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500">KDF params</span>
                 <span class="text-xs text-slate-400">Loading…</span>
               </div>
             </template>
             <template v-else-if="kdfInfo">
-              <div class="flex items-center gap-4">
-                <span class="w-36 shrink-0 text-xs font-medium text-slate-500">Iterations</span>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500">Iterations</span>
                 <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">{{
                   kdfInfo.kdf_iter
                 }}</code>
               </div>
-              <div class="flex items-center gap-4">
-                <span class="w-36 shrink-0 text-xs font-medium text-slate-500">Memory</span>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500">Memory</span>
                 <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">{{
                   formatMemory(kdfInfo.kdf_memory)
                 }}</code>
               </div>
-              <div class="flex items-center gap-4">
-                <span class="w-36 shrink-0 text-xs font-medium text-slate-500">Parallelism</span>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500">Parallelism</span>
                 <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded">{{
                   kdfInfo.kdf_parallelism
                 }}</code>
               </div>
-              <div class="flex items-start gap-4">
-                <span class="w-36 shrink-0 text-xs font-medium text-slate-500 pt-0.5"
+              <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500 sm:pt-0.5"
                   >KDF salt</span
                 >
                 <code
@@ -104,8 +104,8 @@ watch(
         <div class="py-3">
           <h3 class="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-4">Key Storage</h3>
           <div class="space-y-3">
-            <div class="flex items-start gap-4">
-              <span class="w-36 shrink-0 text-xs font-medium text-slate-500 pt-0.5"
+            <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+              <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500 sm:pt-0.5"
                 >Master key</span
               >
               <div>
@@ -114,8 +114,8 @@ watch(
                 >
               </div>
             </div>
-            <div class="flex items-start gap-4">
-              <span class="w-36 shrink-0 text-xs font-medium text-slate-500 pt-0.5"
+            <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+              <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500 sm:pt-0.5"
                 >Session key</span
               >
               <div>
@@ -124,14 +124,14 @@ watch(
                 >
               </div>
             </div>
-            <div class="flex items-center gap-4">
-              <span class="w-36 shrink-0 text-xs font-medium text-slate-500">Session flag</span>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+              <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500">Session flag</span>
               <code class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded"
                 >sessionStorage["{{ SESSION_FLAG }}"]</code
               >
             </div>
-            <div class="flex items-start gap-4">
-              <span class="w-36 shrink-0 text-xs font-medium text-slate-500 pt-0.5"
+            <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+              <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500 sm:pt-0.5"
                 >Auth session</span
               >
               <div>
