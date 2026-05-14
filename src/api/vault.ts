@@ -1,7 +1,7 @@
 import { DEFAULT_COLOR } from '@/constants'
 import { apiRequest } from '@/services/api'
 import { encryptBlob, decryptBlob } from '@/services/crypto'
-import { getMasterKey } from '@/services/keyring'
+import { getVaultKey } from '@/services/keyring'
 
 export type CardNetwork = 'visa' | 'mastercard' | null
 
@@ -121,8 +121,8 @@ interface VaultBlobData {
   color: string
 }
 
-function requireMasterKey(): CryptoKey {
-  const key = getMasterKey()
+function requireVaultKey(): CryptoKey {
+  const key = getVaultKey()
   if (!key) throw new Error('Vault is locked -  log in again.')
   return key
 }
@@ -172,8 +172,8 @@ function rawToEntry(raw: RawVaultEntry, blob: VaultBlobData): VaultEntry {
 }
 
 async function decryptRaw(raw: RawVaultEntry): Promise<VaultEntry> {
-  const masterKey = requireMasterKey()
-  const blob = (await decryptBlob(raw.encrypted_blob, raw.iv, masterKey)) as VaultBlobData
+  const vaultKey = requireVaultKey()
+  const blob = (await decryptBlob(raw.encrypted_blob, raw.iv, vaultKey)) as VaultBlobData
   return rawToEntry(raw, blob)
 }
 
@@ -183,7 +183,7 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
   category_id: string | null | undefined
   serverType: 'password_entry' | 'note' | 'card'
 }> {
-  const masterKey = requireMasterKey()
+  const vaultKey = requireVaultKey()
 
   let blobData: VaultBlobData
   let serverType: 'password_entry' | 'note' | 'card'
@@ -219,7 +219,7 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
     serverType = 'note'
   }
 
-  const { encrypted_blob, iv } = await encryptBlob(blobData, masterKey)
+  const { encrypted_blob, iv } = await encryptBlob(blobData, vaultKey)
   return { encrypted_blob, iv, category_id: payload.categoryId, serverType }
 }
 

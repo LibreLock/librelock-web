@@ -3,7 +3,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localho
 
 export const DB_NAME = 'librelock'
 export const STORE = 'session'
-export const KEY_ID = 'master_key'
+export const KEY_ID = 'vault_key'
 export const SESSION_FLAG = 'vault_unlocked'
 
 export const KDF_ALGO = 'argon2id'

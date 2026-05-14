@@ -1,6 +1,6 @@
 import { apiRequest } from '@/services/api'
 import { decryptString, encryptString } from '@/services/crypto'
-import { getMasterKey } from '@/services/keyring'
+import { getVaultKey } from '@/services/keyring'
 
 export interface VaultCategory {
   id: string
@@ -15,8 +15,8 @@ interface RawCategory {
   updated_at: string
 }
 
-function requireMasterKey(): CryptoKey {
-  const key = getMasterKey()
+function requireVaultKey(): CryptoKey {
+  const key = getVaultKey()
   if (!key) throw new Error('Vault is locked - please log in again.')
   return key
 }
@@ -24,18 +24,18 @@ function requireMasterKey(): CryptoKey {
 export async function getCategories(): Promise<VaultCategory[]> {
   const response = await apiRequest<{ categories: RawCategory[] }>('/categories')
   if (!response) return []
-  const masterKey = requireMasterKey()
+  const vaultKey = requireVaultKey()
   return Promise.all(
     response.categories.map(async (c) => ({
       id: c.id,
-      name: await decryptString(c.name, masterKey),
+      name: await decryptString(c.name, vaultKey),
     })),
   )
 }
 
 export async function createCategory(name: string): Promise<VaultCategory> {
-  const masterKey = requireMasterKey()
-  const encryptedName = await encryptString(name, masterKey)
+  const vaultKey = requireVaultKey()
+  const encryptedName = await encryptString(name, vaultKey)
   const response = await apiRequest<{ category: RawCategory }>('/categories', {
     method: 'POST',
     body: JSON.stringify({ name: encryptedName }),
@@ -45,8 +45,8 @@ export async function createCategory(name: string): Promise<VaultCategory> {
 }
 
 export async function updateCategory(id: string, name: string): Promise<VaultCategory> {
-  const masterKey = requireMasterKey()
-  const encryptedName = await encryptString(name, masterKey)
+  const vaultKey = requireVaultKey()
+  const encryptedName = await encryptString(name, vaultKey)
   const response = await apiRequest<{ category: RawCategory }>(`/categories/${id}`, {
     method: 'PUT',
     body: JSON.stringify({ name: encryptedName }),

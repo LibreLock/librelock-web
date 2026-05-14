@@ -12,12 +12,12 @@ import {
   type KdfParams,
 } from '@/services/crypto'
 import { clearSessionKey, loadSessionKey, saveSessionKey } from '@/services/keystore'
-import { getMasterKey, setMasterKey } from '@/services/keyring'
+import { getVaultKey, setVaultKey } from '@/services/keyring'
 import { useCategoriesStore } from '@/stores/categories'
 import { useVaultStore } from '@/stores/vault'
 import { DEFAULT_CATEGORIES, KDF_ITER, KDF_MEMORY, KDF_PARALLELISM } from '@/constants'
 
-export { getMasterKey }
+export { getVaultKey }
 
 export interface AuthUser {
   id?: string | number
@@ -75,11 +75,11 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.user ?? null
       status.value = user.value ? 'authenticated' : 'anonymous'
 
-      // Restore MasterKey from IndexedDB if JWT cookie is still valid
-      if (user.value && !getMasterKey()) {
+      // Restore vault key from IndexedDB if JWT cookie is still valid
+      if (user.value && !getVaultKey()) {
         const key = await loadSessionKey()
-        setMasterKey(key)
-        if (!getMasterKey()) {
+        setVaultKey(key)
+        if (!getVaultKey()) {
           await logOut()
           return null
         }
@@ -111,7 +111,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (!protectedKey) throw new Error('Server did not return protected_key.')
       const vaultKey = await unwrapKey(protectedKey, wrappingKey)
 
-      setMasterKey(vaultKey)
+      setVaultKey(vaultKey)
       await saveSessionKey(vaultKey)
       user.value = response.user ?? null
       status.value = 'authenticated'
@@ -159,7 +159,7 @@ export const useAuthStore = defineStore('auth', () => {
           }),
         })) ?? {}
 
-      setMasterKey(vaultKey)
+      setVaultKey(vaultKey)
       await saveSessionKey(vaultKey)
       user.value = response.user ?? null
       status.value = 'authenticated'
@@ -177,7 +177,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await apiRequest('/auth/logout', { method: 'POST' })
     } finally {
-      setMasterKey(null)
+      setVaultKey(null)
       await clearSessionKey()
       useCategoriesStore().clear()
       useVaultStore().clear()

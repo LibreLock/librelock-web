@@ -95,11 +95,11 @@ export async function wrapKey(vaultKey: CryptoKey, wrappingKey: CryptoKey): Prom
   const combined = new Uint8Array(12 + encrypted.byteLength)
   combined.set(iv)
   combined.set(new Uint8Array(encrypted), 12)
-  return bytesToHex(combined)
+  return bytesToBase64(combined)
 }
 
 export async function unwrapKey(protectedKey: string, wrappingKey: CryptoKey): Promise<CryptoKey> {
-  const combined = hexToBytes(protectedKey)
+  const combined = base64ToBytes(protectedKey)
   const iv = combined.slice(0, 12)
   const ciphertext = combined.slice(12)
   const rawKey = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, wrappingKey, ciphertext)
@@ -111,12 +111,12 @@ export async function unwrapKey(protectedKey: string, wrappingKey: CryptoKey): P
 
 export async function encryptBlob(
   plaintext: object,
-  masterKey: CryptoKey,
+  key: CryptoKey,
 ): Promise<{ encrypted_blob: string; iv: string }> {
   const iv = crypto.getRandomValues(new Uint8Array(12))
   const ciphertext = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
-    masterKey,
+    key,
     enc.encode(JSON.stringify(plaintext)),
   )
   return {
@@ -128,22 +128,22 @@ export async function encryptBlob(
 export async function decryptBlob(
   encrypted_blob: string,
   iv: string,
-  masterKey: CryptoKey,
+  key: CryptoKey,
 ): Promise<unknown> {
   const plaintext = await crypto.subtle.decrypt(
     { name: 'AES-GCM', iv: base64ToBytes(iv) },
-    masterKey,
+    key,
     base64ToBytes(encrypted_blob),
   )
   return JSON.parse(dec.decode(plaintext))
 }
 
 // Encrypts a plain string - IV (12 bytes) is prepended to ciphertext and the whole thing is returned as a single base64 string
-export async function encryptString(value: string, masterKey: CryptoKey): Promise<string> {
+export async function encryptString(value: string, key: CryptoKey): Promise<string> {
   const iv = crypto.getRandomValues(new Uint8Array(12))
   const ciphertext = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
-    masterKey,
+    key,
     enc.encode(value),
   )
   const combined = new Uint8Array(12 + ciphertext.byteLength)
@@ -152,10 +152,10 @@ export async function encryptString(value: string, masterKey: CryptoKey): Promis
   return bytesToBase64(combined)
 }
 
-export async function decryptString(encrypted: string, masterKey: CryptoKey): Promise<string> {
+export async function decryptString(encrypted: string, key: CryptoKey): Promise<string> {
   const combined = base64ToBytes(encrypted)
   const iv = combined.slice(0, 12)
   const ciphertext = combined.slice(12)
-  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, masterKey, ciphertext)
+  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext)
   return dec.decode(plaintext)
 }
