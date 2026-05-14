@@ -14,6 +14,7 @@ const vault = useVaultStore()
 
 const emit = defineEmits<{
   edit: []
+  back: []
 }>()
 
 const showPassword = ref(false)
@@ -76,6 +77,17 @@ function strengthDot(score: number): string {
 
 <template>
   <div class="flex flex-1 flex-col overflow-y-auto">
+    <button
+      type="button"
+      class="sm:hidden flex items-center gap-1 px-4 pt-3 pb-1 text-sm text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 w-full transition-colors cursor-pointer w-fit"
+      @click="emit('back')"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back
+    </button>
+
     <div
       class="flex flex-shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4"
     >
@@ -565,7 +577,9 @@ function strengthDot(score: number): string {
               </button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-700">
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-700"
+            >
               <div class="px-4 py-3">
                 <p class="text-xs text-slate-400">Expiration</p>
                 <p class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">

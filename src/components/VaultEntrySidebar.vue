@@ -84,7 +84,8 @@ async function copyPassword(entry: VaultEntry) {
 
 <template>
   <aside
-    class="flex w-72 flex-shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+    class="flex-shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+    :class="selectedId ? 'hidden sm:flex sm:w-72' : 'flex w-full sm:w-72'"
   >
     <div class="flex-shrink-0 px-4 pb-1 pt-3">
       <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ title }}</h2>
