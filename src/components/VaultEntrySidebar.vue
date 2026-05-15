@@ -84,10 +84,10 @@ async function copyPassword(entry: VaultEntry) {
 
 <template>
   <aside
-    class="flex-shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+    class="shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
     :class="selectedId ? 'hidden sm:flex sm:w-72' : 'flex w-full sm:w-72'"
   >
-    <div class="flex-shrink-0 px-4 pb-1 pt-3">
+    <div class="shrink-0 px-4 pb-1 pt-3">
       <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ title }}</h2>
       <span class="text-xs text-slate-400">
         {{ filtered.length }} item{{ filtered.length !== 1 ? 's' : '' }}
@@ -96,7 +96,7 @@ async function copyPassword(entry: VaultEntry) {
 
     <div
       v-if="categoriesStore.categories.length > 0"
-      class="flex-shrink-0 border-b border-slate-100 dark:border-slate-700 px-3 py-2"
+      class="shrink-0 border-b border-slate-100 dark:border-slate-700 px-3 py-2"
     >
       <div class="flex flex-wrap gap-1">
         <button
@@ -140,14 +140,14 @@ async function copyPassword(entry: VaultEntry) {
         >
           <span
             v-if="entry.type === 'card'"
-            class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
             :class="entry.network ? 'dark:bg-slate-700' : entry.color"
           >
             <CardNetworkLogo :network="entry.network" size="sm" />
           </span>
           <span
             v-else
-            class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
             :class="entry.color"
           >
             {{ entry.name.charAt(0).toUpperCase() }}

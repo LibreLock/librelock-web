@@ -99,7 +99,7 @@ onBeforeUnmount(closeMenu)
   <Teleport to="body">
     <div
       v-if="menuOpen"
-      class="fixed z-50 min-w-[130px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-1 shadow-lg"
+      class="fixed z-50 min-w-32.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-1 shadow-lg"
       :style="{ left: menuX + 'px', top: menuY + 'px' }"
       @pointerdown.stop
     >

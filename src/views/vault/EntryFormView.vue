@@ -186,7 +186,7 @@ async function handleSubmit() {
       router.push({ name: 'vault-entry', params: { id: created.id } })
     }
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to save entry.'
+    error.value = err instanceof Error ? err.message : 'Failed to save entry'
   } finally {
     isSubmitting.value = false
   }
@@ -205,7 +205,7 @@ async function handleSubmit() {
 
         <div
           v-if="!isEditMode"
-          class="flex w-fit gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1 flex-shrink-0"
+          class="flex w-fit gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1 shrink-0"
         >
           <button
             type="button"

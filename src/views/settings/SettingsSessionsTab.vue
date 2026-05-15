@@ -25,6 +25,24 @@ const sessionsError = ref<string | null>(null)
 const revokingId = ref<string | null>(null)
 const revokingAll = ref(false)
 
+const showLogoutWarning = ref(false)
+const logoutWarningMode = ref<'revokeAll' | 'revokeOne'>('revokeAll')
+const pendingRevokeId = ref<string | null>(null)
+
+async function confirmLogoutWarning() {
+  showLogoutWarning.value = false
+  if (logoutWarningMode.value === 'revokeAll') {
+    doRevokeAll()
+  } else if (pendingRevokeId.value) {
+    const id = pendingRevokeId.value
+    pendingRevokeId.value = null
+    await doRevokeSession(id)
+    const auth = useAuthStore()
+    await auth.logOut()
+    router.push('/login')
+  }
+}
+
 async function loadSessions() {
   sessionsLoading.value = true
   sessionsError.value = null
@@ -38,7 +56,27 @@ async function loadSessions() {
   }
 }
 
-async function revokeSession(id: string) {
+function revokeSession(id: string) {
+  if (sessions.value.length === 1) {
+    pendingRevokeId.value = id
+    logoutWarningMode.value = 'revokeOne'
+    showLogoutWarning.value = true
+  } else {
+    doRevokeSession(id).then(checkCurrentSession)
+  }
+}
+
+async function checkCurrentSession() {
+  try {
+    await apiRequest('/auth/me')
+  } catch {
+    const auth = useAuthStore()
+    await auth.logOut()
+    router.push('/login')
+  }
+}
+
+async function doRevokeSession(id: string) {
   revokingId.value = id
   try {
     await apiRequest(`/sessions/${id}`, { method: 'DELETE' })
@@ -51,11 +89,13 @@ async function revokeSession(id: string) {
   }
 }
 
-async function revokeAllSessions() {
+function revokeAllSessions() {
+  logoutWarningMode.value = 'revokeAll'
+  showLogoutWarning.value = true
+}
+
+async function doRevokeAll() {
   const auth = useAuthStore()
-  if (!confirm('Are you sure you want to revoke all sessions? You will need to log in again.')) {
-    return
-  }
   revokingAll.value = true
   try {
     await apiRequest('/sessions', { method: 'DELETE' })
@@ -216,6 +256,41 @@ onMounted(() => {
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    v-if="showLogoutWarning"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
+    @click.self="showLogoutWarning = false"
+  >
+    <div class="w-full max-w-sm rounded-xl bg-white dark:bg-slate-800 p-4 shadow-xl">
+      <h2 class="mb-2 text-base font-semibold text-slate-900 dark:text-slate-100">
+        {{ logoutWarningMode === 'revokeAll' ? 'Revoke all sessions?' : 'Revoke this session?' }}
+      </h2>
+      <p class="mb-5 text-sm text-slate-500 dark:text-slate-400">
+        {{
+          logoutWarningMode === 'revokeAll'
+            ? 'All sessions will be revoked. You will be logged out of this device.'
+            : 'This is your only active session. You will be logged out of this device.'
+        }}
+      </p>
+      <div class="flex justify-end gap-2">
+        <button
+          type="button"
+          class="rounded-lg px-3 py-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer transition-colors"
+          @click="showLogoutWarning = false"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 cursor-pointer transition-colors"
+          @click="confirmLogoutWarning"
+        >
+          Revoke
+        </button>
       </div>
     </div>
   </div>

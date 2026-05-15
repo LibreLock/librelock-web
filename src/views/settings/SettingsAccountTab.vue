@@ -113,7 +113,7 @@ async function handleChangePassword() {
     passwordError.value =
       err instanceof ApiError
         ? err.message
-        : 'Failed to change password. Make sure your current password is correct.'
+        : 'Password change failed. Make sure your current password is correct.'
   } finally {
     isChangingPassword.value = false
   }
@@ -242,7 +242,7 @@ async function handleDeleteAccount() {
           v-if="passwordSuccess"
           class="rounded-lg bg-emerald-50 dark:bg-emerald-950/50 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400"
         >
-          Master password updated successfully.
+          Master password successfully updated
         </div>
 
         <form v-else class="space-y-4" @submit.prevent="handleChangePassword">

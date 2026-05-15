@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import SettingsAccountTab from './SettingsAccountTab.vue'
 import SettingsSecurityTab from './SettingsSecurityTab.vue'
 import SettingsSessionsTab from './SettingsSessionsTab.vue'
 
-type Tab = 'account' | 'security' | 'sessions'
-const activeTab = ref<Tab>('account')
+const TABS = ['account', 'security', 'sessions'] as const
+type Tab = (typeof TABS)[number]
+
+const route = useRoute()
+const router = useRouter()
+
+const activeTab = computed<Tab>(() => {
+  const hash = route.hash.slice(1)
+  return (TABS as readonly string[]).includes(hash) ? (hash as Tab) : 'account'
+})
 
 function onTabChange(tab: Tab) {
-  activeTab.value = tab
+  router.replace({ hash: `#${tab}` })
 }
 </script>
 
