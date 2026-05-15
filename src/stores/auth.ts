@@ -13,6 +13,7 @@ import {
 } from '@/services/crypto'
 import { clearSessionKey, loadSessionKey, saveSessionKey } from '@/services/keystore'
 import { getVaultKey, setVaultKey } from '@/services/keyring'
+import { broadcastAuth, broadcastLogout, requestKeyFromTabs, type TabSyncUser } from '@/services/tabsync'
 import { useCategoriesStore } from '@/stores/categories'
 import { useVaultStore } from '@/stores/vault'
 import { DEFAULT_CATEGORIES, KDF_ITER, KDF_MEMORY, KDF_PARALLELISM } from '@/constants'
@@ -76,12 +77,26 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.user ?? null
       status.value = user.value ? 'authenticated' : 'anonymous'
 
-      // Restore vault key from IndexedDB if session cookie is still valid
+      // Restore vault key from IndexedDB if session cookie is still valid.
+      // If no key is found (new tab, or sessionStorage flag missing), ask other tabs
+      // before giving up. Don't touch the server session — other tabs may still use it.
       if (user.value && !getVaultKey()) {
         const key = await loadSessionKey()
         setVaultKey(key)
         if (!getVaultKey()) {
-          await logOut()
+          const synced = await requestKeyFromTabs()
+          if (synced) {
+            setVaultKey(synced.key)
+            await saveSessionKey(synced.key)
+            user.value = synced.user as AuthUser
+            status.value = 'authenticated'
+            return user.value
+          }
+          setVaultKey(null)
+          useCategoriesStore().clear()
+          useVaultStore().clear()
+          user.value = null
+          status.value = 'anonymous'
           return null
         }
       }
@@ -118,6 +133,7 @@ export const useAuthStore = defineStore('auth', () => {
       await saveSessionKey(vaultKey)
       user.value = response.user ?? null
       status.value = 'authenticated'
+      broadcastAuth(vaultKey, user.value!)
       return user.value
     } catch (caughtError) {
       error.value = getErrorMessage(caughtError)
@@ -175,7 +191,8 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function logOut() {
+  async function logOut(broadcast = true) {
+    if (broadcast) broadcastLogout()
     isSubmitting.value = true
     try {
       await apiRequest('/auth/logout', { method: 'POST' })
@@ -192,6 +209,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function receiveTabAuth(syncedKey: CryptoKey, syncedUser: TabSyncUser) {
+    setVaultKey(syncedKey)
+    await saveSessionKey(syncedKey)
+    user.value = syncedUser as AuthUser
+    status.value = 'authenticated'
+  }
+
   function clearError() {
     error.value = null
   }
@@ -205,6 +229,7 @@ export const useAuthStore = defineStore('auth', () => {
     refreshSession,
     logIn,
     logOut,
+    receiveTabAuth,
     register,
     status,
     user,

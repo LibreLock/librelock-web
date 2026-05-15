@@ -3,6 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { pinia } from '@/stores/pinia'
 import { useAuthStore } from '@/stores/auth'
 import { setUnauthorizedHandler } from '@/services/api'
+import { listenTabSync, broadcastKeyResponse } from '@/services/tabsync'
+import { getVaultKey } from '@/services/keyring'
 
 import AppLayout from '../layouts/AppLayout.vue'
 import NotFoundView from '../views/not-found/NotFoundView.vue'
@@ -136,6 +138,22 @@ setUnauthorizedHandler(async () => {
   if (!auth.isAuthenticated) return
   await auth.logOut()
   router.push('/login')
+})
+
+listenTabSync(async (msg) => {
+  const auth = useAuthStore(pinia)
+  if (msg.type === 'auth') {
+    if (auth.isAuthenticated) return
+    await auth.receiveTabAuth(msg.key, msg.user)
+    router.replace('/')
+  } else if (msg.type === 'logout') {
+    if (!auth.isAuthenticated) return
+    await auth.logOut(false)
+    router.push('/login')
+  } else if (msg.type === 'request-key') {
+    const key = getVaultKey()
+    if (key && auth.user) broadcastKeyResponse(key, auth.user)
+  }
 })
 
 export default router
