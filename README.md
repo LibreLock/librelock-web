@@ -11,6 +11,14 @@ To use LibreLock, refer to _Get started_ section in this [README](https://github
 
 ## Development
 
+The preferable way to run the API is via Docker:
+
+```bash
+docker compose up -d
+```
+
+If you wish to run frontend locally without Docker, you can use the following commands:
+
 ```bash
 # Install dependencies
 npm install
@@ -28,13 +36,13 @@ npm run build
 npm run preview
 ```
 
-**Run Unit Tests with [Vitest](https://vitest.dev/)**
+To run Unit Tests with [Vitest](https://vitest.dev/):
 
 ```bash
 npm run test:unit
 ```
 
-**Run End-to-End Tests with [Playwright](https://playwright.dev)**
+To run End-to-End Tests with [Playwright](https://playwright.dev):
 
 ```bash
 # Install browsers for the first run
