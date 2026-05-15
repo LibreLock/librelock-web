@@ -7,17 +7,9 @@ Web application for LibreLock, a secure self-hosted password manager. Built with
 
 ## Get started
 
-To use LibreLock, refer to _Get started_ section in this [README](https://github.com/LibreLock/).
+The preferable way to run LibreLock is via Docker compose. Refer to _Get started_ section in this [README](https://github.com/LibreLock/) for instructions.
 
 ## Development
-
-The preferable way to run the API is via Docker:
-
-```bash
-docker compose up -d
-```
-
-If you wish to run frontend locally without Docker, you can use the following commands:
 
 ```bash
 # Install dependencies
