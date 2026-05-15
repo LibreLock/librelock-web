@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
@@ -22,6 +22,16 @@ type EntryType = 'password' | 'note' | 'card'
 const entryType = ref<EntryType>('password')
 const selectedColor = ref(DEFAULT_COLOR)
 const selectedCategoryId = ref<string | null>(null)
+
+watch(
+  () => categoriesStore.categories,
+  (cats) => {
+    if (selectedCategoryId.value && !cats.some((c) => c.id === selectedCategoryId.value)) {
+      selectedCategoryId.value = null
+    }
+  },
+)
+
 const showPassword = ref(false)
 const showCvv = ref(false)
 
@@ -582,7 +592,7 @@ async function handleSubmit() {
                     class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
                     :class="
                       selectedCategoryId === null
-                        ? 'bg-slate-800 text-white'
+                        ? 'bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                     "
                     @click="selectedCategoryId = null"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
@@ -7,6 +7,8 @@ import IconPadlock from '@/components/icons/IconPadlock.vue'
 import { MIN_PASSWORD_LENGTH } from '@/constants'
 const auth = useAuthStore()
 const router = useRouter()
+
+onMounted(() => auth.clearError())
 
 const form = reactive({
   username: '',

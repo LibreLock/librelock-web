@@ -87,7 +87,7 @@ onBeforeUnmount(closeMenu)
     class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
     :class="
       active
-        ? 'bg-slate-800 text-white'
+        ? 'bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900'
         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
     "
     @click="emit('click')"
