@@ -3,7 +3,7 @@
   <h1 align="center">LibreLock Web</h1>
 </div>
 
-Web application for LibreLock, a secure self-hosted password manager. Built with [Vue](https://vuejs.org/) and [Vite](https://vitejs.dev/).
+Web application for LibreLock, a secure, self-hosted password manager. Built with [Vue](https://vuejs.org/) and [Vite](https://vitejs.dev/).
 
 ## Get started
 
