@@ -176,6 +176,8 @@ export const useAuthStore = defineStore('auth', () => {
     isSubmitting.value = true
     try {
       await apiRequest('/auth/logout', { method: 'POST' })
+    } catch {
+      // in case server session is gone (account deleted)
     } finally {
       setVaultKey(null)
       await clearSessionKey()
