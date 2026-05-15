@@ -72,6 +72,7 @@ export const useAuthStore = defineStore('auth', () => {
     status.value = 'loading'
     try {
       const response = (await apiRequest<AuthResponse>('/auth/me')) ?? {}
+      if (status.value !== 'loading') return user.value
       user.value = response.user ?? null
       status.value = user.value ? 'authenticated' : 'anonymous'
 
@@ -87,8 +88,10 @@ export const useAuthStore = defineStore('auth', () => {
 
       return user.value
     } catch {
-      user.value = null
-      status.value = 'anonymous'
+      if (status.value === 'loading') {
+        user.value = null
+        status.value = 'anonymous'
+      }
       return null
     }
   }

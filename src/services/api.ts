@@ -1,5 +1,11 @@
 import { API_BASE_URL } from '@/constants'
 
+let unauthorizedHandler: (() => void) | null = null
+
+export function setUnauthorizedHandler(handler: () => void) {
+  unauthorizedHandler = handler
+}
+
 export class ApiError extends Error {
   public readonly status: number
 
@@ -59,6 +65,9 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}) {
   }
 
   if (!response.ok) {
+    if (response.status === 401 && !path.startsWith('/auth/')) {
+      unauthorizedHandler?.()
+    }
     throw new ApiError(extractMessage(payload, response.statusText), response.status, payload)
   }
 

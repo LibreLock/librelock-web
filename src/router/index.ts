@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import { pinia } from '@/stores/pinia'
 import { useAuthStore } from '@/stores/auth'
+import { setUnauthorizedHandler } from '@/services/api'
 
 import AppLayout from '../layouts/AppLayout.vue'
 import NotFoundView from '../views/not-found/NotFoundView.vue'
@@ -128,6 +129,13 @@ router.beforeEach(async (to) => {
   }
 
   return true
+})
+
+setUnauthorizedHandler(async () => {
+  const auth = useAuthStore(pinia)
+  if (!auth.isAuthenticated) return
+  await auth.logOut()
+  router.push('/login')
 })
 
 export default router
