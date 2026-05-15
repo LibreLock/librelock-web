@@ -75,7 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.user ?? null
       status.value = user.value ? 'authenticated' : 'anonymous'
 
-      // Restore vault key from IndexedDB if JWT cookie is still valid
+      // Restore vault key from IndexedDB if session cookie is still valid
       if (user.value && !getVaultKey()) {
         const key = await loadSessionKey()
         setVaultKey(key)

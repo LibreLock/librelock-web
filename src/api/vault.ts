@@ -9,7 +9,7 @@ export function detectCardNetwork(number: string): CardNetwork {
   const n = number.replace(/\D/g, '')
   if (n.length < 2) return null
   if (/^(5[1-5]|2[2-7])/.test(n)) return 'mastercard'
-  if (/^4/.test(n)) return 'visa'
+  if (n.startsWith('4')) return 'visa'
   return null
 }
 
