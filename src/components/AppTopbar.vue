@@ -29,7 +29,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 
 <template>
   <header
-    class="flex h-14 flex-shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4"
+    class="flex h-14 shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4"
   >
     <div class="relative w-full max-w-xs lg:max-w-md">
       <svg

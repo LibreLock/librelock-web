@@ -79,7 +79,7 @@ function strengthDot(score: number): string {
   <div class="flex flex-1 flex-col overflow-y-auto">
     <button
       type="button"
-      class="sm:hidden flex items-center gap-1 px-4 pt-3 pb-1 text-sm text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 w-full transition-colors cursor-pointer w-fit"
+      class="sm:hidden flex items-center gap-1 px-4 pt-3 pb-1 text-sm text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 w-full transition-colors cursor-pointer"
       @click="emit('back')"
     >
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,18 +89,18 @@ function strengthDot(score: number): string {
     </button>
 
     <div
-      class="flex flex-shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4"
+      class="flex shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4"
     >
       <span
         v-if="entry.type === 'card'"
-        class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
+        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
         :class="entry.network ? 'dark:bg-slate-700' : entry.color"
       >
         <CardNetworkLogo :network="entry.network" size="md" />
       </span>
       <span
         v-else
-        class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white"
+        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white"
         :class="entry.color"
       >
         {{ entry.name.charAt(0).toUpperCase() }}
@@ -173,7 +173,7 @@ function strengthDot(score: number): string {
               <button
                 v-if="entry.username"
                 type="button"
-                class="ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                class="ml-3 shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 title="Copy username"
                 @click="copy(entry.username, 'username')"
               >
@@ -220,7 +220,7 @@ function strengthDot(score: number): string {
               <button
                 v-if="entry.email"
                 type="button"
-                class="ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                class="ml-3 shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 title="Copy email"
                 @click="copy(entry.email, 'email')"
               >
@@ -266,7 +266,7 @@ function strengthDot(score: number): string {
                   }}
                 </p>
               </div>
-              <div class="ml-3 flex flex-shrink-0 gap-2">
+              <div class="ml-3 flex shrink-0 gap-2">
                 <button
                   type="button"
                   class="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
@@ -353,7 +353,7 @@ function strengthDot(score: number): string {
               <p class="mb-1.5 text-xs text-slate-400">Password strength</p>
               <div class="flex items-center gap-1.5">
                 <span
-                  class="h-2 w-2 flex-shrink-0 rounded-full"
+                  class="h-2 w-2 shrink-0 rounded-full"
                   :class="strengthDot(entry.passwordStrength)"
                 ></span>
                 <span class="text-sm font-medium" :class="strengthColor(entry.passwordStrength)">
@@ -370,7 +370,7 @@ function strengthDot(score: number): string {
               <p class="mb-1.5 text-xs text-slate-400">Reused</p>
               <div class="flex items-center gap-1.5">
                 <span
-                  class="h-2 w-2 flex-shrink-0 rounded-full"
+                  class="h-2 w-2 shrink-0 rounded-full"
                   :class="isReused ? 'bg-red-500' : 'bg-emerald-500'"
                 ></span>
                 <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -391,7 +391,7 @@ function strengthDot(score: number): string {
                     :key="e.id"
                     class="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300"
                   >
-                    <span class="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-red-500"></span>
+                    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500"></span>
                     {{ e.name }}
                   </li>
                 </ul>
@@ -405,7 +405,7 @@ function strengthDot(score: number): string {
               <div class="flex items-center gap-1.5">
                 <template v-if="isBreachChecking">
                   <span
-                    class="h-2 w-2 flex-shrink-0 animate-pulse rounded-full bg-slate-300 dark:bg-slate-600"
+                    class="h-2 w-2 shrink-0 animate-pulse rounded-full bg-slate-300 dark:bg-slate-600"
                   ></span>
                   <span class="text-sm font-medium text-slate-400 dark:text-slate-500"
                     >Checking…</span
@@ -413,7 +413,7 @@ function strengthDot(score: number): string {
                 </template>
                 <template v-else>
                   <span
-                    class="h-2 w-2 flex-shrink-0 rounded-full"
+                    class="h-2 w-2 shrink-0 rounded-full"
                     :class="entry.breached ? 'bg-red-500' : 'bg-emerald-500'"
                   ></span>
                   <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -456,7 +456,7 @@ function strengthDot(score: number): string {
                   {{ showCardNumber ? entry.cardNumber : maskedCardNumber }}
                 </p>
               </div>
-              <div class="ml-3 flex flex-shrink-0 gap-2">
+              <div class="ml-3 flex shrink-0 gap-2">
                 <button
                   type="button"
                   class="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
@@ -542,7 +542,7 @@ function strengthDot(score: number): string {
               <button
                 v-if="entry.cardholderName"
                 type="button"
-                class="ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                class="ml-3 shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 title="Copy cardholder name"
                 @click="copy(entry.cardholderName, 'cardholderName')"
               >

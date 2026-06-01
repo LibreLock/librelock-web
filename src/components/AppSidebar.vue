@@ -60,11 +60,11 @@ const navItems = [
 
 <template>
   <aside
-    class="flex h-screen flex-shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition-all duration-200"
+    class="flex h-screen shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition-all duration-200"
     :class="collapsed ? 'w-16' : 'w-60'"
   >
     <div
-      class="flex flex-shrink-0 border-b border-slate-100 dark:border-slate-700/60 p-3"
+      class="flex shrink-0 border-b border-slate-100 dark:border-slate-700/60 p-3"
       :class="
         collapsed ? 'h-auto flex-col items-center gap-2' : 'h-14 items-center gap-3 pl-4 pr-2'
       "
@@ -116,7 +116,7 @@ const navItems = [
         :title="collapsed ? item.name : undefined"
       >
         <template v-if="item.icon === 'vault'">
-          <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -126,7 +126,7 @@ const navItems = [
           </svg>
         </template>
         <template v-else-if="item.icon === 'password'">
-          <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -136,12 +136,17 @@ const navItems = [
           </svg>
         </template>
         <template v-else-if="item.icon === 'card'">
-          <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+            />
           </svg>
         </template>
         <template v-else-if="item.icon === 'note'">
-          <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -151,7 +156,7 @@ const navItems = [
           </svg>
         </template>
         <template v-else-if="item.icon === 'generator'">
-          <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -164,7 +169,7 @@ const navItems = [
       </RouterLink>
     </nav>
 
-    <div class="flex-shrink-0 space-y-1 border-t border-slate-100 dark:border-slate-700/60 p-2">
+    <div class="shrink-0 space-y-1 border-t border-slate-100 dark:border-slate-700/60 p-2">
       <RouterLink
         to="/settings"
         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
@@ -175,7 +180,7 @@ const navItems = [
         "
         :title="collapsed ? 'Settings' : undefined"
       >
-        <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -199,7 +204,7 @@ const navItems = [
         :title="collapsed ? 'Log out' : undefined"
         @click="handleLogout"
       >
-        <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
