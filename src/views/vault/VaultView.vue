@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useVaultStore } from '@/stores/vault'
 import VaultEntrySidebar from '@/components/VaultEntrySidebar.vue'
 import VaultEntryDetail from '@/components/VaultEntryDetail.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -40,7 +41,8 @@ function onBack() {
       @select="onSelect"
     />
 
-    <div v-if="vault.loading && vault.entries.length === 0" class="flex flex-1 items-center justify-center">
+    <div v-if="vault.loading && vault.entries.length === 0" class="flex flex-1 flex-col items-center justify-center gap-2">
+      <LoadingSpinner class="text-slate-400" />
       <p class="text-sm text-slate-400">Loading vault...</p>
     </div>
 

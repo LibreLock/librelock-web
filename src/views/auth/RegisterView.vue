@@ -4,6 +4,7 @@ import { RouterLink, useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
 import IconPadlock from '@/components/icons/IconPadlock.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { MIN_PASSWORD_LENGTH } from '@/constants'
 const auth = useAuthStore()
 const router = useRouter()
@@ -214,8 +215,9 @@ async function handleSubmit() {
 
         <button
           :disabled="!canSubmit"
-          class="w-full rounded-md bg-slate-800 hover:bg-slate-700 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+          class="w-full flex items-center justify-center gap-2 rounded-md bg-slate-800 hover:bg-slate-700 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
         >
+          <LoadingSpinner v-if="auth.isSubmitting" size="sm" />
           {{ auth.isSubmitting ? 'Creating account...' : 'Create account' }}
         </button>
       </form>

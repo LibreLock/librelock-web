@@ -8,6 +8,7 @@ import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import { usePasswordGenerator } from '@/composables/usePasswordGenerator'
 import { DEFAULT_COLOR, ENTRY_COLORS } from '@/constants'
 import { detectCardNetwork } from '@/api/vault'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -255,7 +256,10 @@ async function handleSubmit() {
         </button>
       </div>
 
-      <div v-if="isLoading" class="py-12 text-center text-sm text-slate-400">Loading entry…</div>
+      <div v-if="isLoading" class="flex flex-col items-center justify-center gap-2 py-12 text-sm text-slate-400">
+        <LoadingSpinner class="text-slate-400" />
+        Loading entry…
+      </div>
 
       <div
         v-else
@@ -652,9 +656,10 @@ async function handleSubmit() {
                 <p v-if="error" class="mb-2 text-xs text-red-600">{{ error }}</p>
                 <button
                   type="submit"
-                  class="w-full rounded-lg bg-slate-800 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                  class="w-full flex items-center justify-center gap-2 rounded-lg bg-slate-800 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                   :disabled="isSubmitting"
                 >
+                  <LoadingSpinner v-if="isSubmitting" size="sm" />
                   {{ isSubmitting ? 'Saving…' : isEditMode ? 'Save changes' : 'Save entry' }}
                 </button>
               </div>

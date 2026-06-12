@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import IconPadlock from './icons/IconPadlock.vue'
+import LoadingSpinner from './LoadingSpinner.vue'
 
 const STORAGE_KEY = 'sidebar-collapsed'
 const SMALL_SCREEN_BREAKPOINT = 768
@@ -204,7 +205,8 @@ const navItems = [
         :title="collapsed ? 'Log out' : undefined"
         @click="handleLogout"
       >
-        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <LoadingSpinner v-if="auth.isSubmitting" size="sm" class="shrink-0" />
+        <svg v-else class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"

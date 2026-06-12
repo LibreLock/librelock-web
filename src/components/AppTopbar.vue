@@ -6,8 +6,9 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
 const vault = useVaultStore()
 
 const searchInput = ref<HTMLInputElement | null>(null)
+const justCopied = ref(false)
 
-function handleKeydown(e: KeyboardEvent) {
+async function handleKeydown(e: KeyboardEvent) {
   const tag = (e.target as HTMLElement).tagName
   const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
 
@@ -20,6 +21,15 @@ function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && document.activeElement === searchInput.value) {
     vault.globalSearch = ''
     searchInput.value?.blur()
+  }
+
+  // Enter in the search box copies the top result's password/card number/note straight to clipboard.
+  if (e.key === 'Enter' && document.activeElement === searchInput.value && vault.globalSearch.trim()) {
+    e.preventDefault()
+    if (await vault.copyFirstSearchResult()) {
+      justCopied.value = true
+      setTimeout(() => (justCopied.value = false), 1500)
+    }
   }
 }
 
@@ -61,11 +71,19 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
         Ctrl K
       </div>
 
+      <span
+        v-if="justCopied"
+        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-emerald-500"
+      >
+        Copied!
+      </span>
+
       <button
-        v-if="vault.globalSearch"
+        v-else-if="vault.globalSearch"
         type="button"
         class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
         @click="vault.globalSearch = ''"
+        :title="vault.searchResults.length > 0 ? 'Press Enter to copy the top result' : undefined"
       >
         Clear
       </button>

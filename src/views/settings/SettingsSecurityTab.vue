@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { apiRequest } from '@/services/api'
 import { useAuthStore, type KdfResponse } from '@/stores/auth'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { DB_NAME, KEY_ID, SESSION_FLAG, STORE } from '@/constants'
 
 const auth = useAuthStore()
@@ -66,7 +67,10 @@ watch(
             <template v-if="kdfLoading">
               <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                 <span class="sm:w-36 sm:shrink-0 text-xs font-medium text-slate-500">KDF params</span>
-                <span class="text-xs text-slate-400">Loading…</span>
+                <span class="flex items-center gap-2 text-xs text-slate-400">
+                  <LoadingSpinner size="sm" />
+                  Loading…
+                </span>
               </div>
             </template>
             <template v-else-if="kdfInfo">
