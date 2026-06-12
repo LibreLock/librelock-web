@@ -15,46 +15,6 @@ docker compose up -d
 
 Refer to _Get started_ section in this [README](https://github.com/LibreLock/) for details. This README also provides details about LibreLock’s cryptographic design and security model.
 
-## Development
+## Contributing
 
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Lint the codebase
-npm run lint
-
-# Build for production
-npm run build
-
-# Preview production build locally
-npm run preview
-```
-
-To run Unit Tests with [Vitest](https://vitest.dev/):
-
-```bash
-npm run test:unit
-```
-
-To run End-to-End Tests with [Playwright](https://playwright.dev):
-
-```bash
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for project structure, code style, and security guidelines.
