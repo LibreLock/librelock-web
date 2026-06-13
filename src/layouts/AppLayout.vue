@@ -7,7 +7,7 @@ useThemeStore()
 </script>
 
 <template>
-  <div class="flex h-screen bg-slate-50 dark:bg-slate-950">
+  <div class="flex h-screen bg-gray-50 dark:bg-gray-950">
     <AppSidebar />
     <div class="flex min-w-0 flex-1 flex-col">
       <AppTopbar />

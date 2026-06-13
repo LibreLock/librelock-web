@@ -18,18 +18,18 @@ async function copy() {
 <template>
   <div class="overflow-y-auto h-full p-4 sm:p-6">
     <div class="max-w-xl">
-      <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Password Generator</h1>
-      <p class="mt-1 mb-5 text-sm text-slate-500">
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Password Generator</h1>
+      <p class="mt-1 mb-5 text-sm text-gray-500">
         Generate strong, unique passwords for your accounts.
       </p>
 
       <div
-        class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 p-5 space-y-5"
+        class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 p-5 space-y-5"
       >
         <div>
           <div class="flex gap-2">
             <div
-              class="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 px-3 py-2 font-mono text-sm text-slate-900 dark:text-slate-100 truncate cursor-pointer transition-colors"
+              class="flex-1 min-w-0 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 font-mono text-sm text-gray-900 dark:text-gray-100 truncate cursor-pointer transition-colors"
               :class="
                 copied
                   ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700'
@@ -43,7 +43,7 @@ async function copy() {
             <button
               type="button"
               title="Regenerate"
-              class="shrink-0 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+              class="shrink-0 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer"
               @click="generate"
             >
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,7 +60,7 @@ async function copy() {
               :disabled="!generated"
               class="shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               :class="
-                copied ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-white hover:bg-slate-700'
+                copied ? 'bg-emerald-600 text-white' : 'bg-gray-800 text-white hover:bg-gray-700'
               "
               @click="copy"
               title="Copy"
@@ -75,7 +75,7 @@ async function copy() {
 
         <div>
           <div class="mb-2 flex items-center justify-between">
-            <label class="text-xs font-semibold text-slate-400"
+            <label class="text-xs font-semibold text-gray-400"
               >Length:
               <span class="font-bold">{{ length }}</span>
             </label>
@@ -91,39 +91,39 @@ async function copy() {
         </div>
 
         <div>
-          <label class="mb-2 block text-xs font-semibold text-slate-400">Characters used</label>
+          <label class="mb-2 block text-xs font-semibold text-gray-400">Characters used</label>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 sm:gap-y-2">
             <label class="flex cursor-pointer items-center gap-2.5">
               <input
                 v-model="useUppercase"
                 type="checkbox"
-                class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
+                class="h-4 w-4 rounded accent-gray-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700 dark:text-slate-300">Uppercase (A-Z)</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">Uppercase (A-Z)</span>
             </label>
             <label class="flex cursor-pointer items-center gap-2.5">
               <input
                 v-model="useLowercase"
                 type="checkbox"
-                class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
+                class="h-4 w-4 rounded accent-gray-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700 dark:text-slate-300">Lowercase (a-z)</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">Lowercase (a-z)</span>
             </label>
             <label class="flex cursor-pointer items-center gap-2.5">
               <input
                 v-model="useNumbers"
                 type="checkbox"
-                class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
+                class="h-4 w-4 rounded accent-gray-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700 dark:text-slate-300">Numbers (0-9)</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">Numbers (0-9)</span>
             </label>
             <label class="flex cursor-pointer items-center gap-2.5">
               <input
                 v-model="useSymbols"
                 type="checkbox"
-                class="h-4 w-4 rounded accent-slate-800 cursor-pointer"
+                class="h-4 w-4 rounded accent-gray-800 cursor-pointer"
               />
-              <span class="text-sm text-slate-700 dark:text-slate-300">Symbols (!@#…)</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">Symbols (!@#…)</span>
             </label>
           </div>
         </div>

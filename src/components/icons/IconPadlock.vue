@@ -21,7 +21,7 @@ const iconSizeClasses = {
 <template>
   <div
     :class="sizeClasses[props.size] || sizeClasses.md"
-    class="flex shrink-0 items-center justify-center rounded-lg bg-slate-800 text-white"
+    class="flex shrink-0 items-center justify-center rounded-lg bg-gray-800 text-white"
   >
     <svg
       :class="iconSizeClasses[props.size] || iconSizeClasses.md"

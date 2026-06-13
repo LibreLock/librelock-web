@@ -24,7 +24,11 @@ async function handleKeydown(e: KeyboardEvent) {
   }
 
   // Enter in the search box copies the top result's password/card number/note straight to clipboard.
-  if (e.key === 'Enter' && document.activeElement === searchInput.value && vault.globalSearch.trim()) {
+  if (
+    e.key === 'Enter' &&
+    document.activeElement === searchInput.value &&
+    vault.globalSearch.trim()
+  ) {
     e.preventDefault()
     if (await vault.copyFirstSearchResult()) {
       justCopied.value = true
@@ -39,11 +43,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 
 <template>
   <header
-    class="flex h-14 shrink-0 items-center gap-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4"
+    class="flex h-14 shrink-0 items-center gap-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4"
   >
     <div class="relative w-full max-w-xs lg:max-w-md">
       <svg
-        class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+        class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -61,12 +65,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
         v-model="vault.globalSearch"
         type="search"
         placeholder="Search vault"
-        class="w-full rounded-md border px-3 py-1.5 pl-9 pr-16 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition [&::-webkit-search-cancel-button]:hidden text-sm"
+        class="w-full rounded-md border px-3 py-1.5 pl-9 pr-16 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition [&::-webkit-search-cancel-button]:hidden text-sm"
       />
 
       <div
         v-if="!vault.globalSearch"
-        class="absolute right-2.5 top-1/2 hidden -translate-y-1/2 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-1.5 text-[10px] text-slate-400 dark:text-slate-500 sm:block"
+        class="absolute right-2.5 top-1/2 hidden -translate-y-1/2 py-0.5 rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-1.5 text-[10px] text-gray-400 dark:text-gray-500 sm:block"
       >
         Ctrl K
       </div>
@@ -81,7 +85,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
       <button
         v-else-if="vault.globalSearch"
         type="button"
-        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
+        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
         @click="vault.globalSearch = ''"
         :title="vault.searchResults.length > 0 ? 'Press Enter to copy the top result' : undefined"
       >
@@ -92,7 +96,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
     <div class="ml-auto flex items-center gap-3">
       <RouterLink
         to="/vault/new"
-        class="flex items-center justify-center gap-0 sm:gap-2 rounded-md bg-slate-800 p-2 sm:px-3 sm:py-1.5 text-white hover:bg-slate-700"
+        class="flex items-center justify-center gap-0 sm:gap-2 rounded-md bg-gray-800 p-2 sm:px-3 sm:py-1.5 text-white hover:bg-gray-700"
         aria-label="Add entry"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

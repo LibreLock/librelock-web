@@ -84,19 +84,19 @@ async function copyPassword(entry: VaultEntry) {
 
 <template>
   <aside
-    class="shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+    class="shrink-0 flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
     :class="selectedId ? 'hidden sm:flex sm:w-72' : 'flex w-full sm:w-72'"
   >
     <div class="shrink-0 px-4 pb-1 pt-3">
-      <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ title }}</h2>
-      <span class="text-xs text-slate-400">
+      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ title }}</h2>
+      <span class="text-xs text-gray-400">
         {{ filtered.length }} item{{ filtered.length !== 1 ? 's' : '' }}
       </span>
     </div>
 
     <div
       v-if="categoriesStore.categories.length > 0"
-      class="shrink-0 border-b border-slate-100 dark:border-slate-700 px-3 py-2"
+      class="shrink-0 border-b border-gray-100 dark:border-gray-700 px-3 py-2"
     >
       <div class="flex flex-wrap gap-1">
         <button
@@ -104,8 +104,8 @@ async function copyPassword(entry: VaultEntry) {
           class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
           :class="
             activeCategories.size === 0
-              ? 'bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              ? 'bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
           "
           @click="activeCategories = new Set()"
         >
@@ -123,16 +123,16 @@ async function copyPassword(entry: VaultEntry) {
     </div>
 
     <ul class="flex-1 overflow-y-auto">
-      <li v-if="filtered.length === 0" class="px-4 py-8 text-center text-sm text-slate-400">
+      <li v-if="filtered.length === 0" class="px-4 py-8 text-center text-sm text-gray-400">
         No items found
       </li>
       <li v-for="entry in filtered" :key="entry.id" class="relative group">
         <button
           type="button"
-          class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+          class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
           :class="[
             entry.id === selectedId
-              ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800'
               : '',
             entry.type === 'password' ? 'pr-10' : '',
           ]"
@@ -141,7 +141,7 @@ async function copyPassword(entry: VaultEntry) {
           <span
             v-if="entry.type === 'card'"
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-            :class="entry.network ? 'dark:bg-slate-700' : entry.color"
+            :class="entry.network ? 'dark:bg-gray-700' : entry.color"
           >
             <CardNetworkLogo :network="entry.network" size="sm" />
           </span>
@@ -155,11 +155,11 @@ async function copyPassword(entry: VaultEntry) {
 
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
-              <span class="truncate text-sm font-medium text-slate-800 dark:text-slate-200">{{
+              <span class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">{{
                 entry.name
               }}</span>
             </div>
-            <span class="block truncate text-xs text-slate-400">{{ entrySubtitle(entry) }}</span>
+            <span class="block truncate text-xs text-gray-400">{{ entrySubtitle(entry) }}</span>
           </div>
         </button>
 
@@ -170,7 +170,7 @@ async function copyPassword(entry: VaultEntry) {
           :class="
             copiedId === entry.id
               ? 'text-emerald-500 opacity-100'
-              : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-200'
+              : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-200'
           "
           :title="copiedId === entry.id ? 'Copied!' : 'Copy password'"
           @click="copyPassword(entry)"

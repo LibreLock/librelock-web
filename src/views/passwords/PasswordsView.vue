@@ -41,16 +41,24 @@ function onBack() {
       @select="onSelect"
     />
 
-    <div v-if="vault.loading && vault.entries.length === 0" class="flex flex-1 flex-col items-center justify-center gap-2">
-      <LoadingSpinner class="text-slate-400" />
-      <p class="text-sm text-slate-400">Loading...</p>
+    <div
+      v-if="vault.loading && vault.entries.length === 0"
+      class="flex flex-1 flex-col items-center justify-center gap-2"
+    >
+      <LoadingSpinner class="text-gray-400" />
+      <p class="text-sm text-gray-400">Loading...</p>
     </div>
 
-    <VaultEntryDetail v-else-if="selectedEntry" :entry="selectedEntry" @edit="onEdit" @back="onBack" />
+    <VaultEntryDetail
+      v-else-if="selectedEntry"
+      :entry="selectedEntry"
+      @edit="onEdit"
+      @back="onBack"
+    />
 
     <div v-else class="flex flex-1 flex-col items-center justify-center gap-1">
-      <p class="text-sm font-medium text-slate-500">Select a password to view details</p>
-      <p class="text-xs text-slate-400">{{ vault.passwords.length }} passwords saved</p>
+      <p class="text-sm font-medium text-gray-500">Select a password to view details</p>
+      <p class="text-xs text-gray-400">{{ vault.passwords.length }} passwords saved</p>
     </div>
   </div>
 </template>

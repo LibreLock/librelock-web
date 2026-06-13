@@ -142,12 +142,12 @@ onMounted(() => {
 
 <template>
   <div
-    class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+    class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
   >
     <div class="px-6 pt-6 pb-1 flex items-center justify-between">
       <div>
-        <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Active sessions</h2>
-        <p class="mt-0.5 text-sm text-slate-400">All devices currently logged in to your account</p>
+        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Active sessions</h2>
+        <p class="mt-0.5 text-sm text-gray-400">All devices currently logged in to your account</p>
       </div>
       <div class="flex items-center gap-2">
         <button
@@ -161,7 +161,7 @@ onMounted(() => {
         </button>
         <button
           type="button"
-          class="text-xs text-slate-500 dark:text-slate-400 mr-4 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer disabled:opacity-50"
+          class="text-xs text-gray-500 dark:text-gray-400 mr-4 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer disabled:opacity-50"
           :disabled="sessionsLoading"
           @click="loadSessions"
         >
@@ -170,12 +170,12 @@ onMounted(() => {
       </div>
     </div>
 
-    <hr class="mt-3 border-slate-100 dark:border-slate-700" />
+    <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
     <div class="px-6 py-5">
       <div
         v-if="sessionsLoading"
-        class="flex items-center justify-center gap-2 py-8 text-sm text-slate-400"
+        class="flex items-center justify-center gap-2 py-8 text-sm text-gray-400"
       >
         <LoadingSpinner size="sm" />
         Loading sessions…
@@ -188,7 +188,7 @@ onMounted(() => {
         {{ sessionsError }}
       </div>
 
-      <div v-else-if="sessions.length === 0" class="py-8 text-center text-sm text-slate-400">
+      <div v-else-if="sessions.length === 0" class="py-8 text-center text-sm text-gray-400">
         No active sessions found.
       </div>
 
@@ -196,11 +196,11 @@ onMounted(() => {
         <div
           v-for="session in sessions"
           :key="session.id"
-          class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-4"
+          class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-4"
         >
           <div class="flex items-center justify-between sm:block sm:w-22 sm:shrink-0">
             <span
-              class="text-sm font-medium text-slate-800 dark:text-slate-200"
+              class="text-sm font-medium text-gray-800 dark:text-gray-200"
               :title="`Session ID: ${session.id}`"
               >{{ shortDeviceName(session.device_name) }}</span
             >
@@ -214,20 +214,18 @@ onMounted(() => {
             </button>
           </div>
 
-          <div
-            class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-slate-500"
-          >
-            <span v-if="session.ip"><span class="text-slate-500">IP:</span> {{ session.ip }}</span>
+          <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-500">
+            <span v-if="session.ip"><span class="text-gray-500">IP:</span> {{ session.ip }}</span>
             <span
-              ><span class="text-slate-500">Created:</span>
+              ><span class="text-gray-500">Created:</span>
               {{ formatDate(session.created_at) }}</span
             >
             <span v-if="session.last_used_at"
-              ><span class="text-slate-500">Last active:</span>
+              ><span class="text-gray-500">Last active:</span>
               {{ formatDate(session.last_used_at) }}</span
             >
             <span v-if="session.expires_at"
-              ><span class="text-slate-500">Expires:</span>
+              ><span class="text-gray-500">Expires:</span>
               {{ formatDate(session.expires_at) }}</span
             >
           </div>
@@ -252,11 +250,11 @@ onMounted(() => {
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
     @click.self="showLogoutWarning = false"
   >
-    <div class="w-full max-w-sm rounded-xl bg-white dark:bg-slate-800 p-4 shadow-xl">
-      <h2 class="mb-2 text-base font-semibold text-slate-900 dark:text-slate-100">
+    <div class="w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 p-4 shadow-xl">
+      <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100">
         {{ logoutWarningMode === 'revokeAll' ? 'Revoke all sessions?' : 'Revoke this session?' }}
       </h2>
-      <p class="mb-5 text-sm text-slate-500 dark:text-slate-400">
+      <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
         {{
           logoutWarningMode === 'revokeAll'
             ? 'All sessions will be revoked. You will be logged out of this device.'
@@ -266,7 +264,7 @@ onMounted(() => {
       <div class="flex justify-end gap-2">
         <button
           type="button"
-          class="rounded-lg px-3 py-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer transition-colors"
+          class="rounded-lg px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer transition-colors"
           @click="showLogoutWarning = false"
         >
           Cancel

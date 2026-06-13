@@ -181,35 +181,35 @@ async function handleDeleteAccount() {
 <template>
   <div class="space-y-4">
     <div
-      class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
       <div class="px-6 pt-6 pb-1">
-        <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Profile</h2>
-        <p class="mt-0.5 text-sm text-slate-400">Update your profile settings</p>
+        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Profile</h2>
+        <p class="mt-0.5 text-sm text-gray-400">Update your profile settings</p>
       </div>
 
-      <hr class="mt-3 border-slate-100 dark:border-slate-700" />
+      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
       <div class="px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleSaveUsername">
           <div>
-            <label class="mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400 mr-2"
+            <label class="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 mr-2"
               >User ID</label
             >
             <code
-              class="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-2 py-1.5 rounded"
+              class="text-xs font-mono text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 px-2 py-1.5 rounded"
               >{{ auth.user?.id }}</code
             >
           </div>
           <div>
-            <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400"
+            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
               >Username</label
             >
             <input
               v-model="editUsername"
               type="text"
               placeholder="Your username"
-              class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+              class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
             />
           </div>
 
@@ -218,7 +218,7 @@ async function handleDeleteAccount() {
 
           <button
             type="submit"
-            class="rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
             :disabled="isSavingUsername || !editUsername.trim()"
           >
             {{ isSavingUsername ? 'Saving…' : 'Save changes' }}
@@ -228,14 +228,14 @@ async function handleDeleteAccount() {
     </div>
 
     <div
-      class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
       <div class="px-6 pt-6 pb-1">
-        <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Master password</h2>
-        <p class="mt-0.5 text-sm text-slate-400">Change the password used to unlock your vault</p>
+        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Master password</h2>
+        <p class="mt-0.5 text-sm text-gray-400">Change the password used to unlock your vault</p>
       </div>
 
-      <hr class="mt-3 border-slate-100 dark:border-slate-700" />
+      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
       <div class="px-6 py-5">
         <div
@@ -247,7 +247,7 @@ async function handleDeleteAccount() {
 
         <form v-else class="space-y-4" @submit.prevent="handleChangePassword">
           <div>
-            <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
               Current password
             </label>
 
@@ -257,12 +257,12 @@ async function handleDeleteAccount() {
                 :type="showCurrentPassword ? 'text' : 'password'"
                 required
                 autocomplete="current-password"
-                class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+                class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
               />
 
               <button
                 type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
                 @click="showCurrentPassword = !showCurrentPassword"
               >
                 <svg
@@ -299,7 +299,7 @@ async function handleDeleteAccount() {
           </div>
 
           <div>
-            <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
               New password
             </label>
 
@@ -309,14 +309,14 @@ async function handleDeleteAccount() {
                 :type="showNewPasswords ? 'text' : 'password'"
                 required
                 autocomplete="new-password"
-                class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+                class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                 @focus="newPasswordFocused = true"
                 @blur="newPasswordFocused = false"
               />
 
               <button
                 type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
                 @click="showNewPasswords = !showNewPasswords"
               >
                 <svg
@@ -353,30 +353,26 @@ async function handleDeleteAccount() {
 
             <div
               v-if="newPasswordFocused || newPassword.length > 0"
-              class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2.5 text-xs"
+              class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-xs"
             >
-              <span :class="hasUpper ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
+              <span :class="hasUpper ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'">
                 {{ hasUpper ? '✓' : '○' }} Uppercase
               </span>
 
-              <span :class="hasLower ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
+              <span :class="hasLower ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'">
                 {{ hasLower ? '✓' : '○' }} Lowercase
               </span>
 
-              <span
-                :class="hasNumber ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'"
-              >
+              <span :class="hasNumber ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'">
                 {{ hasNumber ? '✓' : '○' }} Number
               </span>
 
-              <span
-                :class="hasSymbol ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'"
-              >
+              <span :class="hasSymbol ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'">
                 {{ hasSymbol ? '✓' : '○' }} Symbol
               </span>
 
               <span
-                :class="passwordMinOk ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'"
+                :class="passwordMinOk ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'"
               >
                 {{ passwordMinOk ? '✓' : '○' }} {{ MIN_PASSWORD_LENGTH }}+ characters
               </span>
@@ -384,7 +380,7 @@ async function handleDeleteAccount() {
           </div>
 
           <div>
-            <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
               Confirm new password
             </label>
 
@@ -393,7 +389,7 @@ async function handleDeleteAccount() {
               :type="showNewPasswords ? 'text' : 'password'"
               required
               autocomplete="new-password"
-              class="w-full rounded-md border px-3 py-1.5 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+              class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
             />
 
             <p v-if="passwordMismatch" class="mt-1.5 text-xs text-red-600">
@@ -407,7 +403,7 @@ async function handleDeleteAccount() {
 
           <button
             type="submit"
-            class="rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
             :disabled="!canSubmit"
           >
             {{ isChangingPassword ? 'Saving…' : 'Update password' }}
@@ -417,21 +413,21 @@ async function handleDeleteAccount() {
     </div>
 
     <div
-      class="rounded-xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
       <div class="px-6 pt-6 pb-1">
-        <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Delete account</h2>
-        <p class="mt-0.5 text-sm text-slate-400">
+        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Delete account</h2>
+        <p class="mt-0.5 text-sm text-gray-400">
           Permanently remove your account and all associated data
         </p>
       </div>
 
-      <hr class="mt-3 border-slate-100 dark:border-slate-700" />
+      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
       <div class="px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleDeleteAccount">
           <div>
-            <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
               Current password
             </label>
 
@@ -441,12 +437,12 @@ async function handleDeleteAccount() {
                 :type="showDeletePassword ? 'text' : 'password'"
                 required
                 autocomplete="current-password"
-                class="w-full rounded-md border px-3 py-1.5 pr-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition"
+                class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
               />
 
               <button
                 type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
                 @click="showDeletePassword = !showDeletePassword"
               >
                 <svg
