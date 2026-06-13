@@ -28,7 +28,11 @@ function buildApiUrl(path: string) {
 
 function extractMessage(payload: unknown, fallback: string) {
   if (payload && typeof payload === 'object') {
-    const { message, error } = payload as { message?: unknown; error?: unknown }
+    const { message, error, errors } = payload as {
+      message?: unknown
+      error?: unknown
+      errors?: unknown
+    }
 
     if (typeof message === 'string' && message.trim()) {
       return message
@@ -36,6 +40,16 @@ function extractMessage(payload: unknown, fallback: string) {
 
     if (typeof error === 'string' && error.trim()) {
       return error
+    }
+
+    if (errors && typeof errors === 'object') {
+      const messages = Object.values(errors as Record<string, unknown>)
+        .flat()
+        .filter((m): m is string => typeof m === 'string' && m.trim() !== '')
+
+      if (messages.length) {
+        return messages.join(' ')
+      }
     }
   }
 
