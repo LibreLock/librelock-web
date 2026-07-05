@@ -12,7 +12,7 @@ npm install
 npm run dev
 ```
 
-The dev server runs on [localhost:1401](http://localhost:1401) and expects the API at `http://localhost:8000/api` (can be overridden with the `VITE_API_BASE_URL` env var)
+The dev server runs on [localhost:1401](http://localhost:1401) and expects the API at `http://localhost:8000/` (can be overridden with the `VITE_API_BASE_URL` env var)
 
 ## Running tests
 
