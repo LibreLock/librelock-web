@@ -2,6 +2,45 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+:root {
+  --scrollbar-thumb: var(--color-gray-300);
+  --scrollbar-thumb-hover: var(--color-gray-400);
+}
+
+.dark {
+  --scrollbar-thumb: var(--color-gray-700);
+  --scrollbar-thumb-hover: var(--color-gray-600);
+}
+
+/* Chrome 121+ / Firefox: standard properties take precedence and disable
+   the ::-webkit-scrollbar rules below, which remain as the Safari fallback. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 input[type='range'].slider {
   -webkit-appearance: none;
   appearance: none;
