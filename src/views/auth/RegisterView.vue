@@ -1,20 +1,32 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
-import IconPadlock from '@/components/icons/IconPadlock.vue'
+import { useOrganizationStore } from '@/stores/organization'
+import AppBrand from '@/components/AppBrand.vue'
+import AppSupportLinks from '@/components/AppSupportLinks.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { MIN_PASSWORD_LENGTH } from '@/constants'
 const auth = useAuthStore()
+const org = useOrganizationStore()
 const router = useRouter()
+const route = useRoute()
 
-onMounted(() => auth.clearError())
+// Invite-only registration: token comes from the ?invite= link or manual entry.
+const inviteRequired = computed(() => org.isOrganization && org.registration === 'invite')
 
 const form = reactive({
   username: '',
   password: '',
   repeatPassword: '',
+  inviteToken: '',
+})
+
+onMounted(() => {
+  auth.clearError()
+  const q = route.query.invite
+  if (typeof q === 'string') form.inviteToken = q
 })
 
 const localError = ref('')
@@ -44,7 +56,8 @@ const canSubmit = computed(
     hasLower.value &&
     hasNumber.value &&
     hasSymbol.value &&
-    passwordMinOk.value,
+    passwordMinOk.value &&
+    (!inviteRequired.value || form.inviteToken.trim().length > 0),
 )
 
 async function handleSubmit() {
@@ -59,7 +72,11 @@ async function handleSubmit() {
   }
 
   try {
-    await auth.register(form.username.trim(), form.password)
+    await auth.register(
+      form.username.trim(),
+      form.password,
+      inviteRequired.value ? form.inviteToken.trim() : undefined,
+    )
     await router.replace('/')
   } catch {
     // error displayed via auth.error
@@ -72,8 +89,11 @@ async function handleSubmit() {
     class="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-950"
   >
     <div class="mb-4 flex flex-col items-center gap-2">
-      <IconPadlock size="lg" />
-      <span class="text-lg font-semibold text-gray-600 dark:text-gray-300">LibreLock</span>
+      <AppBrand
+        size="lg"
+        name-class="text-lg font-semibold text-gray-600 dark:text-gray-300"
+        class="!flex-col !gap-2"
+      />
     </div>
 
     <div
@@ -82,6 +102,19 @@ async function handleSubmit() {
       <h1 class="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Create account</h1>
 
       <form class="space-y-4" @submit.prevent="handleSubmit">
+        <div v-if="inviteRequired">
+          <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+            >Invite code</label
+          >
+          <input
+            v-model="form.inviteToken"
+            type="text"
+            required
+            placeholder="Paste your invite code"
+            class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+          />
+          <p class="mt-1 text-xs text-gray-400">Registration is invite-only.</p>
+        </div>
         <div>
           <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
             >Username</label
@@ -239,5 +272,7 @@ async function handleSubmit() {
         >
       </p>
     </div>
+
+    <AppSupportLinks />
   </div>
 </template>

@@ -5,6 +5,7 @@ import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
 import CategoryPill from '@/components/CategoryPill.vue'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
+import EntryIcon from '@/components/EntryIcon.vue'
 
 const props = defineProps<{
   entries: VaultEntry[]
@@ -145,13 +146,14 @@ async function copyPassword(entry: VaultEntry) {
           >
             <CardNetworkLogo :network="entry.network" size="sm" />
           </span>
-          <span
+          <EntryIcon
             v-else
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
-            :class="entry.color"
-          >
-            {{ entry.name.charAt(0).toUpperCase() }}
-          </span>
+            :name="entry.name"
+            :color="entry.color"
+            :icon="entry.icon"
+            :url="entry.type === 'password' ? entry.url : ''"
+            size="sm"
+          />
 
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">

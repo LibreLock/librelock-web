@@ -2,11 +2,34 @@
 import { computed, ref } from 'vue'
 import { ApiError, apiRequest } from '@/services/api'
 import { useAuthStore, fetchKdfParams } from '@/stores/auth'
+import { useOrganizationStore } from '@/stores/organization'
 import { deriveKeys, generateKdfSalt, wrapKey, unwrapKey, type KdfParams } from '@/services/crypto'
 import { MIN_PASSWORD_LENGTH } from '@/constants'
 import router from '@/router'
 
 const auth = useAuthStore()
+const org = useOrganizationStore()
+
+// Switch to organization mode (personal instances only).
+const showSwitchModal = ref(false)
+const isSwitching = ref(false)
+const switchError = ref<string | null>(null)
+
+async function confirmSwitchToOrganization() {
+  switchError.value = null
+  isSwitching.value = true
+  try {
+    await org.switchToOrganization()
+    await auth.refreshSession() // pick up the new owner role
+    showSwitchModal.value = false
+    router.push('/organization')
+  } catch (err) {
+    switchError.value =
+      err instanceof ApiError ? err.message : 'Failed to switch to organization mode.'
+  } finally {
+    isSwitching.value = false
+  }
+}
 
 // Username
 const editUsername = ref(auth.user?.username ?? '')
@@ -214,15 +237,17 @@ async function handleDeleteAccount() {
           </div>
 
           <p v-if="usernameError" class="text-sm text-red-600">{{ usernameError }}</p>
-          <p v-if="usernameSuccess" class="text-sm text-emerald-600">Username updated</p>
 
-          <button
-            type="submit"
-            class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-            :disabled="isSavingUsername || !editUsername.trim()"
-          >
-            {{ isSavingUsername ? 'Saving…' : 'Save changes' }}
-          </button>
+          <div class="flex items-center gap-3">
+            <button
+              type="submit"
+              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+              :disabled="isSavingUsername || !editUsername.trim()"
+            >
+              {{ isSavingUsername ? 'Saving…' : 'Save changes' }}
+            </button>
+            <p v-if="usernameSuccess" class="text-sm text-emerald-600">Username updated</p>
+          </div>
         </form>
       </div>
     </div>
@@ -413,6 +438,42 @@ async function handleDeleteAccount() {
     </div>
 
     <div
+      v-if="!org.isOrganization"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+    >
+      <div class="px-6 pt-6 pb-1">
+        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">
+          Switch to organization
+        </h2>
+        <p class="mt-0.5 text-sm text-gray-400">
+          Turn this instance into a company workspace with roles, invites, and admin controls
+        </p>
+      </div>
+
+      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+
+      <div class="px-6 py-5 space-y-4">
+        <p class="text-sm text-gray-600 dark:text-gray-300">
+          Organization mode adds admin / member roles, an Organization admin area, white-label
+          branding, invite-only registration, suspend, and an audit log. You become the first
+          <span class="font-medium">admin</span>.
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          <span class="font-medium text-gray-600 dark:text-gray-300">This is one-way.</span>
+          The only way back to personal mode is to delete the database, which erases all accounts
+          and vaults.
+        </p>
+        <button
+          type="button"
+          class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 cursor-pointer"
+          @click="showSwitchModal = true"
+        >
+          Switch to organization…
+        </button>
+      </div>
+    </div>
+
+    <div
       class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
       <div class="px-6 pt-6 pb-1">
@@ -500,5 +561,48 @@ async function handleDeleteAccount() {
         </form>
       </div>
     </div>
+
+    <Teleport to="body">
+      <div
+        v-if="showSwitchModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        @click.self="showSwitchModal = false"
+      >
+        <div
+          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+        >
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Switch to organization mode?
+          </h3>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            This instance will gain roles, an admin area, invites, suspend, and an audit log. Your
+            account becomes the first <strong>admin</strong>. Existing vault data is kept.
+          </p>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            <strong>This cannot be undone from the app.</strong> Returning to personal mode requires
+            deleting the database file, which permanently erases every account and vault.
+          </p>
+          <p v-if="switchError" class="mt-3 text-sm text-red-600">{{ switchError }}</p>
+          <div class="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+              :disabled="isSwitching"
+              @click="showSwitchModal = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="isSwitching"
+              @click="confirmSwitchToOrganization"
+            >
+              {{ isSwitching ? 'Switching…' : 'Switch to organization' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>

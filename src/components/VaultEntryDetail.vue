@@ -4,6 +4,7 @@ import type { VaultEntry } from '@/api/vault'
 import { useCategoriesStore } from '@/stores/categories'
 import { useVaultStore } from '@/stores/vault'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
+import EntryIcon from '@/components/EntryIcon.vue'
 
 const { entry } = defineProps<{
   entry: VaultEntry
@@ -98,13 +99,14 @@ function strengthDot(score: number): string {
       >
         <CardNetworkLogo :network="entry.network" size="md" />
       </span>
-      <span
+      <EntryIcon
         v-else
-        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white"
-        :class="entry.color"
-      >
-        {{ entry.name.charAt(0).toUpperCase() }}
-      </span>
+        :name="entry.name"
+        :color="entry.color"
+        :icon="entry.icon"
+        :url="entry.type === 'password' ? entry.url : ''"
+        size="md"
+      />
       <div class="min-w-0 flex-1">
         <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ entry.name }}</h1>
         <a

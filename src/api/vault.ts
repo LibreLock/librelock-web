@@ -23,6 +23,7 @@ export interface VaultPassword {
   url: string
   notes: string
   color: string
+  icon: string | null
   categoryId: string | null
   passwordStrength: number
   reused: boolean
@@ -37,6 +38,7 @@ export interface VaultNote {
   name: string
   content: string
   color: string
+  icon: string | null
   categoryId: string | null
   createdAt: string
   updatedAt: string
@@ -53,6 +55,7 @@ export interface VaultCard {
   notes: string
   network: CardNetwork
   color: string
+  icon: string | null
   categoryId: string | null
   createdAt: string
   updatedAt: string
@@ -69,6 +72,7 @@ export interface CreatePasswordPayload {
   url: string
   notes: string
   color?: string
+  icon?: string | null
   categoryId?: string | null
 }
 
@@ -77,6 +81,7 @@ export interface CreateNotePayload {
   name: string
   content: string
   color?: string
+  icon?: string | null
   categoryId?: string | null
 }
 
@@ -89,6 +94,7 @@ export interface CreateCardPayload {
   cvv: string
   notes: string
   color?: string
+  icon?: string | null
   categoryId?: string | null
 }
 
@@ -119,6 +125,7 @@ interface VaultBlobData {
   expiration?: string
   cvv?: string
   color: string
+  icon?: string | null
 }
 
 function requireVaultKey(): CryptoKey {
@@ -132,6 +139,7 @@ function rawToEntry(raw: RawVaultEntry, blob: VaultBlobData): VaultEntry {
     id: raw.id,
     categoryId: raw.category_id,
     color: blob.color ?? DEFAULT_COLOR,
+    icon: blob.icon ?? null,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
   }
@@ -197,6 +205,7 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
       url: payload.url,
       notes: payload.notes,
       color: payload.color ?? DEFAULT_COLOR,
+      icon: payload.icon ?? null,
     }
     serverType = 'password_entry'
   } else if (payload.type === 'card') {
@@ -208,6 +217,7 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
       cvv: payload.cvv,
       notes: payload.notes,
       color: payload.color ?? DEFAULT_COLOR,
+      icon: payload.icon ?? null,
     }
     serverType = 'card'
   } else {
@@ -215,6 +225,7 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
       name: payload.name,
       content: payload.content,
       color: payload.color ?? DEFAULT_COLOR,
+      icon: payload.icon ?? null,
     }
     serverType = 'note'
   }

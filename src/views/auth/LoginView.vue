@@ -3,8 +3,12 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
-import IconPadlock from '@/components/icons/IconPadlock.vue'
+import AppBrand from '@/components/AppBrand.vue'
+import AppSupportLinks from '@/components/AppSupportLinks.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { useOrganizationStore } from '@/stores/organization'
+
+const org = useOrganizationStore()
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -37,8 +41,17 @@ async function handleSubmit() {
     class="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-950"
   >
     <div class="mb-4 flex flex-col items-center gap-2">
-      <IconPadlock size="lg" />
-      <span class="text-lg font-semibold text-gray-600 dark:text-gray-300">LibreLock</span>
+      <AppBrand
+        size="lg"
+        name-class="text-lg font-semibold text-gray-600 dark:text-gray-300"
+        class="!flex-col !gap-2"
+      />
+      <p
+        v-if="org.loginMessage"
+        class="max-w-md text-center text-sm text-gray-500 dark:text-gray-400"
+      >
+        {{ org.loginMessage }}
+      </p>
     </div>
 
     <div
@@ -127,5 +140,7 @@ async function handleSubmit() {
         >
       </p>
     </div>
+
+    <AppSupportLinks />
   </div>
 </template>

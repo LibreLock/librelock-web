@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import IconPadlock from './icons/IconPadlock.vue'
+import { useOrganizationStore } from '@/stores/organization'
+import AppBrand from './AppBrand.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 
 const STORAGE_KEY = 'sidebar-collapsed'
 const SMALL_SCREEN_BREAKPOINT = 768
 
 const auth = useAuthStore()
+const org = useOrganizationStore()
 const router = useRouter()
 const route = useRoute()
+
+// Organization admin area — only in organization mode for admins.
+const showOrganization = computed(() => org.isOrganization && auth.isAdmin)
 
 const collapsed = ref(false)
 
@@ -71,12 +76,11 @@ const navItems = [
       "
     >
       <RouterLink to="/" class="flex items-center gap-3" :class="collapsed ? 'justify-center' : ''">
-        <IconPadlock size="md" />
-        <span
-          v-if="!collapsed"
-          class="truncate text-lg font-semibold text-gray-900 dark:text-gray-100"
-          >LibreLock</span
-        >
+        <AppBrand
+          size="md"
+          :show-name="!collapsed"
+          name-class="truncate text-lg font-semibold text-gray-900 dark:text-gray-100"
+        />
       </RouterLink>
       <button
         type="button"
@@ -171,6 +175,28 @@ const navItems = [
     </nav>
 
     <div class="shrink-0 space-y-1 border-t border-gray-100 dark:border-gray-700/60 p-2">
+      <RouterLink
+        v-if="showOrganization"
+        to="/organization"
+        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+        :class="
+          isActive('/organization')
+            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'
+            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+        "
+        :title="collapsed ? 'Organization' : undefined"
+      >
+        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+          />
+        </svg>
+        <span v-if="!collapsed">Organization</span>
+      </RouterLink>
+
       <RouterLink
         to="/settings"
         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"

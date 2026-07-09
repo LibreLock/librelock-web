@@ -13,9 +13,15 @@ import {
 } from '@/services/crypto'
 import { clearSessionKey, loadSessionKey, saveSessionKey } from '@/services/keystore'
 import { getVaultKey, setVaultKey } from '@/services/keyring'
-import { broadcastAuth, broadcastLogout, requestKeyFromTabs, type TabSyncUser } from '@/services/tabsync'
+import {
+  broadcastAuth,
+  broadcastLogout,
+  requestKeyFromTabs,
+  type TabSyncUser,
+} from '@/services/tabsync'
 import { useCategoriesStore } from '@/stores/categories'
 import { useVaultStore } from '@/stores/vault'
+import { useThemeStore } from '@/stores/theme'
 import { DEFAULT_CATEGORIES, KDF_ITER, KDF_MEMORY, KDF_PARALLELISM } from '@/constants'
 
 export { getVaultKey }
@@ -24,6 +30,8 @@ export interface AuthUser {
   id?: string | number
   username: string
   protected_key?: string
+  role?: string
+  theme?: string
 }
 
 export interface KdfResponse {
@@ -66,6 +74,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => status.value === 'authenticated')
   const isSessionLoading = computed(() => status.value === 'loading')
+  const isOwner = computed(() => user.value?.role === 'owner')
+  // Owner is a superset of admin — it unlocks the same admin UI, plus more.
+  const isAdmin = computed(() => user.value?.role === 'admin' || user.value?.role === 'owner')
 
   async function refreshSession() {
     if (status.value === 'loading') return user.value
@@ -76,6 +87,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (status.value !== 'loading') return user.value
       user.value = response.user ?? null
       status.value = user.value ? 'authenticated' : 'anonymous'
+      if (user.value) useThemeStore().adopt(user.value.theme)
 
       // Restore vault key from IndexedDB if session cookie is still valid.
       // If no key is found (new tab, or sessionStorage flag missing), ask other tabs
@@ -133,6 +145,7 @@ export const useAuthStore = defineStore('auth', () => {
       await saveSessionKey(vaultKey)
       user.value = response.user ?? null
       status.value = 'authenticated'
+      if (user.value) useThemeStore().adopt(user.value.theme)
       broadcastAuth(vaultKey, user.value!)
       return user.value
     } catch (caughtError) {
@@ -143,7 +156,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function register(username: string, password: string) {
+  async function register(username: string, password: string, inviteToken?: string) {
     isSubmitting.value = true
     error.value = null
 
@@ -175,6 +188,8 @@ export const useAuthStore = defineStore('auth', () => {
             kdf_memory: kdfParams.kdfMemory,
             kdf_parallelism: kdfParams.kdfParallelism,
             categories,
+            invite_token: inviteToken,
+            theme: useThemeStore().theme,
           }),
         })) ?? {}
 
@@ -182,6 +197,7 @@ export const useAuthStore = defineStore('auth', () => {
       await saveSessionKey(vaultKey)
       user.value = response.user ?? null
       status.value = 'authenticated'
+      if (user.value) useThemeStore().adopt(user.value.theme)
       return user.value
     } catch (caughtError) {
       error.value = getErrorMessage(caughtError)
@@ -225,6 +241,8 @@ export const useAuthStore = defineStore('auth', () => {
     error,
     isAuthenticated,
     isSessionLoading,
+    isAdmin,
+    isOwner,
     isSubmitting,
     refreshSession,
     logIn,

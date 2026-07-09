@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import { pinia } from '@/stores/pinia'
 import { useAuthStore } from '@/stores/auth'
+import { useOrganizationStore } from '@/stores/organization'
 import { setUnauthorizedHandler } from '@/services/api'
 import { listenTabSync, broadcastKeyResponse } from '@/services/tabsync'
 import { getVaultKey } from '@/services/keyring'
@@ -77,6 +78,12 @@ const router = createRouter({
           component: () => import('../views/generator/GeneratorView.vue'),
         },
         {
+          path: 'organization',
+          name: 'organization',
+          component: () => import('../views/organization/OrganizationView.vue'),
+          meta: { requiresAdmin: true },
+        },
+        {
           path: 'settings',
           name: 'settings',
           component: () => import('../views/settings/SettingsView.vue'),
@@ -128,6 +135,15 @@ router.beforeEach(async (to) => {
 
   if (guestOnly && auth.isAuthenticated) {
     return { name: 'vault' }
+  }
+
+  // Organization page: organization mode + admin only.
+  if (to.matched.some((r) => r.meta.requiresAdmin)) {
+    const org = useOrganizationStore(pinia)
+    if (!org.loaded) await org.load()
+    if (!org.isOrganization || !auth.isAdmin) {
+      return { name: 'vault' }
+    }
   }
 
   return true
