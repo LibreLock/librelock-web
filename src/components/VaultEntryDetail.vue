@@ -2,15 +2,25 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { VaultEntry } from '@/api/vault'
 import { useCategoriesStore } from '@/stores/categories'
+import { useOrgCategoriesStore } from '@/stores/orgCategories'
 import { useVaultStore } from '@/stores/vault'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
+import EntryIcon from '@/components/EntryIcon.vue'
 
 const { entry } = defineProps<{
   entry: VaultEntry
 }>()
 
 const categoriesStore = useCategoriesStore()
+const orgCategoriesStore = useOrgCategoriesStore()
 const vault = useVaultStore()
+
+// Shared entries resolve their category name from the org store
+const categoryName = computed(() =>
+  entry.shared
+    ? orgCategoriesStore.getCategoryName(entry.categoryId)
+    : categoriesStore.getCategoryName(entry.categoryId),
+)
 
 const emit = defineEmits<{
   edit: []
@@ -98,15 +108,26 @@ function strengthDot(score: number): string {
       >
         <CardNetworkLogo :network="entry.network" size="md" />
       </span>
-      <span
+      <EntryIcon
         v-else
-        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white"
-        :class="entry.color"
-      >
-        {{ entry.name.charAt(0).toUpperCase() }}
-      </span>
+        :name="entry.name"
+        :color="entry.color"
+        :icon="entry.icon"
+        :url="entry.type === 'password' ? entry.url : ''"
+        size="md"
+      />
       <div class="min-w-0 flex-1">
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ entry.name }}</h1>
+        <div class="flex items-center gap-2">
+          <h1 class="truncate text-xl font-semibold text-gray-900 dark:text-gray-100">
+            {{ entry.name }}
+          </h1>
+          <span
+            v-if="entry.shared"
+            class="shrink-0 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 px-2.5 py-0.5 text-xs font-semibold"
+          >
+            Shared
+          </span>
+        </div>
         <a
           v-if="entry.type === 'password' && entry.url"
           :href="`https://${entry.url}`"
@@ -131,7 +152,7 @@ function strengthDot(score: number): string {
           v-if="entry.categoryId"
           class="ml-2 rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300"
         >
-          {{ categoriesStore.getCategoryName(entry.categoryId) }}
+          {{ categoryName }}
         </span>
       </div>
 
@@ -167,7 +188,7 @@ function strengthDot(score: number): string {
               <div class="min-w-0">
                 <p class="text-xs text-gray-400">Username</p>
                 <p class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
-                  {{ entry.username || '—' }}
+                  {{ entry.username || '-' }}
                 </p>
               </div>
               <button
@@ -214,7 +235,7 @@ function strengthDot(score: number): string {
               <div class="min-w-0">
                 <p class="text-xs text-gray-400">Email</p>
                 <p class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
-                  {{ entry.email || '—' }}
+                  {{ entry.email || '-' }}
                 </p>
               </div>
               <button
@@ -536,7 +557,7 @@ function strengthDot(score: number): string {
               <div class="min-w-0">
                 <p class="text-xs text-gray-400">Cardholder name</p>
                 <p class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
-                  {{ entry.cardholderName || '—' }}
+                  {{ entry.cardholderName || '-' }}
                 </p>
               </div>
               <button
@@ -583,7 +604,7 @@ function strengthDot(score: number): string {
               <div class="px-4 py-3">
                 <p class="text-xs text-gray-400">Expiration</p>
                 <p class="font-mono text-sm font-medium text-gray-800 dark:text-gray-200">
-                  {{ entry.expiration || '—' }}
+                  {{ entry.expiration || '-' }}
                 </p>
               </div>
               <div class="flex items-center justify-between px-4 py-3">

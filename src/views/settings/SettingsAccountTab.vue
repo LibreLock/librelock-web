@@ -2,11 +2,42 @@
 import { computed, ref } from 'vue'
 import { ApiError, apiRequest } from '@/services/api'
 import { useAuthStore, fetchKdfParams } from '@/stores/auth'
-import { deriveKeys, generateKdfSalt, wrapKey, unwrapKey, type KdfParams } from '@/services/crypto'
-import { MIN_PASSWORD_LENGTH } from '@/constants'
+import { useOrganizationStore } from '@/stores/organization'
+import {
+  deriveKeys,
+  generateKdfSalt,
+  wrapKey,
+  unwrapKey,
+  unwrapPrivateKey,
+  wrapPrivateKey,
+  type KdfParams,
+} from '@/services/crypto'
+import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, MAX_USERNAME_LENGTH } from '@/constants'
 import router from '@/router'
 
 const auth = useAuthStore()
+const org = useOrganizationStore()
+
+// Switch to organization mode (personal instances only)
+const showSwitchModal = ref(false)
+const isSwitching = ref(false)
+const switchError = ref<string | null>(null)
+
+async function confirmSwitchToOrganization() {
+  switchError.value = null
+  isSwitching.value = true
+  try {
+    await org.switchToOrganization()
+    await auth.refreshSession() // pick up the new owner role
+    showSwitchModal.value = false
+    router.push('/organization')
+  } catch (err) {
+    switchError.value =
+      err instanceof ApiError ? err.message : 'Failed to switch to organization mode.'
+  } finally {
+    isSwitching.value = false
+  }
+}
 
 // Username
 const editUsername = ref(auth.user?.username ?? '')
@@ -91,6 +122,15 @@ async function handleChangePassword() {
     )
 
     const newProtectedKey = await wrapKey(vaultKey, newWrappingKey)
+
+    // Re-wrap the sharing private key under the new password key
+    // The public key and all org-key envelopes stay valid, so nothing else needs re-keying
+    let newEncryptedPrivateKey: string | undefined
+    if (auth.user?.encrypted_private_key) {
+      const privateKey = await unwrapPrivateKey(auth.user.encrypted_private_key, currentWrappingKey)
+      newEncryptedPrivateKey = await wrapPrivateKey(privateKey, newWrappingKey)
+    }
+
     await apiRequest('/settings/password', {
       method: 'PUT',
       body: JSON.stringify({
@@ -101,6 +141,7 @@ async function handleChangePassword() {
         new_kdf_iter: newKdfParams.kdfIter,
         new_kdf_memory: newKdfParams.kdfMemory,
         new_kdf_parallelism: newKdfParams.kdfParallelism,
+        new_encrypted_private_key: newEncryptedPrivateKey,
       }),
     })
 
@@ -124,56 +165,52 @@ const deletePassword = ref('')
 const deletePasswordError = ref<string | null>(null)
 const isDeletingAccount = ref(false)
 const showDeletePassword = ref(false)
-const isConfirmingDeletion = ref(false)
+const showDeleteModal = ref(false)
 const deleteAuthCredential = ref<string | null>(null)
 
+// Step 1: validate the password locally, then open the confirm modal
 async function handleDeleteAccount() {
   deletePasswordError.value = null
+  isDeletingAccount.value = true
+  try {
+    const username = auth.user?.username
+    const currentProtectedKey = auth.user?.protected_key
+    if (!username || !currentProtectedKey) throw new Error('Not logged in.')
 
-  if (!isConfirmingDeletion.value) {
-    // Validate password
-    isDeletingAccount.value = true
-    try {
-      const username = auth.user?.username
-      const currentProtectedKey = auth.user?.protected_key
-      if (!username || !currentProtectedKey) throw new Error('Not logged in.')
+    // Validate password by attempting to derive keys
+    const currentKdfParams = await fetchKdfParams(username)
+    const { wrappingKey: currentWrappingKey, authCredential: currentAuthCredential } =
+      await deriveKeys(deletePassword.value, currentKdfParams)
+    await unwrapKey(currentProtectedKey, currentWrappingKey)
+    deleteAuthCredential.value = currentAuthCredential
 
-      // Validate password by attempting to derive keys
-      const currentKdfParams = await fetchKdfParams(username)
-      const { wrappingKey: currentWrappingKey, authCredential: currentAuthCredential } =
-        await deriveKeys(deletePassword.value, currentKdfParams)
-      await unwrapKey(currentProtectedKey, currentWrappingKey)
-      deleteAuthCredential.value = currentAuthCredential
+    showDeleteModal.value = true
+  } catch (err) {
+    deletePasswordError.value = err instanceof ApiError ? err.message : 'Invalid password.'
+  } finally {
+    isDeletingAccount.value = false
+  }
+}
 
-      isConfirmingDeletion.value = true
-    } catch (err) {
-      deletePasswordError.value =
-        err instanceof ApiError ? err.message : 'Invalid password. Please try again.'
-    } finally {
-      isDeletingAccount.value = false
-    }
-  } else {
-    const shouldDelete = window.confirm(
-      'This will permanently delete your account and all associated data. This action cannot be undone.',
-    )
-    if (!shouldDelete) return
+// Step 2: the modal's confirm button actually deletes
+async function confirmDeleteAccount() {
+  deletePasswordError.value = null
+  isDeletingAccount.value = true
+  try {
+    await apiRequest('/settings/account', {
+      method: 'DELETE',
+      body: JSON.stringify({ auth_credential: deleteAuthCredential.value }),
+    })
 
-    isDeletingAccount.value = true
-    try {
-      await apiRequest('/settings/account', {
-        method: 'DELETE',
-        body: JSON.stringify({ auth_credential: deleteAuthCredential.value }),
-      })
-
-      await auth.logOut()
-      router.push('/login')
-    } catch (err) {
-      console.error(err)
-      deletePasswordError.value =
-        err instanceof ApiError ? err.message : 'Error occurred while deleting account.'
-    } finally {
-      isDeletingAccount.value = false
-    }
+    await auth.logOut()
+    router.push('/login')
+  } catch (err) {
+    console.error(err)
+    showDeleteModal.value = false
+    deletePasswordError.value =
+      err instanceof ApiError ? err.message : 'Error occurred while deleting account.'
+  } finally {
+    isDeletingAccount.value = false
   }
 }
 </script>
@@ -193,36 +230,30 @@ async function handleDeleteAccount() {
       <div class="px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleSaveUsername">
           <div>
-            <label class="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 mr-2"
-              >User ID</label
-            >
-            <code
-              class="text-xs font-mono text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 px-2 py-1.5 rounded"
-              >{{ auth.user?.id }}</code
-            >
-          </div>
-          <div>
             <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
               >Username</label
             >
             <input
               v-model="editUsername"
               type="text"
+              :maxlength="MAX_USERNAME_LENGTH"
               placeholder="Your username"
               class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
             />
           </div>
 
           <p v-if="usernameError" class="text-sm text-red-600">{{ usernameError }}</p>
-          <p v-if="usernameSuccess" class="text-sm text-emerald-600">Username updated</p>
 
-          <button
-            type="submit"
-            class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-            :disabled="isSavingUsername || !editUsername.trim()"
-          >
-            {{ isSavingUsername ? 'Saving…' : 'Save changes' }}
-          </button>
+          <div class="flex items-center gap-3">
+            <button
+              type="submit"
+              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+              :disabled="isSavingUsername || !editUsername.trim()"
+            >
+              {{ isSavingUsername ? 'Saving…' : 'Save changes' }}
+            </button>
+            <p v-if="usernameSuccess" class="text-sm text-emerald-600">Username updated</p>
+          </div>
         </form>
       </div>
     </div>
@@ -256,6 +287,7 @@ async function handleDeleteAccount() {
                 v-model="currentPassword"
                 :type="showCurrentPassword ? 'text' : 'password'"
                 required
+                :maxlength="MAX_PASSWORD_LENGTH"
                 autocomplete="current-password"
                 class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
               />
@@ -308,6 +340,7 @@ async function handleDeleteAccount() {
                 v-model="newPassword"
                 :type="showNewPasswords ? 'text' : 'password'"
                 required
+                :maxlength="MAX_PASSWORD_LENGTH"
                 autocomplete="new-password"
                 class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                 @focus="newPasswordFocused = true"
@@ -388,6 +421,7 @@ async function handleDeleteAccount() {
               v-model="confirmPassword"
               :type="showNewPasswords ? 'text' : 'password'"
               required
+              :maxlength="MAX_PASSWORD_LENGTH"
               autocomplete="new-password"
               class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
             />
@@ -409,6 +443,42 @@ async function handleDeleteAccount() {
             {{ isChangingPassword ? 'Saving…' : 'Update password' }}
           </button>
         </form>
+      </div>
+    </div>
+
+    <div
+      v-if="!org.isOrganization"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+    >
+      <div class="px-6 pt-6 pb-1">
+        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">
+          Switch to organization
+        </h2>
+        <p class="mt-0.5 text-sm text-gray-400">
+          Turn this instance into a company workspace with roles, invites, and admin controls
+        </p>
+      </div>
+
+      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+
+      <div class="px-6 py-5 space-y-4">
+        <p class="text-sm text-gray-600 dark:text-gray-300">
+          Organization mode adds admin / member roles, an Organization admin area, white-label
+          branding, invite-only registration, suspend, and an audit log. You become the owner of the
+          organization.
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          You can return to personal mode later from the Organization area, but doing so permanently
+          deletes every other account and all organization data. Your own account and vault are
+          kept.
+        </p>
+        <button
+          type="button"
+          class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 cursor-pointer"
+          @click="showSwitchModal = true"
+        >
+          Switch to organization…
+        </button>
       </div>
     </div>
 
@@ -487,18 +557,91 @@ async function handleDeleteAccount() {
             class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
             :disabled="isDeletingAccount || !deletePassword.trim()"
           >
-            {{
-              isDeletingAccount
-                ? isConfirmingDeletion
-                  ? 'Deleting…'
-                  : 'Validating…'
-                : isConfirmingDeletion
-                  ? 'Confirm deletion'
-                  : 'Delete account'
-            }}
+            {{ isDeletingAccount && !showDeleteModal ? 'Validating…' : 'Delete account' }}
           </button>
         </form>
       </div>
+
+      <Teleport to="body">
+        <div
+          v-if="showDeleteModal"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          @click.self="showDeleteModal = false"
+        >
+          <div
+            class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+          >
+            <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Delete account?</h3>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+              This permanently deletes your account and <strong>all associated data</strong> —
+              passwords, cards, notes, and categories. This action
+              <strong>cannot be undone</strong>.
+            </p>
+            <div class="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+                :disabled="isDeletingAccount"
+                @click="showDeleteModal = false"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                :disabled="isDeletingAccount"
+                @click="confirmDeleteAccount"
+              >
+                {{ isDeletingAccount ? 'Deleting…' : 'Delete account' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
     </div>
+
+    <Teleport to="body">
+      <div
+        v-if="showSwitchModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        @click.self="showSwitchModal = false"
+      >
+        <div
+          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+        >
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Switch to organization mode?
+          </h3>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            This instance will gain roles, an admin area, invites, suspend, and an audit log. Your
+            account becomes the owner of the organization. Existing vault data is kept.
+          </p>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            You can return to personal mode later from the Organization area, but doing so
+            permanently deletes every other account and all organization data. Your own account and
+            vault are kept.
+          </p>
+          <p v-if="switchError" class="mt-3 text-sm text-red-600">{{ switchError }}</p>
+          <div class="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+              :disabled="isSwitching"
+              @click="showSwitchModal = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="isSwitching"
+              @click="confirmSwitchToOrganization"
+            >
+              {{ isSwitching ? 'Switching…' : 'Switch to organization' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>

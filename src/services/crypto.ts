@@ -155,3 +155,70 @@ export async function decryptString(encrypted: string, key: CryptoKey): Promise<
   const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext)
   return dec.decode(plaintext)
 }
+
+// --- Organization sharing: per-user RSA-OAEP keypair --- The public key is stored plaintext server-side; the private key is exported and wrapped by the password-derived key (like the vault key)
+// RSA-OAEP lets a member envelope the shared org key to another member's public key
+
+const RSA_PARAMS = {
+  name: 'RSA-OAEP',
+  modulusLength: 3072,
+  publicExponent: new Uint8Array([1, 0, 1]),
+  hash: 'SHA-256',
+} as const
+
+export async function generateUserKeypair(): Promise<CryptoKeyPair> {
+  return crypto.subtle.generateKey(RSA_PARAMS, true, ['encrypt', 'decrypt'])
+}
+
+export async function exportPublicKey(pub: CryptoKey): Promise<string> {
+  return bytesToBase64(new Uint8Array(await crypto.subtle.exportKey('spki', pub)))
+}
+
+export async function importPublicKey(b64: string): Promise<CryptoKey> {
+  return crypto.subtle.importKey(
+    'spki',
+    base64ToBytes(b64),
+    { name: 'RSA-OAEP', hash: 'SHA-256' },
+    true,
+    ['encrypt'],
+  )
+}
+
+// Private key: export pkcs8 → AES-GCM encrypt under the wrapping key (iv||ct)
+export async function wrapPrivateKey(priv: CryptoKey, wrappingKey: CryptoKey): Promise<string> {
+  const pkcs8 = await crypto.subtle.exportKey('pkcs8', priv)
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, wrappingKey, pkcs8)
+  const combined = new Uint8Array(12 + encrypted.byteLength)
+  combined.set(iv)
+  combined.set(new Uint8Array(encrypted), 12)
+  return bytesToBase64(combined)
+}
+
+export async function unwrapPrivateKey(
+  wrapped: string,
+  wrappingKey: CryptoKey,
+): Promise<CryptoKey> {
+  const combined = base64ToBytes(wrapped)
+  const iv = combined.slice(0, 12)
+  const ciphertext = combined.slice(12)
+  const pkcs8 = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, wrappingKey, ciphertext)
+  return crypto.subtle.importKey('pkcs8', pkcs8, { name: 'RSA-OAEP', hash: 'SHA-256' }, false, [
+    'decrypt',
+  ])
+}
+
+// Envelope a symmetric key (the org key) to a recipient's public key
+export async function wrapKeyForPublic(symKey: CryptoKey, pub: CryptoKey): Promise<string> {
+  const raw = await crypto.subtle.exportKey('raw', symKey)
+  const encrypted = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, pub, raw)
+  return bytesToBase64(new Uint8Array(encrypted))
+}
+
+export async function unwrapKeyWithPrivate(wrapped: string, priv: CryptoKey): Promise<CryptoKey> {
+  const raw = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, priv, base64ToBytes(wrapped))
+  return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM', length: 256 }, true, [
+    'encrypt',
+    'decrypt',
+  ])
+}

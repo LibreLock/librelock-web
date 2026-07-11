@@ -3,8 +3,13 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
-import IconPadlock from '@/components/icons/IconPadlock.vue'
+import AppBrand from '@/components/AppBrand.vue'
+import AppSupportLinks from '@/components/AppSupportLinks.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { useOrganizationStore } from '@/stores/organization'
+import { MAX_PASSWORD_LENGTH, MAX_USERNAME_LENGTH } from '@/constants'
+
+const org = useOrganizationStore()
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -24,7 +29,12 @@ const redirectPath = computed(() => {
   return typeof redirect === 'string' && redirect.trim() ? redirect : '/'
 })
 
+// True when a 401 bounced the user here
+// Lives in the auth store (in-memory), so a manual refresh clears it
+const sessionExpired = computed(() => auth.sessionExpired)
+
 async function handleSubmit() {
+  auth.sessionExpired = false
   try {
     await auth.logIn(form.username.trim(), form.password)
     await router.replace(redirectPath.value)
@@ -37,14 +47,30 @@ async function handleSubmit() {
     class="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-950"
   >
     <div class="mb-4 flex flex-col items-center gap-2">
-      <IconPadlock size="lg" />
-      <span class="text-lg font-semibold text-gray-600 dark:text-gray-300">LibreLock</span>
+      <AppBrand
+        size="lg"
+        name-class="text-lg font-semibold text-gray-600 dark:text-gray-300"
+        class="flex-col! gap-2!"
+      />
+      <p
+        v-if="org.loginMessage"
+        class="max-w-md text-center text-sm text-gray-500 dark:text-gray-400"
+      >
+        {{ org.loginMessage }}
+      </p>
     </div>
 
     <div
       class="w-full max-w-md bg-white dark:bg-gray-900 rounded-lg shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 p-6"
     >
       <h1 class="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Log in</h1>
+
+      <p
+        v-if="sessionExpired"
+        class="mb-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-400"
+      >
+        Session expired. Please log in again.
+      </p>
 
       <form class="space-y-4" @submit.prevent="handleSubmit">
         <div>
@@ -55,6 +81,7 @@ async function handleSubmit() {
             v-model="form.username"
             type="text"
             required
+            :maxlength="MAX_USERNAME_LENGTH"
             autocomplete="username"
             class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
           />
@@ -69,6 +96,7 @@ async function handleSubmit() {
               v-model="form.password"
               :type="showPassword ? 'text' : 'password'"
               required
+              :maxlength="MAX_PASSWORD_LENGTH"
               autocomplete="current-password"
               class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
             />
@@ -127,5 +155,7 @@ async function handleSubmit() {
         >
       </p>
     </div>
+
+    <AppSupportLinks />
   </div>
 </template>

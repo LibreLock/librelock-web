@@ -7,5 +7,6 @@ Disallow: /vault
 Disallow: /notes
 Disallow: /passwords
 Disallow: /settings
+Disallow: /security
 
 Sitemap: http://localhost:1401/sitemap.xml

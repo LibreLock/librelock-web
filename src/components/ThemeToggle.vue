@@ -5,7 +5,7 @@ import { useThemeStore } from '@/stores/theme'
 const theme = useThemeStore()
 
 const label = computed(() =>
-  theme.theme === 'dark' ? 'Dark mode — click for light' : 'Light mode — click for dark',
+  theme.theme === 'dark' ? 'Dark mode, click for light' : 'Light mode, click for dark',
 )
 </script>
 

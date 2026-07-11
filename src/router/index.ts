@@ -2,9 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import { pinia } from '@/stores/pinia'
 import { useAuthStore } from '@/stores/auth'
+import { useOrganizationStore } from '@/stores/organization'
 import { setUnauthorizedHandler } from '@/services/api'
 import { listenTabSync, broadcastKeyResponse } from '@/services/tabsync'
-import { getVaultKey } from '@/services/keyring'
+import { getVaultKey, getPrivateKey, getOrgKey } from '@/services/keyring'
 
 import AppLayout from '../layouts/AppLayout.vue'
 import NotFoundView from '../views/not-found/NotFoundView.vue'
@@ -72,9 +73,30 @@ const router = createRouter({
           component: () => import('../views/notes/NotesView.vue'),
         },
         {
+          path: 'shared',
+          name: 'shared',
+          component: () => import('../views/shared/SharedVaultView.vue'),
+        },
+        {
+          path: 'shared/:id',
+          name: 'shared-entry',
+          component: () => import('../views/shared/SharedVaultView.vue'),
+        },
+        {
+          path: 'security',
+          name: 'security',
+          component: () => import('../views/security/SecurityCenterView.vue'),
+        },
+        {
+          // The old generator page now lives inside the Security Center
           path: 'generator',
-          name: 'generator',
-          component: () => import('../views/generator/GeneratorView.vue'),
+          redirect: '/security',
+        },
+        {
+          path: 'organization',
+          name: 'organization',
+          component: () => import('../views/organization/OrganizationView.vue'),
+          meta: { requiresAdmin: true },
         },
         {
           path: 'settings',
@@ -130,6 +152,15 @@ router.beforeEach(async (to) => {
     return { name: 'vault' }
   }
 
+  // Organization page: organization mode + admin only
+  if (to.matched.some((r) => r.meta.requiresAdmin)) {
+    const org = useOrganizationStore(pinia)
+    if (!org.loaded) await org.load()
+    if (!org.isOrganization || !auth.isAdmin) {
+      return { name: 'vault' }
+    }
+  }
+
   return true
 })
 
@@ -137,14 +168,19 @@ setUnauthorizedHandler(async () => {
   const auth = useAuthStore(pinia)
   if (!auth.isAuthenticated) return
   await auth.logOut()
-  router.push('/login')
+  // Flag in memory (not the URL) so the login screen can explain the bounce; a manual refresh clears it
+  auth.sessionExpired = true
+  router.push({ name: 'login' })
 })
 
 listenTabSync(async (msg) => {
   const auth = useAuthStore(pinia)
   if (msg.type === 'auth') {
     if (auth.isAuthenticated) return
-    await auth.receiveTabAuth(msg.key, msg.user)
+    await auth.receiveTabAuth(
+      { key: msg.key, privateKey: msg.privateKey, orgKey: msg.orgKey },
+      msg.user,
+    )
     router.replace('/')
   } else if (msg.type === 'logout') {
     if (!auth.isAuthenticated) return
@@ -152,7 +188,9 @@ listenTabSync(async (msg) => {
     router.push('/login')
   } else if (msg.type === 'request-key') {
     const key = getVaultKey()
-    if (key && auth.user) broadcastKeyResponse(key, auth.user)
+    if (key && auth.user) {
+      broadcastKeyResponse({ key, privateKey: getPrivateKey(), orgKey: getOrgKey() }, auth.user)
+    }
   }
 })
 

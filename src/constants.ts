@@ -4,6 +4,8 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localho
 export const DB_NAME = 'librelock'
 export const STORE = 'session'
 export const KEY_ID = 'vault_key'
+export const PRIVATE_KEY_ID = 'private_key'
+export const ORG_KEY_ID = 'org_key'
 export const SESSION_FLAG = 'vault_unlocked'
 
 export const KDF_ALGO = 'argon2id'
@@ -12,6 +14,8 @@ export const KDF_MEMORY = 65536 // 64 MB
 export const KDF_PARALLELISM = 4
 
 export const MIN_PASSWORD_LENGTH = 12
+export const MAX_PASSWORD_LENGTH = 10000
+export const MAX_USERNAME_LENGTH = 500
 
 export const THEME_STORAGE_KEY = 'theme'
 

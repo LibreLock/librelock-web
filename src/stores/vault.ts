@@ -12,6 +12,7 @@ import {
   type VaultPassword,
 } from '@/api/vault'
 import { checkPasswordBreach } from '@/composables/useBreachCheck'
+import { useOrgVaultStore } from '@/stores/orgVault'
 
 export { type VaultEntry, type VaultPassword, type VaultNote, type VaultCard } from '@/api/vault'
 
@@ -100,10 +101,12 @@ export const useVaultStore = defineStore('vault', () => {
 
   const globalSearch = ref('')
 
+  // Spans the personal vault and the organization shared vault, so shared entries show up in search results wherever the search box is used
   const searchResults = computed(() => {
     const q = globalSearch.value.trim().toLowerCase()
     if (!q) return []
-    return entries.value.filter((e) => {
+    const org = useOrgVaultStore()
+    return [...entries.value, ...org.entries].filter((e) => {
       if (e.name.toLowerCase().includes(q)) return true
       if (e.type === 'password') {
         return (
@@ -129,8 +132,7 @@ export const useVaultStore = defineStore('vault', () => {
     }
   }
 
-  // Copies the primary secret (password / card number / note content) of the
-  // top search result — lets users jump straight to clipboard without opening the entry.
+  // Copies the primary secret (password / card number / note content) of the top search result, letting users jump straight to clipboard without opening the entry
   async function copyFirstSearchResult(): Promise<boolean> {
     const entry = searchResults.value[0]
     if (!entry) return false
