@@ -803,7 +803,7 @@ async function handleSubmit() {
                     :icon="selectedIcon"
                     :url="iconUrl"
                     size="sm"
-                    class="!h-7 !w-7 !rounded-md !text-xs"
+                    class="h-7! w-7! rounded-md! text-xs!"
                   />
                 </div>
                 <input
