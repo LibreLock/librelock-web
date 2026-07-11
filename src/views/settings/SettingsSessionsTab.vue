@@ -160,7 +160,7 @@ onBeforeUnmount(() => {
   <div
     class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
   >
-    <div class="px-6 pt-6 pb-1 flex items-center justify-between">
+    <div class="px-4 sm:px-6 pt-6 pb-1 flex items-center justify-between">
       <div>
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Active sessions</h2>
         <p class="mt-0.5 text-sm text-gray-400">All devices currently logged in to your account</p>
@@ -188,7 +188,7 @@ onBeforeUnmount(() => {
 
     <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-    <div class="px-6 py-5">
+    <div class="px-4 sm:px-6 py-5">
       <div
         v-if="sessionsLoading"
         class="flex items-center justify-center gap-2 py-8 text-sm text-gray-400"

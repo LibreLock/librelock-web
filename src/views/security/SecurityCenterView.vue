@@ -96,7 +96,7 @@ const visibleSections = computed(() =>
     <div class="max-w-4xl">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
-          <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Security Center</h1>
+          <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Security Center</h1>
           <p class="mt-1 mb-6 text-sm text-gray-400">
             Health check for your vault: breached, reused and weak passwords
           </p>

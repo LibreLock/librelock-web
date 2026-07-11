@@ -61,7 +61,7 @@ async function confirmRevertToPersonal() {
   <div
     class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-red-200 dark:ring-red-900/60"
   >
-    <div class="px-6 pt-6 pb-1">
+    <div class="px-4 sm:px-6 pt-6 pb-1">
       <h2 class="text-base font-semibold text-red-700 dark:text-red-400">
         Return to personal mode
       </h2>
@@ -72,7 +72,7 @@ async function confirmRevertToPersonal() {
 
     <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-    <div class="px-6 py-5 space-y-4">
+    <div class="px-4 sm:px-6 py-5 space-y-4">
       <div
         class="rounded-lg bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-700 dark:text-red-300 space-y-2"
       >

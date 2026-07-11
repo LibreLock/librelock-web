@@ -44,7 +44,7 @@ async function handleSubmit() {
 
 <template>
   <div
-    class="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-950"
+    class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gray-50 dark:bg-gray-950"
   >
     <div class="mb-4 flex flex-col items-center gap-2">
       <AppBrand

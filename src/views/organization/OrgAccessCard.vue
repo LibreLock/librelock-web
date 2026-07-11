@@ -62,18 +62,18 @@ async function toggleAutoGrant() {
   <div
     class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
   >
-    <div class="px-6 pt-6 pb-1">
+    <div class="px-4 sm:px-6 pt-6 pb-1">
       <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Access</h2>
       <p class="mt-0.5 text-sm text-gray-400">Who can join and what they can see</p>
     </div>
 
     <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-    <p v-if="error" class="px-6 pt-4 text-sm text-red-600">{{ error }}</p>
+    <p v-if="error" class="px-4 sm:px-6 pt-4 text-sm text-red-600">{{ error }}</p>
 
     <div class="divide-y divide-gray-100 dark:divide-gray-800">
       <!-- Public sign-up -->
-      <div class="flex items-start justify-between gap-4 px-6 py-5">
+      <div class="flex items-start justify-between gap-4 px-4 sm:px-6 py-5">
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Public sign-up</p>
@@ -94,7 +94,7 @@ async function toggleAutoGrant() {
       </div>
 
       <!-- Auto-grant shared vault access -->
-      <div class="flex items-start justify-between gap-4 px-6 py-5">
+      <div class="flex items-start justify-between gap-4 px-4 sm:px-6 py-5">
         <div class="min-w-0">
           <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">
             Auto-grant shared vault

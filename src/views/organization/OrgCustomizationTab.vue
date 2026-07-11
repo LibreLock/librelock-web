@@ -115,7 +115,7 @@ async function removeLogo() {
     <div
       class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
-      <div class="px-6 pt-6 pb-1">
+      <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Company logo</h2>
         <p class="mt-0.5 text-sm text-gray-400">
           Replaces the default LibreLock padlock across the app and login screen
@@ -124,7 +124,7 @@ async function removeLogo() {
 
       <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-      <div class="px-6 py-5">
+      <div class="px-4 sm:px-6 py-5">
         <div class="flex items-center gap-4">
           <AppBrand size="lg" :show-name="false" />
           <div class="space-x-2">
@@ -163,14 +163,14 @@ async function removeLogo() {
     <div
       class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
-      <div class="px-6 pt-6 pb-1">
+      <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Branding</h2>
         <p class="mt-0.5 text-sm text-gray-400">Company name and support details</p>
       </div>
 
       <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-      <div class="px-6 py-5">
+      <div class="px-4 sm:px-6 py-5">
         <form class="space-y-4" @submit.prevent="saveDetails">
           <div>
             <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"

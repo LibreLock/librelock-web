@@ -40,7 +40,7 @@ const tabLabels: Record<Tab, string> = {
 </script>
 
 <template>
-  <div class="overflow-y-auto h-full p-6">
+  <div class="overflow-y-auto h-full p-4 sm:p-6">
     <div class="max-w-3xl">
       <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Organization</h1>
       <p class="mt-1 mb-6 text-sm text-gray-400">Manage users and company branding</p>

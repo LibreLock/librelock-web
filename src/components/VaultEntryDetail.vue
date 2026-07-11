@@ -99,7 +99,7 @@ function strengthDot(score: number): string {
     </button>
 
     <div
-      class="flex shrink-0 items-center gap-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-6 py-4"
+      class="flex shrink-0 items-center gap-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 sm:px-6 py-4"
     >
       <span
         v-if="entry.type === 'card'"
@@ -173,7 +173,7 @@ function strengthDot(score: number): string {
       </button>
     </div>
 
-    <div class="flex-1 space-y-5 p-6">
+    <div class="flex-1 space-y-5 p-4 sm:p-6">
       <template v-if="entry.type === 'password'">
         <section>
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">

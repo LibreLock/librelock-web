@@ -318,14 +318,14 @@ function formatDate(iso: string) {
     <div
       class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
-      <div class="px-6 pt-6 pb-1">
+      <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Users</h2>
         <p class="mt-0.5 text-sm text-gray-400">Manage users, roles, and access</p>
       </div>
 
       <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-      <div class="px-6 py-5">
+      <div class="px-4 sm:px-6 py-5">
         <p v-if="error" class="mb-3 text-sm text-red-600">{{ error }}</p>
 
         <div v-if="isLoading" class="py-6 text-center text-sm text-gray-400">Loading…</div>

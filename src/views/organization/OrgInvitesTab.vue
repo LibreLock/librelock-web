@@ -133,14 +133,14 @@ const statusClasses: Record<Invite['status'], string> = {
   <div
     class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
   >
-    <div class="px-6 pt-6 pb-1">
+    <div class="px-4 sm:px-6 pt-6 pb-1">
       <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Invites</h2>
       <p class="mt-0.5 text-sm text-gray-400">Generate single-use invite links for new members</p>
     </div>
 
     <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-    <div class="px-6 py-5 space-y-4">
+    <div class="px-4 sm:px-6 py-5 space-y-4">
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
 
       <form class="flex flex-col sm:flex-row sm:items-end gap-2" @submit.prevent="create">

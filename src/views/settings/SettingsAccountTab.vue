@@ -220,14 +220,14 @@ async function confirmDeleteAccount() {
     <div
       class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
-      <div class="px-6 pt-6 pb-1">
+      <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Profile</h2>
         <p class="mt-0.5 text-sm text-gray-400">Update your profile settings</p>
       </div>
 
       <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-      <div class="px-6 py-5">
+      <div class="px-4 sm:px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleSaveUsername">
           <div>
             <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
@@ -261,14 +261,14 @@ async function confirmDeleteAccount() {
     <div
       class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
-      <div class="px-6 pt-6 pb-1">
+      <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Master password</h2>
         <p class="mt-0.5 text-sm text-gray-400">Change the password used to unlock your vault</p>
       </div>
 
       <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-      <div class="px-6 py-5">
+      <div class="px-4 sm:px-6 py-5">
         <div
           v-if="passwordSuccess"
           class="rounded-lg bg-emerald-50 dark:bg-emerald-950/50 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400"
@@ -450,7 +450,7 @@ async function confirmDeleteAccount() {
       v-if="!org.isOrganization"
       class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
-      <div class="px-6 pt-6 pb-1">
+      <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">
           Switch to organization
         </h2>
@@ -461,7 +461,7 @@ async function confirmDeleteAccount() {
 
       <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-      <div class="px-6 py-5 space-y-4">
+      <div class="px-4 sm:px-6 py-5 space-y-4">
         <p class="text-sm text-gray-600 dark:text-gray-300">
           Organization mode adds admin / member roles, an Organization admin area, white-label
           branding, invite-only registration, suspend, and an audit log. You become the owner of the
@@ -485,7 +485,7 @@ async function confirmDeleteAccount() {
     <div
       class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
     >
-      <div class="px-6 pt-6 pb-1">
+      <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Delete account</h2>
         <p class="mt-0.5 text-sm text-gray-400">
           Permanently remove your account and all associated data
@@ -494,7 +494,7 @@ async function confirmDeleteAccount() {
 
       <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
-      <div class="px-6 py-5">
+      <div class="px-4 sm:px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleDeleteAccount">
           <div>
             <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
