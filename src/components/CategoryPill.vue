@@ -1,15 +1,25 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import { useCategoriesStore, type VaultCategory } from '@/stores/categories'
+import { useOrgCategoriesStore } from '@/stores/orgCategories'
 
-const props = defineProps<{
-  category: VaultCategory
-  active: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    category: VaultCategory
+    active: boolean
+    // Manage the shared (org) category store instead of the personal one
+    useOrg?: boolean
+    // When false the right-click rename/delete menu is disabled (read-only)
+    canEdit?: boolean
+  }>(),
+  { useOrg: false, canEdit: true },
+)
 
 const emit = defineEmits<{ click: []; removed: [] }>()
 
-const categoriesStore = useCategoriesStore()
+const personalStore = useCategoriesStore()
+const orgStore = useOrgCategoriesStore()
+const store = computed(() => (props.useOrg ? orgStore : personalStore))
 
 const menuOpen = ref(false)
 const menuX = ref(0)
@@ -17,6 +27,7 @@ const menuY = ref(0)
 
 function openMenu(e: MouseEvent) {
   e.preventDefault()
+  if (!props.canEdit) return
   menuX.value = e.clientX
   menuY.value = e.clientY
   menuOpen.value = true
@@ -52,7 +63,7 @@ async function confirmRename() {
   }
   isRenaming.value = true
   try {
-    await categoriesStore.editCategory(props.category.id, name)
+    await store.value.editCategory(props.category.id, name)
     showRename.value = false
   } finally {
     isRenaming.value = false
@@ -70,7 +81,7 @@ function startDelete() {
 async function confirmDelete() {
   isDeleting.value = true
   try {
-    await categoriesStore.removeCategory(props.category.id)
+    await store.value.removeCategory(props.category.id)
     showDelete.value = false
     emit('removed')
   } finally {

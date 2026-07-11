@@ -154,7 +154,7 @@ async function removeLogo() {
             @change="onLogoSelected"
           />
         </div>
-        <p class="mt-3 text-xs text-gray-400">PNG, JPEG, SVG, WebP or GIF. Max 512 KiB.</p>
+        <p class="mt-3 text-xs text-gray-400">PNG, JPEG, SVG, WebP or GIF. Max 512 KiB</p>
         <p v-if="logoError" class="mt-2 text-sm text-red-600">{{ logoError }}</p>
       </div>
     </div>
@@ -183,7 +183,7 @@ async function removeLogo() {
               maxlength="200"
               class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
             />
-            <p class="mt-1 text-xs text-gray-400">Leave blank to fall back to “LibreLock”.</p>
+            <p class="mt-1 text-xs text-gray-400">Leave blank to fall back to “LibreLock”</p>
           </div>
 
           <div>

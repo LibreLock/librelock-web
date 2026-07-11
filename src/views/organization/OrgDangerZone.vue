@@ -4,13 +4,12 @@ import { ApiError } from '@/services/api'
 import { useAuthStore, fetchKdfParams } from '@/stores/auth'
 import { useOrganizationStore } from '@/stores/organization'
 import { deriveKeys, unwrapKey } from '@/services/crypto'
-import router from '@/router'
 
 const auth = useAuthStore()
 const org = useOrganizationStore()
 
-// Guarded by password re-auth AND typing "delete <org name>".
-const confirmPhrase = computed(() => `delete ${org.name}`)
+// Guarded by password re-auth AND typing "DELETE <org name>" (exact, case-sensitive)
+const confirmPhrase = computed(() => `DELETE ${org.name}`)
 const showRevertModal = ref(false)
 const isReverting = ref(false)
 const revertError = ref<string | null>(null)
@@ -22,7 +21,7 @@ const canRevert = computed(
   () =>
     !isReverting.value &&
     revertPassword.value.length > 0 &&
-    revertConfirmText.value.trim().toLowerCase() === confirmPhrase.value.toLowerCase(),
+    revertConfirmText.value.trim() === confirmPhrase.value,
 )
 
 function openRevertModal() {
@@ -41,18 +40,17 @@ async function confirmRevertToPersonal() {
     const currentProtectedKey = auth.user?.protected_key
     if (!username || !currentProtectedKey) throw new Error('Not logged in.')
 
-    // Derive + validate the password locally, then send the auth credential.
+    // Derive + validate the password locally, then send the auth credential
     const kdfParams = await fetchKdfParams(username)
     const { wrappingKey, authCredential } = await deriveKeys(revertPassword.value, kdfParams)
     await unwrapKey(currentProtectedKey, wrappingKey) // throws on wrong password
 
     await org.revertToPersonal(authCredential)
-    await auth.refreshSession()
     showRevertModal.value = false
-    router.push('/')
+    // Hard reload to '/': wipes in-memory org stores (shared vault, org categories, keyring) so nothing lingers from the torn-down org
+    window.location.assign('/')
   } catch (err) {
-    revertError.value =
-      err instanceof ApiError ? err.message : 'Invalid password. Please try again.'
+    revertError.value = err instanceof ApiError ? err.message : 'Invalid password.'
   } finally {
     isReverting.value = false
   }
@@ -79,12 +77,9 @@ async function confirmRevertToPersonal() {
         class="rounded-lg bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-700 dark:text-red-300 space-y-2"
       >
         <p>
-          <strong>This permanently deletes every other user</strong> and all of their vault data —
-          passwords, categories, and sessions. Under end-to-end encryption it cannot be recovered.
-        </p>
-        <p>
-          Only <span class="font-medium">your</span> account survives. Roles, invites, branding, and
-          the audit log are removed.
+          This <strong>permanently deletes every other user</strong> and all of their vault data:
+          passwords, categories, and sessions. Only your account survives. Roles, invites, branding,
+          and the audit log are removed.
         </p>
         <p><strong>This action cannot be undone.</strong></p>
       </div>
@@ -112,11 +107,11 @@ async function confirmRevertToPersonal() {
           <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
             <p>
               This will <strong>permanently delete every other user</strong> and all of their vault
-              data. Only <strong>your</strong> account ({{ auth.user?.username }}) will remain.
+              data. Only your account ({{ auth.user?.username }}) will remain.
             </p>
             <p>
-              The organization, its invites, branding, and audit log are dropped. This
-              <strong>cannot be undone</strong>.
+              The organization, its invites, branding, and audit log are dropped.
+              <strong>This cannot be undone</strong>.
             </p>
           </div>
 
@@ -134,10 +129,38 @@ async function confirmRevertToPersonal() {
                 />
                 <button
                   type="button"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
+                  :title="showRevertPassword ? 'Hide password' : 'Show password'"
                   @click="showRevertPassword = !showRevertPassword"
                 >
-                  {{ showRevertPassword ? 'Hide' : 'Show' }}
+                  <svg
+                    v-if="showRevertPassword"
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                    />
+                  </svg>
+                  <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
                 </button>
               </div>
             </div>

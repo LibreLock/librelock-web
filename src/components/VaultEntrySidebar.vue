@@ -3,15 +3,22 @@ import { computed, onMounted, ref } from 'vue'
 import type { VaultEntry } from '@/api/vault'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
+import { useOrgCategoriesStore } from '@/stores/orgCategories'
+import { useAuthStore } from '@/stores/auth'
 import CategoryPill from '@/components/CategoryPill.vue'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
 
-const props = defineProps<{
-  entries: VaultEntry[]
-  selectedId: string | null
-  title: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    entries: VaultEntry[]
+    selectedId: string | null
+    title: string
+    // Filter by shared (org) categories instead of personal ones
+    shared?: boolean
+  }>(),
+  { shared: false },
+)
 
 const emit = defineEmits<{
   select: [id: string]
@@ -19,8 +26,17 @@ const emit = defineEmits<{
 
 const vault = useVaultStore()
 const categoriesStore = useCategoriesStore()
+const orgCategoriesStore = useOrgCategoriesStore()
+const auth = useAuthStore()
 
-onMounted(() => categoriesStore.fetchCategories())
+// Filter chips draw from the store matching this sidebar's scope
+// Shared categories are editable only by admins
+const categoryList = computed(() =>
+  props.shared ? orgCategoriesStore.categories : categoriesStore.categories,
+)
+const canEditCategories = computed(() => (props.shared ? auth.isAdmin : true))
+
+onMounted(() => (props.shared ? orgCategoriesStore : categoriesStore).fetchCategories())
 
 const activeCategories = ref<Set<string>>(new Set())
 
@@ -96,7 +112,7 @@ async function copyPassword(entry: VaultEntry) {
     </div>
 
     <div
-      v-if="categoriesStore.categories.length > 0"
+      v-if="categoryList.length > 0"
       class="shrink-0 border-b border-gray-100 dark:border-gray-700 px-3 py-2"
     >
       <div class="flex flex-wrap gap-1">
@@ -113,10 +129,12 @@ async function copyPassword(entry: VaultEntry) {
           All
         </button>
         <CategoryPill
-          v-for="category in categoriesStore.categories"
+          v-for="category in categoryList"
           :key="category.id"
           :category="category"
           :active="activeCategories.has(category.id)"
+          :use-org="shared"
+          :can-edit="canEditCategories"
           @click="toggleCategory(category.id)"
           @removed="handleCategoryRemoved(category.id)"
         />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { ApiError, apiRequest } from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
@@ -49,7 +49,12 @@ async function loadSessions() {
   sessionsError.value = null
   try {
     const data = await apiRequest<SessionsResponse>('/sessions')
-    sessions.value = data?.sessions ?? []
+    // Drop expired sessions
+    // The list is labelled "Active sessions", and the backend may return rows that are past expires_at but not yet purged
+    const now = Date.now()
+    sessions.value = (data?.sessions ?? []).filter(
+      (s) => !s.expires_at || new Date(s.expires_at).getTime() > now,
+    )
   } catch (err) {
     sessionsError.value = err instanceof ApiError ? err.message : 'Failed to load sessions.'
   } finally {
@@ -135,8 +140,19 @@ function shortDeviceName(deviceName: string): string {
   return deviceName.length > 32 ? deviceName.slice(0, 32) + '…' : deviceName
 }
 
+function onVisibilityChange() {
+  if (document.visibilityState === 'visible' && !sessionsLoading.value) {
+    loadSessions()
+  }
+}
+
 onMounted(() => {
   loadSessions()
+  document.addEventListener('visibilitychange', onVisibilityChange)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', onVisibilityChange)
 })
 </script>
 

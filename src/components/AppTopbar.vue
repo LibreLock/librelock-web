@@ -23,7 +23,7 @@ async function handleKeydown(e: KeyboardEvent) {
     searchInput.value?.blur()
   }
 
-  // Enter in the search box copies the top result's password/card number/note straight to clipboard.
+  // Enter in the search box copies the top result's password/card number/note straight to clipboard
   if (
     e.key === 'Enter' &&
     document.activeElement === searchInput.value &&

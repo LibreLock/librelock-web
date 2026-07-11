@@ -11,8 +11,10 @@ export async function checkPasswordBreach(password: string): Promise<boolean> {
   const prefix = hash.slice(0, 5)
   const suffix = hash.slice(5)
 
+  // no-store: the response itself isn't sensitive (it's the same for everyone with this prefix), but a disk-cached entry keeps proof this hash prefix was queried on this machine even after logout
   const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
     headers: { 'Add-Padding': 'true' },
+    cache: 'no-store',
   })
   if (!res.ok) return false
 

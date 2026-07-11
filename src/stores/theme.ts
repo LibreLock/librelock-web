@@ -17,7 +17,8 @@ function storedTheme(): Theme | null {
 }
 
 export const useThemeStore = defineStore('theme', () => {
-  // Before login: browser choice, else OS theme. After login: the user's DB theme (adopt).
+  // Before login: browser choice, else OS theme
+  // After login: the user's DB theme (adopt)
   const theme = ref<Theme>(storedTheme() ?? systemTheme())
 
   function apply() {
@@ -28,7 +29,7 @@ export const useThemeStore = defineStore('theme', () => {
     localStorage.setItem(THEME_STORAGE_KEY, theme.value)
   }
 
-  // Apply the signed-in user's saved theme without writing it back.
+  // Apply the signed-in user's saved theme without writing it back
   function adopt(next?: string | null) {
     if (next === 'light' || next === 'dark') {
       theme.value = next

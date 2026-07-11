@@ -15,7 +15,7 @@ const events = ref<AuditEvent[]>([])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
-// Human labels for each action id the backend emits.
+// Human labels for each action id the backend emits
 const actionLabels: Record<string, string> = {
   'user.registered': 'Account created',
   'user.role_changed': 'Role changed',
@@ -29,16 +29,21 @@ const actionLabels: Record<string, string> = {
   'org.logo_updated': 'Logo updated',
   'org.logo_removed': 'Logo removed',
   'org.registration_changed': 'Registration changed',
+  'org.shared_access_granted': 'Shared access granted',
+  'org.shared_access_revoked': 'Shared access revoked',
+  'org.shared_settings_changed': 'Shared settings changed',
   'app.mode_changed': 'Organization enabled',
 }
 
-// Left accent colour by action family.
+// Left accent colour by action family
 const actionAccent: Record<string, string> = {
   'user.suspended': 'bg-amber-400',
   'user.removed': 'bg-red-400',
   'invite.revoked': 'bg-red-400',
   'user.registered': 'bg-emerald-400',
   'user.reactivated': 'bg-emerald-400',
+  'org.shared_access_granted': 'bg-emerald-400',
+  'org.shared_access_revoked': 'bg-red-400',
 }
 
 function label(action: string) {

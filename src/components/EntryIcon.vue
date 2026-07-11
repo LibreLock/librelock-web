@@ -22,8 +22,7 @@ const box = computed(() =>
 )
 const glyph = computed(() => (props.size === 'md' ? 'h-6 w-6' : 'h-5 w-5'))
 
-// Stroke glyphs draw their outline; fill glyphs may opt into a matching stroke to
-// look heavier.
+// Stroke glyphs draw their outline; fill glyphs may opt into a matching stroke to look heavier
 const strokeColor = computed(() => {
   const icon = resolved.value
   if (!icon) return 'none'

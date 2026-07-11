@@ -7,13 +7,13 @@ import { useOrganizationStore } from '@/stores/organization'
 import AppBrand from '@/components/AppBrand.vue'
 import AppSupportLinks from '@/components/AppSupportLinks.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
-import { MIN_PASSWORD_LENGTH } from '@/constants'
+import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, MAX_USERNAME_LENGTH } from '@/constants'
 const auth = useAuthStore()
 const org = useOrganizationStore()
 const router = useRouter()
 const route = useRoute()
 
-// Invite-only registration: token comes from the ?invite= link or manual entry.
+// Invite-only registration: token comes from the ?invite= link or manual entry
 const inviteRequired = computed(() => org.isOrganization && org.registration === 'invite')
 
 const form = reactive({
@@ -92,7 +92,7 @@ async function handleSubmit() {
       <AppBrand
         size="lg"
         name-class="text-lg font-semibold text-gray-600 dark:text-gray-300"
-        class="!flex-col !gap-2"
+        class="flex-col! gap-2!"
       />
     </div>
 
@@ -123,6 +123,7 @@ async function handleSubmit() {
             v-model="form.username"
             type="text"
             required
+            :maxlength="MAX_USERNAME_LENGTH"
             autocomplete="username"
             class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
           />
@@ -137,6 +138,7 @@ async function handleSubmit() {
               v-model="form.password"
               :type="showPassword ? 'text' : 'password'"
               required
+              :maxlength="MAX_PASSWORD_LENGTH"
               autocomplete="new-password"
               class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
               @focus="passwordFocused = true"
@@ -212,6 +214,7 @@ async function handleSubmit() {
               v-model="form.repeatPassword"
               :type="showPassword ? 'text' : 'password'"
               required
+              :maxlength="MAX_PASSWORD_LENGTH"
               autocomplete="new-password"
               class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
             />

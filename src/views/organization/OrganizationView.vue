@@ -14,7 +14,7 @@ const org = useOrganizationStore()
 const route = useRoute()
 const router = useRouter()
 
-// Invites tab only exists in invite-only registration mode.
+// Invites tab only exists in invite-only registration mode
 const tabs = computed<Tab[]>(() =>
   org.registration === 'invite'
     ? ['users', 'invites', 'customization', 'audit', 'management']
@@ -45,12 +45,14 @@ const tabLabels: Record<Tab, string> = {
       <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Organization</h1>
       <p class="mt-1 mb-6 text-sm text-gray-400">Manage users and company branding</p>
 
-      <div class="mb-6 flex gap-1 border-b border-gray-200 dark:border-gray-700">
+      <div
+        class="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-gray-200 dark:border-gray-700 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      >
         <button
           v-for="tab in tabs"
           :key="tab"
           type="button"
-          class="px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px"
+          class="shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px"
           :class="
             activeTab === tab
               ? 'border-gray-800 dark:border-gray-100 text-gray-900 dark:text-gray-100'

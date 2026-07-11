@@ -106,8 +106,7 @@ function brand(
   }
 }
 
-// LinkedIn and Microsoft are excluded from simple-icons for trademark reasons but
-// are common enough to warrant hand-authored glyphs.
+// LinkedIn and Microsoft are excluded from simple-icons for trademark reasons but are common enough to warrant hand-authored glyphs
 const LINKEDIN: CatalogIcon = {
   id: 'linkedin',
   label: 'LinkedIn',
@@ -132,8 +131,7 @@ const MICROSOFT: CatalogIcon = {
   domains: ['microsoft.com', 'live.com', 'outlook.com', 'office.com', 'azure.com'],
 }
 
-// simple-icons ships a thin Google "G"; stroke it to match the visual weight of
-// the other brand glyphs.
+// simple-icons ships a thin Google "G"; stroke it to match the visual weight of the other brand glyphs
 const GOOGLE: CatalogIcon = {
   ...brand('google', siGoogle, ['google.com'], ['search']),
   strokeWidth: 1.1,
@@ -210,7 +208,7 @@ const BRANDS: CatalogIcon[] = [
   brand('uber', siUber, ['uber.com']),
 ]
 
-// Generic, non-brand icons (Heroicons-style outline glyphs) for categorising entries.
+// Generic, non-brand icons (Heroicons-style outline glyphs) for categorising entries
 const GENERAL: CatalogIcon[] = [
   {
     id: 'bank',
@@ -402,7 +400,7 @@ export function getIcon(id: string | null | undefined): CatalogIcon | null {
 function hostFromUrl(url: string): string | null {
   const raw = url.trim().toLowerCase()
   if (!raw) return null
-  // Tolerate bare hosts ("github.com") as well as full URLs.
+  // Tolerate bare hosts ("github.com") as well as full URLs
   const withScheme = /^[a-z]+:\/\//.test(raw) ? raw : `https://${raw}`
   try {
     return new URL(withScheme).hostname.replace(/^www\./, '')

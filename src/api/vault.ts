@@ -25,6 +25,7 @@ export interface VaultPassword {
   color: string
   icon: string | null
   categoryId: string | null
+  shared: boolean
   passwordStrength: number
   reused: boolean
   breached: boolean
@@ -40,6 +41,7 @@ export interface VaultNote {
   color: string
   icon: string | null
   categoryId: string | null
+  shared: boolean
   createdAt: string
   updatedAt: string
 }
@@ -57,6 +59,7 @@ export interface VaultCard {
   color: string
   icon: string | null
   categoryId: string | null
+  shared: boolean
   createdAt: string
   updatedAt: string
 }
@@ -101,7 +104,7 @@ export interface CreateCardPayload {
 export type CreateEntryPayload = CreatePasswordPayload | CreateNotePayload | CreateCardPayload
 export type UpdateEntryPayload = CreatePasswordPayload | CreateNotePayload | CreateCardPayload
 
-interface RawVaultEntry {
+export interface RawVaultEntry {
   id: string
   type: 'password_entry' | 'note' | 'card'
   category_id: string | null
@@ -134,10 +137,11 @@ function requireVaultKey(): CryptoKey {
   return key
 }
 
-function rawToEntry(raw: RawVaultEntry, blob: VaultBlobData): VaultEntry {
+function rawToEntry(raw: RawVaultEntry, blob: VaultBlobData, shared = false): VaultEntry {
   const base = {
     id: raw.id,
     categoryId: raw.category_id,
+    shared,
     color: blob.color ?? DEFAULT_COLOR,
     icon: blob.icon ?? null,
     createdAt: raw.created_at,
@@ -180,9 +184,64 @@ function rawToEntry(raw: RawVaultEntry, blob: VaultBlobData): VaultEntry {
 }
 
 async function decryptRaw(raw: RawVaultEntry): Promise<VaultEntry> {
-  const vaultKey = requireVaultKey()
-  const blob = (await decryptBlob(raw.encrypted_blob, raw.iv, vaultKey)) as VaultBlobData
-  return rawToEntry(raw, blob)
+  return decryptRawWith(raw, requireVaultKey())
+}
+
+// Decrypts a raw entry with an explicit key, shared by the personal vault (vault key) and the organization vault (org key)
+export async function decryptRawWith(
+  raw: RawVaultEntry,
+  key: CryptoKey,
+  shared = false,
+): Promise<VaultEntry> {
+  const blob = (await decryptBlob(raw.encrypted_blob, raw.iv, key)) as VaultBlobData
+  return rawToEntry(raw, blob, shared)
+}
+
+// Encrypts an entry payload's secret fields with an explicit key
+// Category is handled separately by the caller (the org vault has none)
+export async function encryptEntryBlob(
+  payload: CreateEntryPayload,
+  key: CryptoKey,
+): Promise<{ encrypted_blob: string; iv: string; serverType: 'password_entry' | 'note' | 'card' }> {
+  let blobData: VaultBlobData
+  let serverType: 'password_entry' | 'note' | 'card'
+
+  if (payload.type === 'password') {
+    blobData = {
+      name: payload.name,
+      username: payload.username,
+      email: payload.email,
+      password: payload.password,
+      url: payload.url,
+      notes: payload.notes,
+      color: payload.color ?? DEFAULT_COLOR,
+      icon: payload.icon ?? null,
+    }
+    serverType = 'password_entry'
+  } else if (payload.type === 'card') {
+    blobData = {
+      name: payload.name,
+      cardholderName: payload.cardholderName,
+      cardNumber: payload.cardNumber,
+      expiration: payload.expiration,
+      cvv: payload.cvv,
+      notes: payload.notes,
+      color: payload.color ?? DEFAULT_COLOR,
+      icon: payload.icon ?? null,
+    }
+    serverType = 'card'
+  } else {
+    blobData = {
+      name: payload.name,
+      content: payload.content,
+      color: payload.color ?? DEFAULT_COLOR,
+      icon: payload.icon ?? null,
+    }
+    serverType = 'note'
+  }
+
+  const { encrypted_blob, iv } = await encryptBlob(blobData, key)
+  return { encrypted_blob, iv, serverType }
 }
 
 async function encryptPayload(payload: CreateEntryPayload): Promise<{

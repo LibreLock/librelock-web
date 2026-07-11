@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
-import OrgRegistrationCard from './OrgRegistrationCard.vue'
+import OrgAccessCard from './OrgAccessCard.vue'
 import OrgDangerZone from './OrgDangerZone.vue'
 
 const auth = useAuthStore()
@@ -8,7 +8,8 @@ const auth = useAuthStore()
 
 <template>
   <div class="space-y-6">
-    <OrgRegistrationCard />
+    <!-- Admins + owners: registration policy + auto-grant shared vault -->
+    <OrgAccessCard />
 
     <!-- Owner-only: revert the whole instance to personal mode -->
     <OrgDangerZone v-if="auth.isOwner" />
