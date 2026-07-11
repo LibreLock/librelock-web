@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useOrganizationStore } from '@/stores/organization'
@@ -17,24 +17,12 @@ const route = useRoute()
 const showOrganization = computed(() => org.isOrganization && auth.isAdmin)
 const showSharedVault = computed(() => sharedVault.hasAccess)
 
+// Below md the sidebar is hidden entirely (AppBottomNav takes over), so
+// collapsed only matters on desktop
 const collapsed = ref(false)
-
-function syncCollapseToScreenSize() {
-  if (window.innerWidth < 768) {
-    collapsed.value = true
-  } else {
-    collapsed.value = localStorage.getItem(STORAGE_KEY) === 'true'
-  }
-}
 
 onMounted(() => {
   collapsed.value = localStorage.getItem(STORAGE_KEY) === 'true'
-  syncCollapseToScreenSize()
-  window.addEventListener('resize', syncCollapseToScreenSize)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', syncCollapseToScreenSize)
 })
 
 function toggleCollapse() {
@@ -65,7 +53,7 @@ const navItems = [
 
 <template>
   <aside
-    class="flex h-screen shrink-0 flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 transition-all duration-200"
+    class="hidden h-dvh shrink-0 flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 transition-all duration-200 md:flex"
     :class="collapsed ? 'w-16' : 'w-60'"
   >
     <div

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useVaultStore } from '@/stores/vault'
+import AppBrand from '@/components/AppBrand.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const vault = useVaultStore()
@@ -43,8 +44,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 
 <template>
   <header
-    class="flex h-14 shrink-0 items-center gap-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4"
+    class="flex h-14 shrink-0 items-center gap-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 sm:gap-4 sm:px-4"
   >
+    <!-- The sidebar (and its logo) is hidden on mobile, so show the brand here -->
+    <RouterLink to="/" class="shrink-0 md:hidden" aria-label="Home">
+      <AppBrand size="md" :show-name="false" />
+    </RouterLink>
+
     <div class="relative w-full max-w-xs lg:max-w-md">
       <svg
         class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
@@ -111,7 +117,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
         <span class="hidden sm:inline text-sm font-semibold"> Add entry </span>
       </RouterLink>
 
-      <ThemeToggle />
+      <!-- On mobile the theme toggle lives in the bottom nav's More sheet -->
+      <ThemeToggle class="hidden md:block" />
     </div>
   </header>
 </template>

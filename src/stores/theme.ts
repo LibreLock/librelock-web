@@ -23,6 +23,10 @@ export const useThemeStore = defineStore('theme', () => {
 
   function apply() {
     document.documentElement.classList.toggle('dark', theme.value === 'dark')
+    // Keep the browser/PWA chrome color in sync with the app background
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', theme.value === 'dark' ? '#030712' : '#f9fafb')
   }
 
   function persistLocal() {

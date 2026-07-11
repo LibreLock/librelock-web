@@ -16,8 +16,11 @@ const props = withDefaults(
     title: string
     // Filter by shared (org) categories instead of personal ones
     shared?: boolean
+    // Show the Passwords/Cards/Notes type selector (mobile "All" view, where those
+    // types no longer have their own bottom-nav tabs)
+    showTypeFilter?: boolean
   }>(),
-  { shared: false },
+  { shared: false, showTypeFilter: false },
 )
 
 const emit = defineEmits<{
@@ -40,9 +43,22 @@ onMounted(() => (props.shared ? orgCategoriesStore : categoriesStore).fetchCateg
 
 const activeCategories = ref<Set<string>>(new Set())
 
+type TypeFilter = 'all' | 'password' | 'card' | 'note'
+const typeFilter = ref<TypeFilter>('all')
+const typeFilters: Array<{ value: TypeFilter; label: string }> = [
+  { value: 'all', label: 'All' },
+  { value: 'password', label: 'Passwords' },
+  { value: 'card', label: 'Cards' },
+  { value: 'note', label: 'Notes' },
+]
+
 const filtered = computed(() => {
   const q = vault.globalSearch.trim().toLowerCase()
   let list = props.entries
+
+  if (props.showTypeFilter && typeFilter.value !== 'all') {
+    list = list.filter((e) => e.type === typeFilter.value)
+  }
 
   if (q) {
     list = list.filter((e) => {
@@ -104,40 +120,60 @@ async function copyPassword(entry: VaultEntry) {
     class="shrink-0 flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
     :class="selectedId ? 'hidden sm:flex sm:w-72' : 'flex w-full sm:w-72'"
   >
-    <div class="shrink-0 px-4 pb-1 pt-3">
-      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ title }}</h2>
-      <span class="text-xs text-gray-400">
-        {{ filtered.length }} item{{ filtered.length !== 1 ? 's' : '' }}
-      </span>
-    </div>
+    <!-- Header + filters share one bottom border so the divider is present even when there are no categories -->
+    <div class="shrink-0 border-b border-gray-100 dark:border-gray-700">
+      <div class="px-4 pb-2 pt-3">
+        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ title }}</h2>
+        <span class="text-xs text-gray-400">
+          {{ filtered.length }} item{{ filtered.length !== 1 ? 's' : '' }}
+        </span>
+      </div>
 
-    <div
-      v-if="categoryList.length > 0"
-      class="shrink-0 border-b border-gray-100 dark:border-gray-700 px-3 py-2"
-    >
-      <div class="flex flex-wrap gap-1">
-        <button
-          type="button"
-          class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
-          :class="
-            activeCategories.size === 0
-              ? 'bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-          "
-          @click="activeCategories = new Set()"
-        >
-          All
-        </button>
-        <CategoryPill
-          v-for="category in categoryList"
-          :key="category.id"
-          :category="category"
-          :active="activeCategories.has(category.id)"
-          :use-org="shared"
-          :can-edit="canEditCategories"
-          @click="toggleCategory(category.id)"
-          @removed="handleCategoryRemoved(category.id)"
-        />
+      <!-- Type selector: on mobile the "All" view absorbs Passwords/Cards/Notes, so switch between them here -->
+      <div v-if="showTypeFilter" class="px-3 pb-2 md:hidden">
+        <div class="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-800 p-0.5">
+          <button
+            v-for="opt in typeFilters"
+            :key="opt.value"
+            type="button"
+            class="flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors cursor-pointer"
+            :class="
+              typeFilter === opt.value
+                ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 active:text-gray-700 dark:active:text-gray-200'
+            "
+            @click="typeFilter = opt.value"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
+      </div>
+
+      <div v-if="categoryList.length > 0" class="px-3 pb-2">
+        <div class="flex flex-wrap gap-1">
+          <button
+            type="button"
+            class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
+            :class="
+              activeCategories.size === 0
+                ? 'bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+            "
+            @click="activeCategories = new Set()"
+          >
+            All
+          </button>
+          <CategoryPill
+            v-for="category in categoryList"
+            :key="category.id"
+            :category="category"
+            :active="activeCategories.has(category.id)"
+            :use-org="shared"
+            :can-edit="canEditCategories"
+            @click="toggleCategory(category.id)"
+            @removed="handleCategoryRemoved(category.id)"
+          />
+        </div>
       </div>
     </div>
 

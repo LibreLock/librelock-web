@@ -39,6 +39,7 @@ function onBack() {
       :entries="vault.entries"
       :selected-id="selectedId"
       title="All Items"
+      show-type-filter
       @select="onSelect"
     />
 
