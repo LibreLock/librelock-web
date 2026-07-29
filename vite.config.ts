@@ -44,7 +44,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Static shell only — never cache or serve API responses (auth cookies, encrypted blobs)
+        // Static shell only, never cache or serve API responses (auth cookies, encrypted blobs)
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],

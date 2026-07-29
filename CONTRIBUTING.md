@@ -47,7 +47,7 @@ Before making changes, understand the cryptographic model described in this [REA
   Never write it to `localStorage` or persisted Pinia state
 - **Avoid `v-html`, `innerHTML`, and `eval`**
   <br>
-  Vault contents are user-controlled and rendered without sanitization elsewhere — keep it that way by sticking to text bindings
+  Vault contents are user-controlled and rendered without sanitization elsewhere - keep it that way by sticking to text bindings
 
 ## Submitting a pull request
 
