@@ -3,9 +3,16 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import SettingsAccountTab from './SettingsAccountTab.vue'
 import SettingsSessionsTab from './SettingsSessionsTab.vue'
+import SettingsAboutTab from './SettingsAboutTab.vue'
 
-const TABS = ['account', 'sessions'] as const
+const TABS = ['account', 'sessions', 'about'] as const
 type Tab = (typeof TABS)[number]
+
+const TAB_LABELS: Record<Tab, string> = {
+  account: 'Account',
+  sessions: 'Sessions',
+  about: 'About',
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -30,33 +37,24 @@ function onTabChange(tab: Tab) {
         class="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-gray-200 dark:border-gray-700 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         <button
+          v-for="tab in TABS"
+          :key="tab"
           type="button"
           class="shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px"
           :class="
-            activeTab === 'account'
+            activeTab === tab
               ? 'border-gray-800 dark:border-gray-100 text-gray-900 dark:text-gray-100'
               : 'border-transparent text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           "
-          @click="onTabChange('account')"
+          @click="onTabChange(tab)"
         >
-          Account
-        </button>
-        <button
-          type="button"
-          class="shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px"
-          :class="
-            activeTab === 'sessions'
-              ? 'border-gray-800 dark:border-gray-100 text-gray-900 dark:text-gray-100'
-              : 'border-transparent text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          "
-          @click="onTabChange('sessions')"
-        >
-          Sessions
+          {{ TAB_LABELS[tab] }}
         </button>
       </div>
 
       <SettingsAccountTab v-if="activeTab === 'account'" />
       <SettingsSessionsTab v-if="activeTab === 'sessions'" />
+      <SettingsAboutTab v-if="activeTab === 'about'" />
     </div>
   </div>
 </template>

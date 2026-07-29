@@ -1,6 +1,9 @@
 export const APP_NAME = 'LibreLock'
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 
+// Version of this bundle; the server reports its own via GET /version
+export const APP_VERSION = __APP_VERSION__
+
 export const DB_NAME = 'librelock'
 export const STORE = 'session'
 export const KEY_ID = 'vault_key'
