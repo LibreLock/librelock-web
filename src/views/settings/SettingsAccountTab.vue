@@ -573,7 +573,7 @@ async function confirmDeleteAccount() {
           >
             <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Delete account?</h3>
             <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-              This permanently deletes your account and <strong>all associated data</strong> —
+              This permanently deletes your account and <strong>all associated data</strong> -
               passwords, cards, notes, and categories. This action
               <strong>cannot be undone</strong>.
             </p>

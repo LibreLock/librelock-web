@@ -41,7 +41,7 @@ const scoreColor = computed(() => {
 })
 
 const scoreLabel = computed(() => {
-  if (safetyScore.value >= 80) return 'Good'
+  if (safetyScore.value >= 80) return 'Well protected'
   if (safetyScore.value >= 50) return 'Needs attention'
   return 'At risk'
 })
@@ -85,7 +85,7 @@ const sections = computed(() => [
 ])
 
 // Only surface a card when it has issues (or is still being checked)
-// A section with zero entries and nothing pending is a clean result — hide it entirely
+// A section with zero entries and nothing pending is a clean result - hide it entirely
 const visibleSections = computed(() =>
   sections.value.filter((s) => s.entries.length > 0 || s.pending),
 )
@@ -162,13 +162,17 @@ const visibleSections = computed(() =>
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center">
               <span class="text-3xl font-bold text-gray-900 dark:text-gray-100"
-                >{{ safetyScore }}%</span
+                >{{ safetyScore }}<span class="text-xl">%</span></span
               >
-              <span class="text-xs font-medium" :class="scoreColor">{{ scoreLabel }}</span>
+              <span class="mt-0.5 text-[11px] font-medium text-gray-400">Security score</span>
             </div>
           </div>
 
           <div class="flex-1 w-full">
+            <p class="mb-1 text-lg font-semibold" :class="scoreColor">{{ scoreLabel }}</p>
+            <p class="mb-3 text-xs text-gray-400">
+
+            </p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
                 <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
@@ -200,7 +204,6 @@ const visibleSections = computed(() =>
               Checking breaches… {{ breachProgress }}/{{ breachTotal }}
             </p>
 
-            <!-- All clear: nothing has issues and nothing is still checking. -->
             <div
               v-else-if="visibleSections.length === 0"
               class="mt-3 flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400"
@@ -213,7 +216,7 @@ const visibleSections = computed(() =>
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              No breached, reused, or weak passwords found.
+              No breached, reused, or weak passwords found
             </div>
           </div>
         </div>
@@ -286,7 +289,7 @@ const visibleSections = computed(() =>
         <!-- Generator -->
         <div class="mt-8">
           <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Password Generator</h2>
-          <p class="mt-1 mb-6 text-sm text-gray-400">Generate strong, unique passwords.</p>
+          <p class="mt-1 mb-6 text-sm text-gray-400">Generate strong, unique passwords</p>
           <PasswordGeneratorCard />
         </div>
       </template>

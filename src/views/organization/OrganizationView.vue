@@ -7,8 +7,9 @@ import OrgUsersTab from './OrgUsersTab.vue'
 import OrgInvitesTab from './OrgInvitesTab.vue'
 import OrgManagementTab from './OrgManagementTab.vue'
 import OrgAuditTab from './OrgAuditTab.vue'
+import OrgExportTab from './OrgExportTab.vue'
 
-type Tab = 'users' | 'invites' | 'customization' | 'management' | 'audit'
+type Tab = 'users' | 'invites' | 'customization' | 'export' | 'management' | 'audit'
 
 const org = useOrganizationStore()
 const route = useRoute()
@@ -17,8 +18,8 @@ const router = useRouter()
 // Invites tab only exists in invite-only registration mode
 const tabs = computed<Tab[]>(() =>
   org.registration === 'invite'
-    ? ['users', 'invites', 'customization', 'audit', 'management']
-    : ['users', 'customization', 'audit', 'management'],
+    ? ['users', 'invites', 'customization', 'export', 'audit', 'management']
+    : ['users', 'customization', 'export', 'audit', 'management'],
 )
 
 const activeTab = computed<Tab>(() => {
@@ -34,6 +35,7 @@ const tabLabels: Record<Tab, string> = {
   users: 'Users',
   invites: 'Invites',
   customization: 'Customization',
+  export: 'Export & Import',
   management: 'Management',
   audit: 'Audit log',
 }
@@ -67,6 +69,7 @@ const tabLabels: Record<Tab, string> = {
       <OrgUsersTab v-if="activeTab === 'users'" />
       <OrgInvitesTab v-if="activeTab === 'invites'" />
       <OrgCustomizationTab v-if="activeTab === 'customization'" />
+      <OrgExportTab v-if="activeTab === 'export'" />
       <OrgManagementTab v-if="activeTab === 'management'" />
       <OrgAuditTab v-if="activeTab === 'audit'" />
     </div>
