@@ -5,7 +5,8 @@ import { apiRequest } from '@/services/api'
 import { API_BASE_URL, APP_NAME } from '@/constants'
 
 export type AppMode = 'personal' | 'organization'
-export type RegistrationPolicy = 'open' | 'invite'
+// 'invite' is organization-only; 'closed' is personal-only (no invites exist there)
+export type RegistrationPolicy = 'open' | 'invite' | 'closed'
 
 export interface Organization {
   name: string
@@ -68,10 +69,20 @@ export const useOrganizationStore = defineStore('organization', () => {
     }
   }
 
-  async function switchToOrganization() {
+  // Password-confirmed: the caller becomes owner over every other account on the instance
+  async function switchToOrganization(authCredential: string) {
     await apiRequest('/settings/mode', {
       method: 'PUT',
-      body: JSON.stringify({ mode: 'organization' }),
+      body: JSON.stringify({ mode: 'organization', auth_credential: authCredential }),
+    })
+    await load()
+  }
+
+  // Personal mode: open or close sign-up for additional accounts on this instance
+  async function setPersonalRegistration(open: boolean) {
+    await apiRequest('/settings/registration', {
+      method: 'PUT',
+      body: JSON.stringify({ open }),
     })
     await load()
   }
@@ -119,6 +130,7 @@ export const useOrganizationStore = defineStore('organization', () => {
     apply,
     load,
     switchToOrganization,
+    setPersonalRegistration,
     revertToPersonal,
     setRegistration,
     setAutoGrantShared,

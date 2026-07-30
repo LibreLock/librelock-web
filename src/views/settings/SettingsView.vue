@@ -2,15 +2,18 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import SettingsAccountTab from './SettingsAccountTab.vue'
+import SettingsInstanceTab from './SettingsInstanceTab.vue'
 import SettingsSessionsTab from './SettingsSessionsTab.vue'
 import SettingsExportTab from './SettingsExportTab.vue'
 import SettingsAboutTab from './SettingsAboutTab.vue'
+import { useOrganizationStore } from '@/stores/organization'
 
-const TABS = ['account', 'sessions', 'export', 'about'] as const
-type Tab = (typeof TABS)[number]
+const ALL_TABS = ['account', 'instance', 'sessions', 'export', 'about'] as const
+type Tab = (typeof ALL_TABS)[number]
 
 const TAB_LABELS: Record<Tab, string> = {
   account: 'Account',
+  instance: 'Instance',
   sessions: 'Sessions',
   export: 'Export & Import',
   about: 'About',
@@ -18,10 +21,14 @@ const TAB_LABELS: Record<Tab, string> = {
 
 const route = useRoute()
 const router = useRouter()
+const org = useOrganizationStore()
+
+// Instance-wide settings are personal-mode only; organization instances manage the equivalents from the Organization area
+const tabs = computed(() => ALL_TABS.filter((tab) => tab !== 'instance' || !org.isOrganization))
 
 const activeTab = computed<Tab>(() => {
   const hash = route.hash.slice(1)
-  return (TABS as readonly string[]).includes(hash) ? (hash as Tab) : 'account'
+  return (tabs.value as readonly string[]).includes(hash) ? (hash as Tab) : 'account'
 })
 
 function onTabChange(tab: Tab) {
@@ -39,7 +46,7 @@ function onTabChange(tab: Tab) {
         class="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-gray-200 dark:border-gray-700 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         <button
-          v-for="tab in TABS"
+          v-for="tab in tabs"
           :key="tab"
           type="button"
           class="shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px"
@@ -55,6 +62,7 @@ function onTabChange(tab: Tab) {
       </div>
 
       <SettingsAccountTab v-if="activeTab === 'account'" />
+      <SettingsInstanceTab v-if="activeTab === 'instance'" />
       <SettingsSessionsTab v-if="activeTab === 'sessions'" />
       <SettingsExportTab v-if="activeTab === 'export'" />
       <SettingsAboutTab v-if="activeTab === 'about'" />

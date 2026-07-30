@@ -16,6 +16,9 @@ const route = useRoute()
 // Invite-only registration: token comes from the ?invite= link or manual entry
 const inviteRequired = computed(() => org.isOrganization && org.registration === 'invite')
 
+// Personal instance whose owner has not opened sign-up: the form would only ever 403
+const signUpClosed = computed(() => !org.isOrganization && org.registration === 'closed')
+
 const form = reactive({
   username: '',
   password: '',
@@ -25,6 +28,9 @@ const form = reactive({
 
 onMounted(() => {
   auth.clearError()
+  // Refetch: the store is loaded once at app start, so a tab left open here would still show the
+  // sign-up state from before the operator changed it
+  org.load()
   const q = route.query.invite
   if (typeof q === 'string') form.inviteToken = q
 })
@@ -101,7 +107,25 @@ async function handleSubmit() {
     >
       <h1 class="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Create account</h1>
 
-      <form class="space-y-4" @submit.prevent="handleSubmit">
+      <!-- Wait for the instance state before deciding: the fallback is "open", so rendering early would flash the form on a closed instance -->
+      <div v-if="!org.loaded" class="flex justify-center py-6">
+        <LoadingSpinner />
+      </div>
+
+      <div v-else-if="signUpClosed" class="space-y-4">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          This instance is not accepting new accounts. Ask whoever runs it to allow sign-up from
+          their settings.
+        </p>
+        <RouterLink
+          to="/login"
+          class="inline-block rounded-md bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 text-sm font-semibold transition-colors"
+        >
+          Back to login
+        </RouterLink>
+      </div>
+
+      <form v-else class="space-y-4" @submit.prevent="handleSubmit">
         <div v-if="inviteRequired">
           <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
             >Invite code</label
@@ -268,7 +292,7 @@ async function handleSubmit() {
         </button>
       </form>
 
-      <p class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+      <p v-if="!signUpClosed" class="mt-4 text-sm text-gray-600 dark:text-gray-400">
         Already have an account?
         <RouterLink to="/login" class="text-blue-600 dark:text-blue-400 font-semibold"
           >Log in</RouterLink
