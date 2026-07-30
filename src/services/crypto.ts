@@ -203,7 +203,8 @@ export async function unwrapPrivateKey(
   const iv = combined.slice(0, 12)
   const ciphertext = combined.slice(12)
   const pkcs8 = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, wrappingKey, ciphertext)
-  return crypto.subtle.importKey('pkcs8', pkcs8, { name: 'RSA-OAEP', hash: 'SHA-256' }, false, [
+  // Extractable so the keystore can re-wrap it under the tab's session secret before it touches disk; the vault and org keys are extractable for the same reason
+  return crypto.subtle.importKey('pkcs8', pkcs8, { name: 'RSA-OAEP', hash: 'SHA-256' }, true, [
     'decrypt',
   ])
 }

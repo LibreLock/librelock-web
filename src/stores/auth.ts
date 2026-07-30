@@ -45,7 +45,14 @@ import { useOrgCategoriesStore } from '@/stores/orgCategories'
 import { useVaultStore } from '@/stores/vault'
 import { useOrgVaultStore } from '@/stores/orgVault'
 import { useThemeStore } from '@/stores/theme'
-import { DEFAULT_CATEGORIES, KDF_ITER, KDF_MEMORY, KDF_PARALLELISM } from '@/constants'
+import {
+  DEFAULT_CATEGORIES,
+  KDF_ALGO,
+  KDF_ITER,
+  KDF_MEMORY,
+  KDF_PARALLELISM,
+  KDF_SALT_HEX_LENGTH,
+} from '@/constants'
 
 export { getVaultKey }
 
@@ -126,9 +133,31 @@ export async function loadOrgKeyFromServer(): Promise<void> {
   }
 }
 
+// The server is not trusted to pick these
+//
+// It returns the parameters the client derives its auth credential under, so a hostile one could answer with iter: 1 / memory: 8192, take delivery of a credential cheap to crack offline, and recover the master password that unlocks the vault
+// Self-hosting puts the server inside the threat model, so anything below what this client would choose for itself is refused
+// Unknown usernames get plausible parameters from the server, so this never fires as a side effect of a typo
+function assertKdfFloor(data: KdfResponse): void {
+  const salt = data.kdf_salt ?? ''
+  const safe =
+    data.kdf_algo === KDF_ALGO &&
+    /^[0-9a-f]+$/i.test(salt) &&
+    salt.length >= KDF_SALT_HEX_LENGTH &&
+    data.kdf_iter >= KDF_ITER &&
+    data.kdf_memory >= KDF_MEMORY &&
+    data.kdf_parallelism >= 1
+  if (!safe) {
+    throw new Error(
+      'The server returned unsafe key-derivation settings. Sign-in was stopped to protect your master password.',
+    )
+  }
+}
+
 export async function fetchKdfParams(username: string): Promise<KdfParams> {
   const data = await apiRequest<KdfResponse>(`/auth/kdf?username=${encodeURIComponent(username)}`)
   if (!data) throw new Error('No KDF params returned.')
+  assertKdfFloor(data)
   return {
     kdfSalt: data.kdf_salt,
     kdfIter: data.kdf_iter,
@@ -164,7 +193,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (user.value) useThemeStore().adopt(user.value.theme)
 
       // Restore vault key from IndexedDB if session cookie is still valid
-      // If no key is found (new tab, or sessionStorage flag missing), ask other tabs before giving up
+      // If no key is found (new tab, or the session secret is gone), ask other tabs before giving up
       // Don't touch the server session; other tabs may still use it
       if (user.value && !getVaultKey()) {
         const key = await loadSessionKey()

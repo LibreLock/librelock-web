@@ -9,12 +9,15 @@ export const STORE = 'session'
 export const KEY_ID = 'vault_key'
 export const PRIVATE_KEY_ID = 'private_key'
 export const ORG_KEY_ID = 'org_key'
-export const SESSION_FLAG = 'vault_unlocked'
+// Per-tab random key that every stored key is wrapped under; dies with the tab, taking the usefulness of anything left in IndexedDB with it
+export const SESSION_SECRET = 'vault_session_key'
 
 export const KDF_ALGO = 'argon2id'
 export const KDF_ITER = 4
 export const KDF_MEMORY = 65536 // 64 MB
 export const KDF_PARALLELISM = 4
+// 32 random bytes, hex encoded - the length generateKdfSalt() produces and the minimum accepted from the server
+export const KDF_SALT_HEX_LENGTH = 64
 
 export const MIN_PASSWORD_LENGTH = 12
 export const MAX_PASSWORD_LENGTH = 10000
