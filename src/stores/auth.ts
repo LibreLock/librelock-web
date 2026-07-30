@@ -135,9 +135,8 @@ export async function loadOrgKeyFromServer(): Promise<void> {
 
 // The server is not trusted to pick these
 //
-// It returns the parameters the client derives its auth credential under, so a hostile one could answer with iter: 1 / memory: 8192, take delivery of a credential cheap to crack offline, and recover the master password that unlocks the vault
-// Self-hosting puts the server inside the threat model, so anything below what this client would choose for itself is refused
-// Unknown usernames get plausible parameters from the server, so this never fires as a side effect of a typo
+// It returns the parameters the client derives its auth credential under, so a hostile one could answer with iter: 1 / memory: 8192 and collect a credential cheap to crack offline
+// Unknown usernames get plausible parameters, so this never fires as a side effect of a typo
 function assertKdfFloor(data: KdfResponse): void {
   const salt = data.kdf_salt ?? ''
   const safe =

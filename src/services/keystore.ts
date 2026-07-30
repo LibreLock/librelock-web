@@ -105,8 +105,8 @@ function sessionKey(secret: Uint8Array<ArrayBuffer>): Promise<CryptoKey> {
 }
 
 async function putWrapped(id: string, key: CryptoKey, format: 'raw' | 'pkcs8'): Promise<void> {
-  // saveSessionKey is the only thing that creates the secret
-  // Minting one here would re-key the store mid-session and orphan whatever was written under the old secret, so treat a missing one as "no session open" and write nothing
+  // Only saveSessionKey creates the secret
+  // Minting one here would re-key the store mid-session and orphan what was written under the old one, so a missing secret means no session and nothing to write
   const secret = readSessionSecret()
   if (!secret) return
 
