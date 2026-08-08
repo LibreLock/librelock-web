@@ -1,0 +1,42 @@
+# Rendered at container start by the nginx image's envsubst entrypoint.
+# Only variables exported in the container are substituted, so nginx's own
+# $host / $remote_addr / $uri survive untouched.
+#   WEB_PORT     - port nginx listens on inside the container (default 1401)
+#   API_UPSTREAM - where /api is proxied to (default http://api:8000)
+
+server {
+    listen ${WEB_PORT};
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # The API rejects anything larger itself; fail fast here
+    client_max_body_size 2m;
+
+    # Same-origin API. The trailing slash on proxy_pass strips the /api prefix,
+    # so /api/auth/login reaches the backend as /auth/login.
+    # The API sets its own security headers, so none are added here
+    location /api/ {
+        proxy_pass ${API_UPSTREAM}/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        # connect-src is 'self' only: the API is proxied under /api on this same origin.
+        # pwnedpasswords is the k-anonymity breach check, the one cross-origin call the app makes
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.pwnedpasswords.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" always;
+    }
+}

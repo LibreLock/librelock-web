@@ -1,5 +1,8 @@
 export const APP_NAME = 'LibreLock'
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
+// Same-origin by default: the dev server and the production nginx image both proxy /api to the backend, which keeps cookies first-party and CORS out of the picture
+// Set VITE_API_BASE_URL at build time only when the API is served from a different origin
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+export const API_BASE_URL = configuredApiBaseUrl ? configuredApiBaseUrl : '/api'
 
 // Version of this bundle; the server reports its own via GET /version
 export const APP_VERSION = __APP_VERSION__

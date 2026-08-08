@@ -6,14 +6,17 @@ import { APP_NAME, APP_VERSION } from '@/constants'
 const serverVersion = ref<string | null>(null)
 const loading = ref(true)
 
-// App and server are built and deployed separately, so they can drift - an upgraded API behind a
-// stale cached bundle is the case worth surfacing. `dev` means an unreleased local build, so it
-// never counts as a mismatch
+// One release tags both the app and the server, so normally there is a single version to show.
+// They are still deployed as two containers and can drift - an upgraded API behind a stale cached
+// bundle is the case worth surfacing. `dev` means an unreleased local build, never a mismatch
 const mismatch = computed(() => {
   const remote = serverVersion.value
   if (!remote || remote === 'dev' || APP_VERSION === 'dev') return false
   return remote !== APP_VERSION
 })
+
+// Split the two apart only when they disagree or the server cannot be reached
+const unified = computed(() => !loading.value && !mismatch.value && serverVersion.value !== null)
 
 onMounted(async () => {
   try {
@@ -33,25 +36,32 @@ onMounted(async () => {
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">About</h2>
-        <p class="mt-0.5 text-sm text-gray-400">Versions running on this installation</p>
+        <p class="mt-0.5 text-sm text-gray-400">Version running on this installation</p>
       </div>
 
       <hr class="mt-3 border-gray-100 dark:border-gray-700" />
 
       <dl class="px-4 sm:px-6 py-5 space-y-3 text-sm">
-        <div class="flex items-baseline justify-between gap-4">
+        <div v-if="unified" class="flex items-baseline justify-between gap-4">
           <dt class="text-gray-500 dark:text-gray-400">{{ APP_NAME }}</dt>
-          <dd class="font-medium text-gray-900 dark:text-gray-100">v{{ APP_VERSION }}</dd>
+          <dd class="font-medium text-gray-900 dark:text-gray-100">{{ APP_VERSION }}</dd>
         </div>
 
-        <div class="flex items-baseline justify-between gap-4">
-          <dt class="text-gray-500 dark:text-gray-400">Server</dt>
-          <dd class="font-medium text-gray-900 dark:text-gray-100">
-            <span v-if="loading" class="text-gray-400">Checking…</span>
-            <span v-else-if="!serverVersion" class="text-gray-400">Unavailable</span>
-            <span v-else>v{{ serverVersion }}</span>
-          </dd>
-        </div>
+        <template v-else>
+          <div class="flex items-baseline justify-between gap-4">
+            <dt class="text-gray-500 dark:text-gray-400">App</dt>
+            <dd class="font-medium text-gray-900 dark:text-gray-100">{{ APP_VERSION }}</dd>
+          </div>
+
+          <div class="flex items-baseline justify-between gap-4">
+            <dt class="text-gray-500 dark:text-gray-400">Server</dt>
+            <dd class="font-medium text-gray-900 dark:text-gray-100">
+              <span v-if="loading" class="text-gray-400">Checking…</span>
+              <span v-else-if="!serverVersion" class="text-gray-400">Unavailable</span>
+              <span v-else>{{ serverVersion }}</span>
+            </dd>
+          </div>
+        </template>
       </dl>
 
       <div v-if="mismatch" class="px-4 sm:px-6 pb-5">

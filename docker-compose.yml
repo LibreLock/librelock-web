@@ -1,8 +1,15 @@
+# Frontend only, for working on librelock-web against an API you already run
+# For a full instance use the one-command stack in https://github.com/LibreLock/.github
 services:
   web:
     build:
       context: .
       args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+        APP_VERSION: ${APP_VERSION:-dev}
     ports:
-      - "1401:1401"
+      - "${WEB_PORT:-1401}:1401"
+    environment:
+      # Where /api is proxied. Defaults to a server running on the Docker host
+      API_UPSTREAM: ${API_UPSTREAM:-http://host.docker.internal:8000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

@@ -12,7 +12,7 @@ npm install
 npm run dev
 ```
 
-The dev server runs on [localhost:1401](http://localhost:1401) and expects the API at `http://localhost:8000/` (can be overridden with the `VITE_API_BASE_URL` env var)
+The dev server runs on [localhost:1401](http://localhost:1401) (`WEB_PORT`) and proxies `/api` to `http://localhost:8000` (`API_UPSTREAM`), so the frontend and the API share one origin in development just as they do in production. `VITE_API_BASE_URL` overrides the base URL at build time and is only for deployments that serve the API from another origin.
 
 ## Running tests
 
@@ -24,6 +24,16 @@ npm run test:unit
 npm run build
 npx playwright install
 npm run test:e2e
+```
+
+## Releases
+
+Pushing a `v*` tag runs `.github/workflows/publish.yml`, which builds `linux/amd64` + `linux/arm64` and pushes `ghcr.io/librelock/librelock-web` as `1.2.3`, `1.2`, `1`; pushes to `main` publish `latest` and `main-<sha>`.
+
+The version is never written down in the repository - `package.json` stays at `0.0.0` and any build without `APP_VERSION` reports `dev`. The git tag is the only source of truth, and the same tag goes on [librelock-server](https://github.com/LibreLock/librelock-server), so LibreLock has one version number. Tag both with [`release.sh`](https://github.com/LibreLock/.github/blob/main/release.sh):
+
+```bash
+./release.sh 0.1.0
 ```
 
 ## Code style
