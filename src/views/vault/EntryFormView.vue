@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEntries } from '@/composables/useEntries'
 import type { VaultEntry } from '@/api/vault'
@@ -232,6 +232,17 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+function handleSaveShortcut(e: KeyboardEvent) {
+  if (e.key !== 'Enter' || !(e.ctrlKey || e.metaKey)) return
+  if (isLoading.value || isSubmitting.value || showDeleteConfirm.value) return
+  e.preventDefault()
+  e.stopPropagation()
+  handleSubmit()
+}
+
+onMounted(() => window.addEventListener('keydown', handleSaveShortcut, true))
+onBeforeUnmount(() => window.removeEventListener('keydown', handleSaveShortcut, true))
 
 function switchType(type: EntryType) {
   entryType.value = type
