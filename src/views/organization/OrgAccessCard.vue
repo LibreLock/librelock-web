@@ -79,9 +79,9 @@ async function toggleAutoGrant() {
             <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Public sign-up</p>
           </div>
           <p class="mt-1 text-xs text-gray-400">
-            Off means the instance is invite-only (recommended, default). New users will need a
-            single-use link generated in the Invites tab. When this setting is on, anyone who can
-            reach this instancecan create an account.
+            Off means the instance is invite-only (recommended, default).
+            New users will need a single-use link generated in the Invites tab.
+            When this setting is on, anyone who can reach this instance can create an account.
           </p>
         </div>
 
@@ -100,9 +100,8 @@ async function toggleAutoGrant() {
             Auto-grant shared vault
           </p>
           <p class="mt-1 text-xs text-gray-400">
-            New members receive shared-vault access automatically. Because the vault is end-to-end
-            encrypted, access is applied the next time an admin who holds the shared key opens the
-            Users tab, not instantly at sign-up.
+            New members receive shared-vault access automatically.
+            Because the vault is end-to-end encrypted, access is applied the next time an admin who holds the shared key opens the Users tab, not instantly at sign-up.
           </p>
         </div>
 
@@ -130,9 +129,8 @@ async function toggleAutoGrant() {
           </h3>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Anyone who can reach this instance will be able to create an account without an invite.
-            On a publicly reachable server this can let strangers join your organization. Only
-            enable this if the instance is on a trusted, restricted network or you intend open
-            enrollment.
+            On a publicly reachable server this can let strangers join your organization.
+            Only enable this if the instance is on a trusted, restricted network or you intend open enrollment.
           </p>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
             You can switch back to invite-only at any time.

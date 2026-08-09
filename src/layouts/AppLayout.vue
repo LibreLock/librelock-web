@@ -4,10 +4,12 @@ import { useRoute, useRouter } from 'vue-router'
 import AppBottomNav from '@/components/AppBottomNav.vue'
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppTopbar from '@/components/AppTopbar.vue'
+import { useAppViewport } from '@/composables/useAppViewport'
 import { useThemeStore } from '@/stores/theme'
 import { useVaultStore } from '@/stores/vault'
 
 useThemeStore()
+useAppViewport()
 
 // Routes with their own searchable entry list (via VaultEntrySidebar) filter in place; entry forms are left alone so typing a search doesn't blow away an in-progress edit
 // Everywhere else (security, settings, organization, ...) has no results to show, so send the user to the vault view where they can actually see matches
@@ -41,7 +43,12 @@ watch(
 </script>
 
 <template>
-  <div class="flex h-dvh bg-gray-50 dark:bg-gray-950">
+  <!-- Pinned to the visual viewport (see useAppViewport) so the topbar and bottom nav stay put
+       in an installed PWA, keyboard open or not; h-dvh is the pre-hydration fallback -->
+  <div
+    class="fixed inset-x-0 flex h-dvh overflow-hidden bg-gray-50 dark:bg-gray-950 pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
+    :style="{ top: 'var(--app-offset-top, 0px)', height: 'var(--app-height, 100dvh)' }"
+  >
     <AppSidebar />
     <div class="flex min-w-0 flex-1 flex-col">
       <AppTopbar />

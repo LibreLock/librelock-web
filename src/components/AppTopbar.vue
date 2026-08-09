@@ -44,7 +44,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 
 <template>
   <header
-    class="flex h-14 shrink-0 items-center gap-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 sm:gap-4 sm:px-4"
+    class="flex h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 items-center gap-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 pt-[env(safe-area-inset-top)] sm:gap-4 sm:px-4"
   >
     <!-- The sidebar (and its logo) is hidden on mobile, so show the brand here -->
     <RouterLink to="/" class="shrink-0 md:hidden" aria-label="Home">

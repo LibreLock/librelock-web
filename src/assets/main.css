@@ -1,6 +1,15 @@
 @import 'tailwindcss';
 
-@variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* The app shell owns all scrolling (each view scrolls internally). Locking the document keeps the
+   installed PWA from scrolling its topbar/bottom nav out of view on input focus or overscroll. */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
 
 :root {
   --scrollbar-thumb: var(--color-gray-300);

@@ -16,6 +16,7 @@
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
     "generate:sitemap": "node scripts/sitemap.ts",
+    "generate:icons": "node scripts/generate-icons.ts",
     "prebuild": "npm run generate:sitemap"
   },
   "dependencies": {

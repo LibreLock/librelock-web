@@ -41,11 +41,18 @@ export default defineConfig({
         description: 'End-to-end encrypted password manager',
         start_url: '/',
         display: 'standalone',
-        background_color: '#ffffff',
-        theme_color: '#1a1c1e',
+        // Matches the dark shell theme-init.js defaults to, so the splash doesn't flash white
+        background_color: '#030712',
+        theme_color: '#030712',
         icons: [
-          { src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          {
+            src: '/pwa-maskable-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
           {
             src: '/pwa-maskable-512x512.png',
             sizes: '512x512',
