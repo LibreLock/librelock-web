@@ -193,7 +193,6 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Restore vault key from IndexedDB if session cookie is still valid
       // If no key is found (new tab, or the session secret is gone), ask other tabs before giving up
-      // Don't touch the server session; other tabs may still use it
       if (user.value && !getVaultKey()) {
         const key = await loadSessionKey()
         setVaultKey(key)
@@ -202,27 +201,17 @@ export const useAuthStore = defineStore('auth', () => {
           setPrivateKey(await loadPrivateKey())
           setOrgKey(await loadStoredOrgKey())
         } else {
-          const synced = await requestKeyFromTabs()
+          // Quick ask first, so a tab that will never answer doesn't hold up the login screen
+          // Then, only on the path that would end the session for the whole browser, a longer one: a backgrounded tab holding the keys can be slow, and killing its session would be worse than the second of delay paid on the way to login
+          const synced = (await requestKeyFromTabs()) ?? (await requestKeyFromTabs(2000))
           if (synced) {
-            setVaultKey(synced.key)
-            setPrivateKey(synced.privateKey ?? null)
-            setOrgKey(synced.orgKey ?? null)
-            await saveSessionKey(synced.key)
-            if (synced.privateKey) await savePrivateKey(synced.privateKey)
-            if (synced.orgKey) await saveOrgKey(synced.orgKey)
-            user.value = synced.user as AuthUser
-            status.value = 'authenticated'
+            await receiveTabAuth(synced, synced.user)
             return user.value
           }
-          setVaultKey(null)
-          setPrivateKey(null)
-          setOrgKey(null)
-          useCategoriesStore().clear()
-          useOrgCategoriesStore().clear()
-          useVaultStore().clear()
-          useOrgVaultStore().clear()
-          user.value = null
-          status.value = 'anonymous'
+          // The cookie outlived every key: the tab that opened this session is gone and no other tab answered, so nothing in this browser can decrypt anything with it
+          // End it server-side too, or it lingers in the user's session list until TTL and the next sign-in shows two
+          // No broadcast: any tab that could have claimed it would have answered the key request
+          await logOut(false)
           return null
         }
       }
@@ -349,6 +338,7 @@ export const useAuthStore = defineStore('auth', () => {
       setOrgKey(null)
       await clearSessionKey()
       useCategoriesStore().clear()
+      useOrgCategoriesStore().clear()
       useVaultStore().clear()
       useOrgVaultStore().clear()
       user.value = null

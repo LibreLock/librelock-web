@@ -39,7 +39,9 @@ export function listenTabSync(handler: (msg: TabSyncMessage) => void): () => voi
   return () => channel.removeEventListener('message', listener)
 }
 
-export function requestKeyFromTabs(): Promise<(TabSyncKeys & { user: TabSyncUser }) | null> {
+export function requestKeyFromTabs(
+  timeoutMs = 500,
+): Promise<(TabSyncKeys & { user: TabSyncUser }) | null> {
   return new Promise((resolve) => {
     const off = listenTabSync((msg) => {
       if (msg.type === 'key-response') {
@@ -51,7 +53,7 @@ export function requestKeyFromTabs(): Promise<(TabSyncKeys & { user: TabSyncUser
     const timer = setTimeout(() => {
       off()
       resolve(null)
-    }, 500)
+    }, timeoutMs)
     channel.postMessage({ type: 'request-key' })
   })
 }
