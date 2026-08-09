@@ -13,7 +13,7 @@ const vault = useEntries()
 
 // Scope: audit everything, or split personal vault vs. organization shared vault
 // Only shown once the user actually has org access
-const scope = ref<SecurityScope>('all')
+const scope = ref<SecurityScope>('personal')
 const {
   passwords,
   reused,
@@ -107,7 +107,7 @@ const visibleSections = computed(() =>
           class="flex w-fit gap-1 rounded-lg bg-gray-100 dark:bg-gray-800 p-1 shrink-0"
         >
           <button
-            v-for="option in ['all', 'personal', 'organization'] as const"
+            v-for="option in ['personal', 'organization'] as const"
             :key="option"
             type="button"
             class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer"
@@ -118,7 +118,7 @@ const visibleSections = computed(() =>
             "
             @click="scope = option"
           >
-            {{ option === 'all' ? 'All' : option === 'personal' ? 'Personal' : 'Organization' }}
+            {{ option === 'personal' ? 'Personal' : 'Organization' }}
           </button>
         </div>
       </div>

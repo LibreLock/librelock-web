@@ -5,7 +5,7 @@ import type { VaultPassword } from '@/api/vault'
 
 export const WEAK_THRESHOLD = 7 // below "Strong" on the 0-10 strength scale
 
-export type SecurityScope = 'all' | 'personal' | 'organization'
+export type SecurityScope = 'personal' | 'organization'
 
 // Session-level cache so revisiting the Security Center doesn't re-query HIBP for passwords already checked
 // Keyed by the password itself; it never leaves the client (only the SHA-1 prefix does, inside checkPasswordBreach)
@@ -13,7 +13,7 @@ const breachCache = new Map<string, boolean>()
 
 const BREACH_CONCURRENCY = 4
 
-export function useSecurityAudit(scope: Ref<SecurityScope> = ref('all')) {
+export function useSecurityAudit(scope: Ref<SecurityScope> = ref('personal')) {
   const vault = useEntries()
 
   // Scoped to personal-only or organization-only entries when requested; breach scanning still covers everything so toggling scope never re-queries HIBP
