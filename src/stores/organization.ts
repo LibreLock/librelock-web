@@ -33,7 +33,13 @@ export const useOrganizationStore = defineStore('organization', () => {
   const hasLogo = computed(() => org.value?.has_logo ?? false)
   const mode = computed<AppMode>(() => org.value?.mode ?? 'personal')
   const isOrganization = computed(() => mode.value === 'organization')
-  const registration = computed<RegistrationPolicy>(() => org.value?.registration ?? 'open')
+  // Public sign-up is off until the server says otherwise: this is read before /organization answers (and if it never does), and the safe guess is the closed one - it hides a link rather than advertising a form nobody can submit
+  const defaultRegistration = computed<RegistrationPolicy>(() =>
+    mode.value === 'organization' ? 'invite' : 'closed',
+  )
+  const registration = computed<RegistrationPolicy>(
+    () => org.value?.registration ?? defaultRegistration.value,
+  )
   const autoGrantShared = computed(() => org.value?.auto_grant_shared ?? false)
   const supportEmail = computed(() => org.value?.support_email?.trim() || '')
   const supportUrl = computed(() => org.value?.support_url?.trim() || '')
@@ -49,10 +55,15 @@ export const useOrganizationStore = defineStore('organization', () => {
   function apply(next: Organization) {
     // Never let a partial payload drop mode/registration (would hide the Organization UI); fall back to the previous values, then defaults
     const prev = org.value
+    const nextMode = next.mode ?? prev?.mode ?? 'personal'
     org.value = {
       ...next,
-      mode: next.mode ?? prev?.mode ?? 'personal',
-      registration: next.registration ?? prev?.registration ?? 'open',
+      mode: nextMode,
+      // A payload that omits the policy must not read as open sign-up
+      registration:
+        next.registration ??
+        prev?.registration ??
+        (nextMode === 'organization' ? 'invite' : 'closed'),
     }
     loaded.value = true
     document.title = APP_NAME

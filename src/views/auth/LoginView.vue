@@ -33,8 +33,9 @@ const redirectPath = computed(() => {
   return typeof redirect === 'string' && redirect.trim() ? redirect : '/'
 })
 
-// Personal instance with sign-up switched off: don't offer a link to a form that cannot succeed
-const signUpClosed = computed(() => !org.isOrganization && org.registration === 'closed')
+// Only an instance with public sign-up advertises the form
+// Personal: switched off by the owner ('closed'). Organization: invite-only, where the link would lead to a form nobody can submit without a token - invited people arrive on the ?invite= link instead
+const publicSignUp = computed(() => org.registration === 'open')
 
 // True when a 401 bounced the user here
 // Lives in the auth store (in-memory), so a manual refresh clears it
@@ -155,7 +156,7 @@ async function handleSubmit() {
         </button>
       </form>
 
-      <p v-if="!signUpClosed" class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+      <p v-if="publicSignUp" class="mt-4 text-sm text-gray-600 dark:text-gray-400">
         No account?
         <RouterLink to="/register" class="text-blue-600 dark:text-blue-400 font-semibold"
           >Create one</RouterLink
