@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
-import { ApiError, apiRequest } from '@/services/api'
+import { ApiError, NetworkError, apiRequest } from '@/services/api'
 import {
   deriveKeys,
   encryptString,
@@ -185,7 +185,9 @@ export const useAuthStore = defineStore('auth', () => {
 
     status.value = 'loading'
     try {
-      const response = (await apiRequest<AuthResponse>('/auth/me')) ?? {}
+      // Shorter than the default: every route waits on this one call, so a server that never
+      // answers has to be called unreachable quickly or the whole app just sits there
+      const response = (await apiRequest<AuthResponse>('/auth/me', { timeoutMs: 10000 })) ?? {}
       if (status.value !== 'loading') return user.value
       user.value = response.user ?? null
       status.value = user.value ? 'authenticated' : 'anonymous'
@@ -217,8 +219,15 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       return user.value
-    } catch {
+    } catch (caughtError) {
       if (status.value === 'loading') {
+        if (caughtError instanceof NetworkError) {
+          // A server that never answered says nothing about the session: leave it unsettled so a
+          // retry can decide later, instead of declaring the user signed out and sending them to a
+          // login screen that cannot reach the server either
+          status.value = 'idle'
+          return null
+        }
         user.value = null
         status.value = 'anonymous'
       }

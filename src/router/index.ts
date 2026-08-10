@@ -4,6 +4,7 @@ import { pinia } from '@/stores/pinia'
 import { useAuthStore } from '@/stores/auth'
 import { useOrganizationStore } from '@/stores/organization'
 import { setUnauthorizedHandler } from '@/services/api'
+import { isChunkLoadError, markServerUnreachable } from '@/services/connectivity'
 import { listenTabSync, broadcastKeyResponse } from '@/services/tabsync'
 import { getVaultKey, getPrivateKey, getOrgKey } from '@/services/keyring'
 
@@ -141,6 +142,9 @@ router.beforeEach(async (to) => {
   if (requiresAuth || guestOnly) {
     if (auth.status === 'idle') {
       await auth.refreshSession()
+      // Still unsettled: the server never answered. Abort rather than guess - App.vue shows the
+      // unreachable screen, which retries once the connection (or the VPN behind it) is back
+      if (auth.status === 'idle') return false
     }
   }
 
@@ -162,6 +166,12 @@ router.beforeEach(async (to) => {
   }
 
   return true
+})
+
+router.onError((error) => {
+  // A view chunk that will not load means the app's own assets are out of reach (the service worker
+  // never cached this route and the origin is gone), not that the route is broken
+  if (isChunkLoadError(error)) markServerUnreachable()
 })
 
 setUnauthorizedHandler(async () => {

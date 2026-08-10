@@ -1,9 +1,29 @@
 import { API_BASE_URL } from '@/constants'
+import { markServerReachable, markServerUnreachable } from '@/services/connectivity'
+
+// Without one, a request to a host that drops packets (VPN down) never settles and every caller
+// awaiting it hangs forever - the router guard included, which is what leaves a blank page
+const DEFAULT_TIMEOUT_MS = 30000
 
 let unauthorizedHandler: (() => void) | null = null
 
 export function setUnauthorizedHandler(handler: () => void) {
   unauthorizedHandler = handler
+}
+
+export interface ApiRequestInit extends RequestInit {
+  timeoutMs?: number
+}
+
+// The request never reached a server, so there is no status and no payload to report: DNS failure,
+// refused connection, a VPN that is not up, or a timeout waiting on a host that swallows packets
+export class NetworkError extends Error {
+  constructor(
+    message = 'Cannot reach the server. Check your connection - if this instance is behind a VPN, make sure it is connected.',
+  ) {
+    super(message)
+    this.name = 'NetworkError'
+  }
 }
 
 export class ApiError extends Error {
@@ -56,16 +76,30 @@ function extractMessage(payload: unknown, fallback: string) {
   return fallback
 }
 
-export async function apiRequest<T>(path: string, init: RequestInit = {}) {
-  const response = await fetch(buildApiUrl(path), {
-    credentials: 'include',
-    headers: {
-      Accept: 'application/json',
-      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
-      ...init.headers,
-    },
-    ...init,
-  })
+export async function apiRequest<T>(path: string, init: ApiRequestInit = {}) {
+  const { timeoutMs = DEFAULT_TIMEOUT_MS, signal, ...rest } = init
+  const timeout = AbortSignal.timeout(timeoutMs)
+
+  let response: Response
+  try {
+    response = await fetch(buildApiUrl(path), {
+      credentials: 'include',
+      ...rest,
+      headers: {
+        Accept: 'application/json',
+        ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+        ...init.headers,
+      },
+      signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+    })
+  } catch (caught) {
+    // A caller that aborted on purpose gets its own error back; that is not a connectivity problem
+    if (signal?.aborted) throw caught
+    markServerUnreachable()
+    throw new NetworkError()
+  }
+
+  markServerReachable()
 
   const rawBody = await response.text()
   let payload: T | undefined
