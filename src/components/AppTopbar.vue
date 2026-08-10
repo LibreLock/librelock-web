@@ -8,7 +8,13 @@ import { shortcutFor } from '@/composables/useNavShortcuts'
 const vault = useVaultStore()
 
 const searchInput = ref<HTMLInputElement | null>(null)
-const justCopied = ref(false)
+
+// Matched on code, since Alt/Shift rewrite e.key. The numpad counts too, as a way around
+// desktops that grab the number row.
+function digitIndex(code: string): number {
+  const match = /^(?:Digit|Numpad)([1-9])$/.exec(code)
+  return match ? Number(match[1]) - 1 : -1
+}
 
 async function handleKeydown(e: KeyboardEvent) {
   const tag = (e.target as HTMLElement).tagName
@@ -32,9 +38,18 @@ async function handleKeydown(e: KeyboardEvent) {
     vault.globalSearch.trim()
   ) {
     e.preventDefault()
-    if (await vault.copyFirstSearchResult()) {
-      justCopied.value = true
-      setTimeout(() => (justCopied.value = false), 1500)
+    vault.copySearchResult(0)
+    return
+  }
+
+  // Ctrl/Cmd+1..9 copies the numbered result — bare digits would be swallowed from the query
+  // ("Gmail 5"). Alt or Shift may ride along: a browser tab reserves plain Ctrl+digit for its own
+  // tab switching (the installed PWA does not), so those combos are the fallback that reaches us.
+  if ((e.ctrlKey || e.metaKey) && vault.globalSearch.trim()) {
+    const n = digitIndex(e.code)
+    if (n !== -1) {
+      e.preventDefault()
+      vault.copySearchResult(n)
     }
   }
 }
@@ -82,19 +97,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
         Ctrl K
       </div>
 
-      <span
-        v-if="justCopied"
-        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-emerald-500"
-      >
-        Copied!
-      </span>
-
       <button
-        v-else-if="vault.globalSearch"
+        v-if="vault.globalSearch"
         type="button"
         class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
         @click="vault.globalSearch = ''"
-        :title="vault.searchResults.length > 0 ? 'Press Enter to copy the top result' : undefined"
+        :title="
+          vault.copyableResults.length > 0
+            ? 'Enter copies the top result, Ctrl+1…9 the numbered ones'
+            : undefined
+        "
       >
         Clear
       </button>

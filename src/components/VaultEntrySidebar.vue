@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue'
 import type { VaultEntry } from '@/api/vault'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
@@ -81,6 +81,17 @@ const filtered = computed(() => {
   return list
 })
 
+const isSearching = computed(() => vault.globalSearch.trim().length > 0)
+
+watchEffect(() => vault.setVisibleResults(isSearching.value ? filtered.value : []))
+onUnmounted(() => vault.setVisibleResults([]))
+
+function copyLabel(entry: VaultEntry): string {
+  if (entry.type === 'card') return 'Copy card number'
+  if (entry.type === 'note') return 'Copy note'
+  return 'Copy password'
+}
+
 function entrySubtitle(entry: VaultEntry): string {
   if (entry.type === 'password') return entry.username || entry.email || 'Password'
   if (entry.type === 'card') {
@@ -105,14 +116,30 @@ function handleCategoryRemoved(id: string) {
   }
 }
 
-const copiedId = ref<string | null>(null)
+// Numbers only surface while Ctrl is down, so the list stays clean otherwise
+const modifiersHeld = ref(false)
 
-async function copyPassword(entry: VaultEntry) {
-  if (entry.type !== 'password') return
-  await navigator.clipboard.writeText(entry.password)
-  copiedId.value = entry.id
-  setTimeout(() => (copiedId.value = null), 2000)
+function syncModifiers(e: KeyboardEvent) {
+  modifiersHeld.value = e.ctrlKey || e.metaKey
 }
+
+function releaseModifiers() {
+  modifiersHeld.value = false
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', syncModifiers)
+  window.addEventListener('keyup', syncModifiers)
+  window.addEventListener('blur', releaseModifiers)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', syncModifiers)
+  window.removeEventListener('keyup', syncModifiers)
+  window.removeEventListener('blur', releaseModifiers)
+})
+
+const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
 </script>
 
 <template>
@@ -181,7 +208,12 @@ async function copyPassword(entry: VaultEntry) {
       <li v-if="filtered.length === 0" class="px-4 py-8 text-center text-sm text-gray-400">
         No items found
       </li>
-      <li v-for="entry in filtered" :key="entry.id" class="relative group">
+      <li
+        v-for="(entry, index) in filtered"
+        :key="entry.id"
+        class="relative group"
+        :title="isSearching && index < 9 ? `Copy with Ctrl+${index + 1}` : undefined"
+      >
         <button
           type="button"
           class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
@@ -189,7 +221,7 @@ async function copyPassword(entry: VaultEntry) {
             entry.id === selectedId
               ? 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800'
               : '',
-            entry.type === 'password' ? 'pr-10' : '',
+            'pr-10',
           ]"
           @click="emit('select', entry.id)"
         >
@@ -220,19 +252,18 @@ async function copyPassword(entry: VaultEntry) {
         </button>
 
         <button
-          v-if="entry.type === 'password'"
           type="button"
-          class="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+          class="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded transition-all"
           :class="
-            copiedId === entry.id
-              ? 'text-emerald-500 opacity-100'
-              : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-200'
+            vault.copiedEntryId === entry.id
+              ? 'opacity-100 text-emerald-500'
+              : 'opacity-0 group-hover:opacity-100 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-200'
           "
-          :title="copiedId === entry.id ? 'Copied!' : 'Copy password'"
-          @click="copyPassword(entry)"
+          :title="vault.copiedEntryId === entry.id ? 'Copied!' : copyLabel(entry)"
+          @click="vault.copyEntry(entry)"
         >
           <svg
-            v-if="copiedId !== entry.id"
+            v-if="vault.copiedEntryId !== entry.id"
             class="h-3.5 w-3.5"
             fill="none"
             stroke="currentColor"
@@ -254,6 +285,14 @@ async function copyPassword(entry: VaultEntry) {
             />
           </svg>
         </button>
+
+        <span
+          v-if="showNumbers && index < 9"
+          class="pointer-events-none absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center text-xs font-medium tabular-nums text-gray-400 transition-opacity"
+          :class="vault.copiedEntryId === entry.id ? 'opacity-0' : 'group-hover:opacity-0'"
+        >
+          {{ index + 1 }}
+        </span>
       </li>
     </ul>
   </aside>

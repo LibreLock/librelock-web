@@ -132,14 +132,32 @@ export const useVaultStore = defineStore('vault', () => {
     }
   }
 
-  // Copies the primary secret (password / card number / note content) of the top search result, letting users jump straight to clipboard without opening the entry
-  async function copyFirstSearchResult(): Promise<boolean> {
-    const entry = searchResults.value[0]
-    if (!entry) return false
+  const visibleResults = ref<VaultEntry[]>([])
+
+  function setVisibleResults(list: VaultEntry[]) {
+    visibleResults.value = list
+  }
+
+  const copyableResults = computed(() =>
+    visibleResults.value.length > 0 ? visibleResults.value : searchResults.value,
+  )
+
+  const copiedEntryId = ref<string | null>(null)
+  let copiedTimer: ReturnType<typeof setTimeout> | undefined
+
+  async function copyEntry(entry: VaultEntry): Promise<boolean> {
     const value = primaryValue(entry)
     if (!value) return false
     await navigator.clipboard.writeText(value)
+    copiedEntryId.value = entry.id
+    clearTimeout(copiedTimer)
+    copiedTimer = setTimeout(() => (copiedEntryId.value = null), 2000)
     return true
+  }
+
+  async function copySearchResult(index = 0): Promise<boolean> {
+    const entry = copyableResults.value[index]
+    return entry ? copyEntry(entry) : false
   }
 
   function clear() {
@@ -159,7 +177,11 @@ export const useVaultStore = defineStore('vault', () => {
     cards,
     globalSearch,
     searchResults,
-    copyFirstSearchResult,
+    copyableResults,
+    setVisibleResults,
+    copySearchResult,
+    copyEntry,
+    copiedEntryId,
     breachCheckingIds,
     checkEntryBreach,
     getEntry,
