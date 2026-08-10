@@ -9,6 +9,12 @@ body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
+  background: var(--color-gray-50);
+}
+
+html.dark,
+html.dark body {
+  background: var(--color-gray-950);
 }
 
 :root {

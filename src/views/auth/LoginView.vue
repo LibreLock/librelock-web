@@ -56,7 +56,7 @@ async function handleSubmit() {
     <div class="mb-4 flex flex-col items-center gap-2">
       <AppBrand
         size="lg"
-        name-class="text-lg font-semibold text-gray-600 dark:text-gray-300"
+        name-class="break-words text-lg font-semibold text-gray-600 dark:text-gray-300"
         class="flex-col! gap-2!"
       />
       <p

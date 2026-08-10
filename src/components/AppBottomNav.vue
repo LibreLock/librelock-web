@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useOrganizationStore } from '@/stores/organization'
 import { useOrgVaultStore } from '@/stores/orgVault'
+import { navPath } from '@/router/origin'
 import LoadingSpinner from './LoadingSpinner.vue'
 import ThemeToggle from './ThemeToggle.vue'
 
@@ -24,8 +25,11 @@ watch(
   () => (moreOpen.value = false),
 )
 
+// The entry form keeps the highlight on the page it was opened from (see navPath)
+const activePath = computed(() => navPath(route))
+
 function isActive(to: string) {
-  return route.path === to || route.path.startsWith(to + '/')
+  return activePath.value === to || activePath.value.startsWith(to + '/')
 }
 
 // Settings lives in the nav bar in both modes; the More sheet holds the rest

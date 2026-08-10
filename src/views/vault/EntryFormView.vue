@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEntries } from '@/composables/useEntries'
 import type { VaultEntry } from '@/api/vault'
@@ -16,6 +16,13 @@ import { DEFAULT_COLOR, ENTRY_COLORS } from '@/constants'
 import { detectCardNetwork } from '@/api/vault'
 import { ICON_CATALOG } from '@/icons/catalog'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import {
+  SECTION_TYPE,
+  deleteReturnRouteFor,
+  originPath,
+  originSection,
+  returnRouteFor,
+} from '@/router/origin'
 
 const route = useRoute()
 const router = useRouter()
@@ -29,10 +36,17 @@ const editId = route.params.id as string | undefined
 const isEditMode = Boolean(editId)
 const editingEntry = ref<VaultEntry | null>(null)
 
+// The page this form was opened from; saving and deleting return there. Read once at setup, while
+// history.state.back still points at it and before this form pushes anywhere.
+const origin = originPath()
+const originList = originSection(router)
+
 // Scope: personal vault vs the organization shared vault
 // Chosen at creation, and on edit a private entry may be promoted to shared (one-way)
 // Only shown when the user has shared access
-const isShared = ref(false)
+// Opened from the Shared tab: default to a shared entry so it lands back in that list (edit mode
+// overwrites this from the entry itself)
+const isShared = ref(originList === 'shared')
 const canShare = computed(() => vault.hasOrgAccess)
 
 // A shared entry cannot be turned back into a private one, so the scope toggle is hidden once an entry is already shared
@@ -52,7 +66,21 @@ const canEditCategories = computed(() => (isShared.value ? auth.isAdmin : true))
 
 type EntryType = 'password' | 'note' | 'card'
 
-const entryType = ref<EntryType>('password')
+const ENTRY_TYPES: EntryType[] = ['password', 'card', 'note']
+
+// A single-type list asks for its own type via ?type=; All Items sends none and gets the default.
+// Unlike the origin, this belongs in the URL: it selects what the form edits, so the link is
+// shareable and survives a reload.
+function requestedType(): EntryType | null {
+  const type = route.query.type
+  return ENTRY_TYPES.find((t) => t === type) ?? null
+}
+
+// Without ?type=, fall back to the list the form was opened from — that covers the topbar's Add
+// entry button and the `n` shortcut, which are global and carry no type of their own
+const entryType = ref<EntryType>(
+  requestedType() ?? (originList && SECTION_TYPE[originList]) ?? 'password',
+)
 const selectedColor = ref(DEFAULT_COLOR)
 const selectedIcon = ref<string | null>(null)
 const selectedCategoryId = ref<string | null>(null)
@@ -125,6 +153,19 @@ const card = reactive({
   notes: '',
 })
 
+// Copy sits next to the eye once the password is revealed, and flips to a checkmark for a moment
+// after copying — same affordance as the entry detail pane
+const passwordCopied = ref(false)
+let passwordCopiedTimer: ReturnType<typeof setTimeout> | undefined
+const canCopyPassword = computed(() => showPassword.value && account.password.length > 0)
+
+async function copyPassword() {
+  await navigator.clipboard.writeText(account.password)
+  passwordCopied.value = true
+  clearTimeout(passwordCopiedTimer)
+  passwordCopiedTimer = setTimeout(() => (passwordCopied.value = false), 2000)
+}
+
 const cardNetwork = computed(() => detectCardNetwork(card.cardNumber))
 
 function handleCardNumberInput(e: Event) {
@@ -145,6 +186,7 @@ const isSubmitting = ref(false)
 const isLoading = ref(false)
 const isDeleting = ref(false)
 const showDeleteConfirm = ref(false)
+const showLeaveConfirm = ref(false)
 const error = ref<string | null>(null)
 
 const showNewCategory = ref(false)
@@ -186,12 +228,23 @@ watch(
   },
 )
 
+// The Name input of whichever type's form is rendered (only one branch exists at a time)
+const nameInput = ref<HTMLInputElement | null>(null)
+
+async function focusName() {
+  await nextTick()
+  nameInput.value?.focus()
+}
+
 onMounted(async () => {
   categoriesStore.fetchCategories()
   if (canShare.value) orgCategoriesStore.fetchCategories()
   if (!isEditMode) {
     // Load entries anyway so the reused-password indicator has data
     vault.fetchAll()
+    // Straight into typing on a new entry; editing keeps the caret free so the existing values
+    // are not at risk of being overwritten by a stray keystroke
+    focusName()
     return
   }
   isLoading.value = true
@@ -226,6 +279,8 @@ onMounted(async () => {
       note.name = entry.name
       note.content = entry.content
     }
+    // The loaded entry is what "unchanged" means from here on
+    pristine = snapshot()
   } catch {
     error.value = 'Failed to load entry.'
   } finally {
@@ -233,20 +288,78 @@ onMounted(async () => {
   }
 })
 
-function handleSaveShortcut(e: KeyboardEvent) {
-  if (e.key !== 'Enter' || !(e.ctrlKey || e.metaKey)) return
-  if (isLoading.value || isSubmitting.value || showDeleteConfirm.value) return
-  e.preventDefault()
-  e.stopPropagation()
-  handleSubmit()
+// Everything the user can change, flattened for comparison. Covers the inactive types too, so
+// text typed before switching type still counts as unsaved work.
+function snapshot() {
+  return JSON.stringify({
+    entryType: entryType.value,
+    isShared: isShared.value,
+    color: selectedColor.value,
+    icon: selectedIcon.value,
+    categoryId: selectedCategoryId.value,
+    account,
+    card,
+    note,
+  })
 }
 
-onMounted(() => window.addEventListener('keydown', handleSaveShortcut, true))
-onBeforeUnmount(() => window.removeEventListener('keydown', handleSaveShortcut, true))
+// Empty form for a new entry, the loaded entry when editing (reassigned once it arrives)
+let pristine = snapshot()
+const isDirty = () => snapshot() !== pristine
+
+// Leave without saving. Going back rather than pushing keeps the previous page as it was —
+// same scroll, same selected entry — and leaves no dead form entry in the history.
+function discardAndLeave() {
+  showLeaveConfirm.value = false
+  if (origin) router.back()
+  else router.replace(deleteReturnRouteFor(originList, origin, isShared.value))
+}
+
+function leaveForm() {
+  if (isDirty()) showLeaveConfirm.value = true
+  else discardAndLeave()
+}
+
+// Discard takes focus with the dialog, so a second Escape or an Enter carries the exit through
+const discardButton = ref<HTMLButtonElement | null>(null)
+watch(showLeaveConfirm, async (open) => {
+  if (!open) return
+  await nextTick()
+  discardButton.value?.focus()
+})
+
+// Capture phase, so the shortcuts work from inside the form's inputs too
+function handleFormShortcuts(e: KeyboardEvent) {
+  if (isLoading.value || isSubmitting.value) return
+
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    if (showDeleteConfirm.value || showLeaveConfirm.value) return
+    e.preventDefault()
+    e.stopPropagation()
+    handleSubmit()
+    return
+  }
+
+  if (e.key === 'Escape') {
+    e.preventDefault()
+    e.stopPropagation()
+    // Escape backs out of whatever is innermost: an open dialog, then the new-category field,
+    // then the form itself
+    if (showDeleteConfirm.value) showDeleteConfirm.value = false
+    else if (showLeaveConfirm.value) showLeaveConfirm.value = false
+    else if (showNewCategory.value) cancelNewCategory()
+    else leaveForm()
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', handleFormShortcuts, true))
+onBeforeUnmount(() => window.removeEventListener('keydown', handleFormShortcuts, true))
 
 function switchType(type: EntryType) {
   entryType.value = type
   error.value = null
+  // The old Name input is unmounted with its branch, so hand focus to the new one
+  focusName()
 }
 
 function cancelNewCategory() {
@@ -275,7 +388,7 @@ async function handleDelete() {
   try {
     const wasShared = editingEntry.value.shared
     await vault.removeEntry(editingEntry.value)
-    router.replace({ name: wasShared ? 'shared' : 'vault' })
+    router.replace(deleteReturnRouteFor(originList, origin, wasShared))
   } finally {
     isDeleting.value = false
     showDeleteConfirm.value = false
@@ -299,17 +412,16 @@ async function handleSubmit() {
     } else {
       payload = { type: 'note' as const, ...note, ...meta }
     }
-    const detailRoute = isShared.value ? 'shared-entry' : 'vault-entry'
     if (isEditMode && editingEntry.value) {
       // Private entry promoted to shared: move it across vaults, not edit in place
       const promoting = !editingEntry.value.shared && isShared.value
       const updated = promoting
         ? await vault.promoteToShared(editingEntry.value, payload)
         : await vault.editEntry(editingEntry.value, payload)
-      router.push({ name: detailRoute, params: { id: updated.id } })
+      router.push(returnRouteFor(originList, origin, updated))
     } else {
       const created = await vault.addEntry(payload, isShared.value)
-      router.push({ name: detailRoute, params: { id: created.id } })
+      router.push(returnRouteFor(originList, origin, created))
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to save entry'
@@ -431,8 +543,7 @@ async function handleSubmit() {
         v-if="showSharingHint"
         class="mb-4 rounded-lg bg-gray-50 dark:bg-gray-800/60 px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400"
       >
-        Organization vault sharing isn't enabled, so this entry saves to your
-        private vault.
+        Organization vault sharing isn't enabled, so this entry saves to your private vault.
         <template v-if="auth.isAdmin">
           <RouterLink
             to="/organization#users"
@@ -466,11 +577,11 @@ async function handleSubmit() {
                     >Name<span class="text-red-400">*</span></label
                   >
                   <input
+                    ref="nameInput"
                     v-model="account.name"
                     type="text"
                     required
-                    placeholder="GitHub"
-                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                   />
                 </div>
 
@@ -519,48 +630,94 @@ async function handleSubmit() {
                       :type="showPassword ? 'text' : 'password'"
                       required
                       autocomplete="new-password"
-                      class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                      class="w-full rounded-md border px-3 py-1.5 font-mono border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                      :class="canCopyPassword ? 'pr-16' : 'pr-10'"
                     />
-                    <button
-                      type="button"
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
-                      @click="showPassword = !showPassword"
+                    <div
+                      class="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2.5"
                     >
-                      <svg
-                        v-if="showPassword"
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                      <!-- Copying is only offered once the password is revealed, so a hidden value
+                           never leaves the field unseen -->
+                      <button
+                        v-if="canCopyPassword"
+                        type="button"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
+                        title="Copy password"
+                        aria-label="Copy password"
+                        @click="copyPassword"
                       >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                        />
-                      </svg>
-                      <svg
-                        v-else
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                        <svg
+                          v-if="!passwordCopied"
+                          class="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
+                        <svg
+                          v-else
+                          class="h-4 w-4 text-emerald-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
+                        :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                        @click="showPassword = !showPassword"
                       >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                      </svg>
-                    </button>
+                        <svg
+                          v-if="showPassword"
+                          class="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                          />
+                        </svg>
+                        <svg
+                          v-else
+                          class="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                   <div
                     v-if="account.password"
@@ -601,8 +758,7 @@ async function handleSubmit() {
                   <input
                     v-model="account.url"
                     type="text"
-                    placeholder="github.com"
-                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                   />
                 </div>
 
@@ -613,7 +769,7 @@ async function handleSubmit() {
                   <textarea
                     v-model="account.notes"
                     rows="3"
-                    class="w-full resize-y field-sizing-content min-h-20 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                    class="w-full wrap-break-word resize-y field-sizing-content min-h-20 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                   />
                 </div>
               </template>
@@ -625,11 +781,11 @@ async function handleSubmit() {
                     >Name<span class="text-red-400">*</span></label
                   >
                   <input
+                    ref="nameInput"
                     v-model="card.name"
                     type="text"
                     required
-                    placeholder="N26 Metal"
-                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                   />
                 </div>
 
@@ -640,7 +796,7 @@ async function handleSubmit() {
                   <input
                     v-model="card.cardholderName"
                     type="text"
-                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                   />
                 </div>
 
@@ -655,7 +811,7 @@ async function handleSubmit() {
                       required
                       inputmode="numeric"
                       placeholder="1234 5678 9012 3456"
-                      class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono tracking-wider border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                      class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono tracking-wider border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                       @input="handleCardNumberInput"
                     />
                     <div class="absolute right-3 top-1/2 -translate-y-1/2">
@@ -676,7 +832,7 @@ async function handleSubmit() {
                       inputmode="numeric"
                       placeholder="MM/YY"
                       maxlength="5"
-                      class="w-full rounded-md border px-3 py-1.5 font-mono border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                      class="w-full rounded-md border px-3 py-1.5 font-mono border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                       @input="handleExpiryInput"
                     />
                   </div>
@@ -692,7 +848,7 @@ async function handleSubmit() {
                         inputmode="numeric"
                         placeholder="•••"
                         maxlength="4"
-                        class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                        class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                       />
                       <button
                         type="button"
@@ -745,7 +901,7 @@ async function handleSubmit() {
                   <textarea
                     v-model="card.notes"
                     rows="3"
-                    class="w-full resize-y field-sizing-content min-h-20 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                    class="w-full wrap-break-word resize-y field-sizing-content min-h-20 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                   />
                 </div>
               </template>
@@ -756,11 +912,11 @@ async function handleSubmit() {
                     >Name<span class="text-red-400">*</span></label
                   >
                   <input
+                    ref="nameInput"
                     v-model="note.name"
                     type="text"
                     required
-                    placeholder="Recovery codes"
-                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                   />
                 </div>
                 <div>
@@ -771,7 +927,7 @@ async function handleSubmit() {
                     v-model="note.content"
                     rows="8"
                     required
-                    class="w-full resize-y field-sizing-content min-h-44 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 font-mono text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                    class="w-full wrap-break-word resize-y field-sizing-content min-h-44 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 font-mono text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                   />
                 </div>
               </template>
@@ -821,7 +977,7 @@ async function handleSubmit() {
                   v-model="iconSearch"
                   type="text"
                   placeholder="Search icons…"
-                  class="mb-1.5 w-full rounded-md border px-3 py-1.5 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                  class="mb-1.5 w-full rounded-md border px-3 py-1.5 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                 />
                 <div class="mb-1.5 flex gap-1 rounded-lg bg-gray-100 dark:bg-gray-800 p-0.5">
                   <button
@@ -949,7 +1105,7 @@ async function handleSubmit() {
                     v-model="newCategoryName"
                     type="text"
                     placeholder="Name"
-                    class="min-w-0 flex-1 rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                    class="min-w-0 flex-1 rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
                     @keydown.enter.prevent="handleAddCategory"
                     @keydown.escape="cancelNewCategory"
                   />
@@ -1018,6 +1174,38 @@ async function handleSubmit() {
             @click="handleDelete"
           >
             {{ isDeleting ? 'Deleting…' : 'Delete' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="showLeaveConfirm"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
+      @click.self="showLeaveConfirm = false"
+    >
+      <div class="w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 p-4 shadow-xl">
+        <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100">
+          Discard {{ isEditMode ? 'changes' : 'this entry' }}?
+        </h2>
+        <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
+          What you have filled in will be lost
+        </p>
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            class="rounded-lg px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer transition-colors"
+            @click="showLeaveConfirm = false"
+          >
+            Keep editing
+          </button>
+          <button
+            ref="discardButton"
+            type="button"
+            class="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+            @click="discardAndLeave"
+          >
+            Discard
           </button>
         </div>
       </div>

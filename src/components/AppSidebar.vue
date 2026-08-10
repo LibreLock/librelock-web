@@ -4,6 +4,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useOrganizationStore } from '@/stores/organization'
 import { useOrgVaultStore } from '@/stores/orgVault'
+import { navPath } from '@/router/origin'
+import { shortcutFor } from '@/composables/useNavShortcuts'
 import AppBrand from './AppBrand.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 
@@ -39,15 +41,25 @@ async function handleLogout() {
   }
 }
 
+// The entry form has no nav item of its own, so it keeps the highlight on the page it was opened
+// from rather than lighting up All Items
+const activePath = computed(() => navPath(route))
+
 function isActive(to: string) {
-  return route.path === to || route.path.startsWith(to + '/')
+  return activePath.value === to || activePath.value.startsWith(to + '/')
+}
+
+// Tooltip doubles as the label when collapsed, so it always carries the name
+function navTitle(name: string, to: string) {
+  const key = shortcutFor(to)
+  return key ? `${name} (${key})` : name
 }
 
 const navItems = [
   { name: 'All Items', to: '/vault', icon: 'vault' },
   { name: 'Passwords', to: '/passwords', icon: 'password' },
   { name: 'Cards', to: '/cards', icon: 'card' },
-  { name: 'Secure Notes', to: '/notes', icon: 'note' },
+  { name: 'Notes', to: '/notes', icon: 'note' },
 ]
 </script>
 
@@ -105,7 +117,7 @@ const navItems = [
             ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'
             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
         "
-        :title="collapsed ? item.name : undefined"
+        :title="navTitle(item.name, item.to)"
       >
         <template v-if="item.icon === 'vault'">
           <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +171,7 @@ const navItems = [
             ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'
             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
         "
-        :title="collapsed ? 'Shared' : undefined"
+        :title="navTitle('Shared', '/shared')"
       >
         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -180,7 +192,7 @@ const navItems = [
             ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'
             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
         "
-        :title="collapsed ? 'Security Center' : undefined"
+        :title="navTitle('Security Center', '/security')"
       >
         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path

@@ -133,10 +133,11 @@ function strengthDot(score: number): string {
           :href="`https://${entry.url}`"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+          class="inline-flex max-w-full items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
         >
-          {{ entry.url }}
-          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <!-- Truncated like the title above: a long URL would otherwise push the header wide -->
+          <span class="truncate">{{ entry.url }}</span>
+          <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -281,7 +282,7 @@ function strengthDot(score: number): string {
             >
               <div class="min-w-0 flex-1">
                 <p class="text-xs text-gray-400">Password</p>
-                <p class="font-mono text-sm text-gray-800 dark:text-gray-200">
+                <p class="break-all font-mono text-sm text-gray-800 dark:text-gray-200">
                   {{
                     showPassword ? entry.password : '•'.repeat(Math.min(entry.password.length, 18))
                   }}
@@ -413,7 +414,7 @@ function strengthDot(score: number): string {
                     class="flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300"
                   >
                     <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500"></span>
-                    {{ e.name }}
+                    <span class="truncate">{{ e.name }}</span>
                   </li>
                 </ul>
               </div>
@@ -453,7 +454,7 @@ function strengthDot(score: number): string {
           <div
             class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
           >
-            <p class="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
+            <p class="whitespace-pre-wrap break-words text-sm text-gray-700 dark:text-gray-300">
               {{ entry.notes }}
             </p>
           </div>
@@ -473,7 +474,9 @@ function strengthDot(score: number): string {
             >
               <div class="min-w-0 flex-1">
                 <p class="text-xs text-gray-400">Card number</p>
-                <p class="font-mono text-sm text-gray-800 dark:text-gray-200 tracking-wider">
+                <p
+                  class="break-all font-mono text-sm text-gray-800 dark:text-gray-200 tracking-wider"
+                >
                   {{ showCardNumber ? entry.cardNumber : maskedCardNumber }}
                 </p>
               </div>
@@ -704,7 +707,7 @@ function strengthDot(score: number): string {
           <div
             class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
           >
-            <p class="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
+            <p class="whitespace-pre-wrap break-words text-sm text-gray-700 dark:text-gray-300">
               {{ entry.notes }}
             </p>
           </div>
@@ -720,7 +723,7 @@ function strengthDot(score: number): string {
             class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
           >
             <p
-              class="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              class="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-gray-700 dark:text-gray-300"
             >
               {{ entry.content }}
             </p>

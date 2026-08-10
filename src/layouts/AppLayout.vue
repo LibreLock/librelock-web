@@ -5,11 +5,13 @@ import AppBottomNav from '@/components/AppBottomNav.vue'
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppTopbar from '@/components/AppTopbar.vue'
 import { useAppViewport } from '@/composables/useAppViewport'
+import { useNavShortcuts } from '@/composables/useNavShortcuts'
 import { useThemeStore } from '@/stores/theme'
 import { useVaultStore } from '@/stores/vault'
 
 useThemeStore()
 useAppViewport()
+useNavShortcuts()
 
 // Routes with their own searchable entry list (via VaultEntrySidebar) filter in place; entry forms are left alone so typing a search doesn't blow away an in-progress edit
 // Everywhere else (security, settings, organization, ...) has no results to show, so send the user to the vault view where they can actually see matches

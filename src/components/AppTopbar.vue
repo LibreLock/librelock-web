@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useVaultStore } from '@/stores/vault'
 import AppBrand from '@/components/AppBrand.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import { shortcutFor } from '@/composables/useNavShortcuts'
 
 const vault = useVaultStore()
 
@@ -99,26 +100,20 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
       </button>
     </div>
 
-    <div class="ml-auto flex items-center gap-3">
-      <RouterLink
-        to="/vault/new"
-        class="flex items-center justify-center gap-0 sm:gap-2 rounded-md bg-gray-800 p-2 sm:px-3 sm:py-1.5 text-white hover:bg-gray-700"
-        aria-label="Add entry"
-      >
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
+    <RouterLink
+      to="/vault/new"
+      class="ml-auto flex shrink-0 items-center justify-center gap-0 rounded-md bg-gray-800 p-2 text-white hover:bg-gray-700 sm:gap-2 sm:px-3 sm:py-1.5 md:ml-0"
+      aria-label="Add entry"
+      :title="`Add entry (${shortcutFor('/vault/new')})`"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
 
-        <span class="hidden sm:inline text-sm font-semibold"> Add entry </span>
-      </RouterLink>
+      <span class="hidden sm:inline text-sm font-semibold"> Add entry </span>
+    </RouterLink>
 
-      <!-- On mobile the theme toggle lives in the bottom nav's More sheet -->
-      <ThemeToggle class="hidden md:block" />
-    </div>
+    <!-- On mobile the theme toggle lives in the bottom nav's More sheet -->
+    <ThemeToggle class="ml-auto hidden md:block" />
   </header>
 </template>

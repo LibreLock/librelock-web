@@ -130,7 +130,7 @@ async function copyPassword(entry: VaultEntry) {
       </div>
 
       <!-- Type selector: on mobile the "All" view absorbs Passwords/Cards/Notes, so switch between them here -->
-      <div v-if="showTypeFilter" class="px-3 pb-2 md:hidden">
+      <div v-if="showTypeFilter" class="px-3 pb-3 md:hidden">
         <div class="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-800 p-0.5">
           <button
             v-for="opt in typeFilters"
@@ -149,7 +149,7 @@ async function copyPassword(entry: VaultEntry) {
         </div>
       </div>
 
-      <div v-if="categoryList.length > 0" class="px-3 pb-2">
+      <div v-if="categoryList.length > 0" class="px-3 pb-3">
         <div class="flex flex-wrap gap-1">
           <button
             type="button"

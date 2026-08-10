@@ -299,7 +299,7 @@ const passwordInputClass = `${inputClass} pr-10`
             v-if="pendingFile"
             class="rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-sm text-gray-600 dark:text-gray-300 space-y-1"
           >
-            <p class="font-medium text-gray-800 dark:text-gray-200">{{ fileName }}</p>
+            <p class="break-all font-medium text-gray-800 dark:text-gray-200">{{ fileName }}</p>
             <p>
               <template v-if="pendingFile.exportedAt">
                 Exported {{ new Date(pendingFile.exportedAt).toLocaleDateString() }} ·

@@ -170,9 +170,7 @@ const visibleSections = computed(() =>
 
           <div class="flex-1 w-full">
             <p class="mb-1 text-lg font-semibold" :class="scoreColor">{{ scoreLabel }}</p>
-            <p class="mb-3 text-xs text-gray-400">
-
-            </p>
+            <p class="mb-3 text-xs text-gray-400"></p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
                 <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">

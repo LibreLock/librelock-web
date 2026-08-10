@@ -15,8 +15,10 @@ export function useAppViewport() {
   function sync() {
     const root = document.documentElement
     const height = vv?.height ?? window.innerHeight
-    // Rounded down: a fractional height leaves a hairline of page scrollable on some browsers
-    root.style.setProperty('--app-height', `${Math.floor(height)}px`)
+    // Rounded up: a fractional height (browser zoom, non-integer DPI) would otherwise leave a
+    // hairline of the page showing under the shell. html/body are overflow:hidden, so the extra
+    // sub-pixel cannot make the document scrollable.
+    root.style.setProperty('--app-height', `${Math.ceil(height)}px`)
     root.style.setProperty('--app-offset-top', `${Math.round(vv?.offsetTop ?? 0)}px`)
   }
 

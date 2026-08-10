@@ -1,4 +1,6 @@
 export const APP_NAME = 'LibreLock'
+export const APP_REPO_URL = 'https://github.com/librelock'
+export const APP_HELP_URL = 'https://github.com/LibreLock/.github'
 // Same-origin by default: the dev server and the production nginx image both proxy /api to the backend, which keeps cookies first-party and CORS out of the picture
 // Set VITE_API_BASE_URL at build time only when the API is served from a different origin
 const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()

@@ -58,7 +58,23 @@ function onBack() {
 
     <div v-else class="flex flex-1 flex-col items-center justify-center gap-1">
       <p class="text-sm font-medium text-gray-500">Select a note to view details</p>
-      <p class="text-xs text-gray-400">{{ vault.notes.length }} secure notes saved</p>
+      <p class="text-xs text-gray-400">{{ vault.notes.length }} notes saved</p>
+
+      <RouterLink
+        to="/vault/new?type=note"
+        class="mt-4 flex items-center gap-2 rounded-md bg-gray-800 px-3 py-1.5 text-white hover:bg-gray-700"
+        title="Add entry (N)"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        <span class="text-sm font-semibold">Add note</span>
+      </RouterLink>
     </div>
   </div>
 </template>
