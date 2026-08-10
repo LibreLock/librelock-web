@@ -46,6 +46,10 @@ function page({ radius, glyph }: { radius: number; glyph: number }) {
 const ROUNDED = page({ radius: 22, glyph: 50 })
 const MASKABLE = page({ radius: 0, glyph: 44 })
 const APPLE = page({ radius: 0, glyph: 52 })
+// A tab favicon renders at 16px, so it gets its own much tighter crop: the lock art only fills
+// ~19 of the 24 viewBox units, meaning the shared 50 glyph leaves the padlock at ~40% of the
+// canvas — unreadable that small. 84 puts it at ~68% and thickens the stroke past one pixel.
+const FAVICON = page({ radius: 22, glyph: 84 })
 
 const icons = [
   { file: 'pwa-192x192.png', size: 192, html: ROUNDED },
@@ -75,7 +79,7 @@ try {
   const frames: string[] = []
   for (const size of FAVICON_SIZES) {
     const out = join(scratch, `favicon-${size}.png`)
-    await shot(ROUNDED, size, out)
+    await shot(FAVICON, size, out)
     frames.push(out)
   }
   await run('magick', [...frames, join(PUBLIC_DIR, 'favicon.ico')])
