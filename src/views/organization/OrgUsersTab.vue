@@ -20,7 +20,7 @@ interface AccessInfo {
   public_key: string
 }
 
-// Colour per role; owner (founder) gets its own distinct badge
+// Colour per role; owners get their own distinct badge
 function roleBadgeClass(role: OrgUser['role']) {
   if (role === 'owner')
     return 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
@@ -36,6 +36,8 @@ const users = ref<OrgUser[]>([])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 const busyId = ref<string | null>(null)
+
+const currentId = computed(() => String(auth.user?.id ?? ''))
 
 // --- Shared vault access ---
 const accessMap = ref<Record<string, AccessInfo>>({})
@@ -54,8 +56,10 @@ function hasKeypair(user: OrgUser) {
 // This admin can hand out access only if they hold the org key themselves
 const canManageAccess = computed(() => orgKeyReady.value)
 const sharedInitialized = computed(() => Object.values(accessMap.value).some((a) => a.has_access))
-// Non-owner users still lacking access (owner always has it once bootstrapped)
-const withoutAccess = computed(() => users.value.filter((u) => u.role !== 'owner' && !hasAccess(u)))
+// Users still lacking access. Owners count too: one promoted from member may not hold the key yet
+const withoutAccess = computed(() =>
+  users.value.filter((u) => u.id !== currentId.value && !hasAccess(u)),
+)
 const grantable = computed(() =>
   withoutAccess.value.filter((u) => hasKeypair(u) && u.status === 'active'),
 )
@@ -70,8 +74,7 @@ function closeMenu() {
   openMenuId.value = null
 }
 
-const currentId = computed(() => String(auth.user?.id ?? ''))
-// Active admins (owner included) keep an instance manageable; guards key off this
+// Active admins (owners included) keep an instance manageable; guards key off this
 const activeAdminCount = computed(
   () =>
     users.value.filter((u) => (u.role === 'admin' || u.role === 'owner') && u.status === 'active')
@@ -81,6 +84,13 @@ const activeAdminCount = computed(
 // True when acting on this admin would leave no usable admin behind
 function isLastAdmin(user: OrgUser) {
   return user.role === 'admin' && user.status === 'active' && activeAdminCount.value <= 1
+}
+
+// An org can hold several owners, and they are peers: only another owner may manage one.
+// Nothing protects the last owner beyond the last-admin guards, which count owners as admins.
+function canManage(user: OrgUser) {
+  if (user.id === currentId.value) return false
+  return user.role !== 'owner' || auth.isOwner
 }
 
 async function load() {
@@ -208,25 +218,43 @@ async function setRole(user: OrgUser, role: 'admin' | 'member') {
   }
 }
 
-// Choosing "owner" opens the transfer modal; other roles apply immediately
+// Owner and admin both widen what an account can reach, so they go through a confirmation;
+// dropping to member applies immediately
 function onRoleSelect(user: OrgUser, event: Event) {
-  const role = (event.target as HTMLSelectElement).value as OrgUser['role']
+  const select = event.target as HTMLSelectElement
+  const role = select.value as OrgUser['role']
   if (role === user.role) return
-  if (role === 'owner') {
-    transferTarget.value = user
+  if (role === 'owner' || role === 'admin') {
+    // The modal drives the change, so put the select back until it is confirmed
+    select.value = user.role
+    if (role === 'owner') ownerTarget.value = user
+    else adminTarget.value = user
     return
   }
   setRole(user, role)
 }
 
-const transferTarget = ref<OrgUser | null>(null)
-const isTransferring = ref(false)
+const adminTarget = ref<OrgUser | null>(null)
+const isSettingAdmin = ref(false)
 
-async function confirmTransfer() {
-  const user = transferTarget.value
+async function confirmMakeAdmin() {
+  const user = adminTarget.value
+  if (!user) return
+  isSettingAdmin.value = true
+  await setRole(user, 'admin')
+  isSettingAdmin.value = false
+  if (!error.value) adminTarget.value = null
+}
+
+const ownerTarget = ref<OrgUser | null>(null)
+const isAddingOwner = ref(false)
+
+// Owners are added, not swapped in: the granting owner keeps their own role
+async function confirmAddOwner() {
+  const user = ownerTarget.value
   if (!user) return
   error.value = null
-  isTransferring.value = true
+  isAddingOwner.value = true
   busyId.value = user.id
   try {
     const data = await apiRequest<{ user: OrgUser }>(`/organization/users/${user.id}/role`, {
@@ -234,13 +262,12 @@ async function confirmTransfer() {
       body: JSON.stringify({ role: 'owner' }),
     })
     if (data?.user) Object.assign(user, data.user)
-    transferTarget.value = null
-    await auth.refreshSession() // the current user is no longer the owner
-    await load()
+    ownerTarget.value = null
+    await loadAccess() // a new owner is expected to hold shared access
   } catch (err) {
-    error.value = err instanceof ApiError ? err.message : 'Failed to transfer ownership.'
+    error.value = err instanceof ApiError ? err.message : 'Failed to add owner.'
   } finally {
-    isTransferring.value = false
+    isAddingOwner.value = false
     busyId.value = null
   }
 }
@@ -414,13 +441,10 @@ function formatDate(iso: string) {
                   Suspended
                 </span>
 
-                <div
-                  v-if="user.id !== currentId && user.role !== 'owner'"
-                  class="flex items-center gap-2"
-                >
-                  <!-- Shared vault grant / revoke. -->
+                <div v-if="canManage(user)" class="flex items-center gap-2">
+                  <!-- Shared vault grant / revoke. Owners keep the key for as long as they own. -->
                   <button
-                    v-if="canManageAccess && hasAccess(user)"
+                    v-if="canManageAccess && hasAccess(user) && user.role !== 'owner'"
                     type="button"
                     class="rounded-md px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 ring-1 ring-red-200 dark:ring-red-900/60 transition-colors hover:bg-red-50 dark:hover:bg-red-950/40 disabled:opacity-40 cursor-pointer"
                     :disabled="busyId === user.id"
@@ -429,7 +453,7 @@ function formatDate(iso: string) {
                     Revoke share
                   </button>
                   <button
-                    v-else-if="canManageAccess"
+                    v-else-if="canManageAccess && !hasAccess(user)"
                     type="button"
                     class="rounded-md px-2.5 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 ring-1 ring-gray-300 dark:ring-gray-600 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                     :disabled="busyId === user.id || !hasKeypair(user) || user.status !== 'active'"
@@ -454,7 +478,9 @@ function formatDate(iso: string) {
                         Member
                       </option>
                       <option value="admin">Admin</option>
-                      <option v-if="auth.isOwner" value="owner">Owner…</option>
+                      <option v-if="auth.isOwner || user.role === 'owner'" value="owner">
+                        Owner
+                      </option>
                     </select>
                     <svg
                       class="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400"
@@ -588,43 +614,127 @@ function formatDate(iso: string) {
 
     <Teleport to="body">
       <div
-        v-if="transferTarget"
+        v-if="adminTarget"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-        @click.self="transferTarget = null"
+        @click.self="adminTarget = null"
       >
         <div
           class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
         >
-          <h3 class="text-lg font-semibold text-amber-700 dark:text-amber-400">
-            Transfer ownership?
+          <h3 class="text-lg font-semibold text-indigo-700 dark:text-indigo-400">
+            {{ adminTarget.role === 'owner' ? 'Drop to admin?' : 'Make admin?' }}
           </h3>
           <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
-            <p>
-              <strong>{{ transferTarget.username }}</strong> will become the new
-              <strong>owner</strong> of this organization.
+            <p v-if="adminTarget.role === 'owner'">
+              <strong>{{ adminTarget.username }}</strong> stops being an owner and stays on as an
+              <strong>admin</strong>. They lose the owner-only powers: adding or dropping owners,
+              and reverting the instance to personal mode. Their shared-vault access is kept.
             </p>
+            <p v-else>
+              <strong>{{ adminTarget.username }}</strong> will become an <strong>admin</strong> and
+              will get access to the Organization area.
+            </p>
+            <div v-if="adminTarget.role !== 'owner'" class="space-y-2">
+              <p>An admin can:</p>
+              <ul class="list-disc space-y-1 pl-5">
+                <li>See every account, and change roles between member and admin</li>
+                <li>
+                  Suspend, reactivate, and permanently remove users, deleting their whole vault
+                </li>
+                <li>Create, list, and revoke invites, and set the registration policy</li>
+                <li>Change the organization name, logo, and branding</li>
+                <li>Read the audit log, including actions taken before they were promoted</li>
+                <li>
+                  Grant and revoke shared-vault access, and change the auto-grant setting, once they
+                  hold the shared key themselves
+                </li>
+              </ul>
+            </div>
             <p>
-              You will be demoted to <strong>admin</strong> and lose owner-only powers, including
-              the ability to revert the instance to personal mode. Only the new owner can transfer
-              ownership back.
+              An admin cannot touch owners or their own account here, and cannot revert the instance
+              to personal mode.
             </p>
           </div>
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
               class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
-              :disabled="isTransferring"
-              @click="transferTarget = null"
+              :disabled="isSettingAdmin"
+              @click="adminTarget = null"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="isSettingAdmin"
+              @click="confirmMakeAdmin"
+            >
+              {{
+                isSettingAdmin
+                  ? 'Saving…'
+                  : adminTarget.role === 'owner'
+                    ? 'Drop to admin'
+                    : 'Make admin'
+              }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <Teleport to="body">
+      <div
+        v-if="ownerTarget"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        @click.self="ownerTarget = null"
+      >
+        <div
+          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+        >
+          <h3 class="text-lg font-semibold text-amber-700 dark:text-amber-400">Add owner?</h3>
+          <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
+            <p>
+              <strong>{{ ownerTarget.username }}</strong> will become an <strong>owner</strong> of
+              this organization.
+              <span v-if="ownerTarget.role === 'admin'"
+                >They already run the Organization area as an admin.
+              </span>
+              <span v-else
+                >They are a member today, so this hands them the Organization area as well.</span
+              >
+            </p>
+            <p>An owner can:</p>
+            <ul class="list-disc space-y-1 pl-5">
+              <li>
+                Do everything an admin can: manage users, invites, the registration policy,
+                branding, the audit log, and shared-vault access
+              </li>
+              <li>Make any other user an owner</li>
+              <li>Demote, suspend, or remove other owners, you included</li>
+              <li>
+                Revert the instance to personal mode, permanently deleting every account except
+                their own
+              </li>
+            </ul>
+            <p>Owner's access can no longer be revoked after this!</p>
+          </div>
+          <div class="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+              :disabled="isAddingOwner"
+              @click="ownerTarget = null"
             >
               Cancel
             </button>
             <button
               type="button"
               class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-              :disabled="isTransferring"
-              @click="confirmTransfer"
+              :disabled="isAddingOwner"
+              @click="confirmAddOwner"
             >
-              {{ isTransferring ? 'Transferring…' : 'Transfer ownership' }}
+              {{ isAddingOwner ? 'Adding…' : 'Add owner' }}
             </button>
           </div>
         </div>

@@ -31,14 +31,15 @@ async function handleKeydown(e: KeyboardEvent) {
     searchInput.value?.blur()
   }
 
-  // Enter in the search box copies the top result's password/card number/note straight to clipboard
+  // Enter in the search box copies the selected result's password/card number/note straight to
+  // clipboard — the top one until Ctrl+Arrow moves the selection
   if (
     e.key === 'Enter' &&
     document.activeElement === searchInput.value &&
     vault.globalSearch.trim()
   ) {
     e.preventDefault()
-    vault.copySearchResult(0)
+    vault.copySelectedSearchResult()
     return
   }
 
@@ -104,7 +105,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
         @click="vault.globalSearch = ''"
         :title="
           vault.copyableResults.length > 0
-            ? 'Enter copies the top result, Ctrl+1…9 the numbered ones'
+            ? 'Ctrl+↑/↓ walks the results, Enter copies the selected one, Ctrl+1…9 the numbered ones'
             : undefined
         "
       >

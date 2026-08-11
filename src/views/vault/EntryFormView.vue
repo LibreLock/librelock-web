@@ -113,6 +113,13 @@ const filteredIcons = computed(() => {
   })
 })
 
+// A query typed under the Brands tab would silently hide matching general icons, so the first
+// keystroke widens the search to All. Only on the empty -> typed edge, so a tab picked while
+// searching sticks.
+watch(iconSearch, (q, prev) => {
+  if (q.trim() && !prev.trim()) iconTab.value = 'all'
+})
+
 // Drop a selected category that no longer exists in the active list
 // Also fires when scope flips, since personal and shared categories are separate spaces
 watch(activeCategories, (cats) => {

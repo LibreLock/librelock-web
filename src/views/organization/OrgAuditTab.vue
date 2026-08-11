@@ -19,7 +19,9 @@ const error = ref<string | null>(null)
 const actionLabels: Record<string, string> = {
   'user.registered': 'Account created',
   'user.role_changed': 'Role changed',
-  'user.ownership_transferred': 'Ownership transferred',
+  'user.owner_added': 'Owner added',
+  'user.ownership_transferred': 'Ownership transferred', // pre-multi-owner rows
+
   'user.suspended': 'User suspended',
   'user.reactivated': 'User reactivated',
   'user.removed': 'User removed',
@@ -38,6 +40,8 @@ const actionLabels: Record<string, string> = {
 // Left accent colour by action family
 const actionAccent: Record<string, string> = {
   'user.suspended': 'bg-amber-400',
+  'user.owner_added': 'bg-amber-400',
+  'user.ownership_transferred': 'bg-amber-400',
   'user.removed': 'bg-red-400',
   'invite.revoked': 'bg-red-400',
   'user.registered': 'bg-emerald-400',

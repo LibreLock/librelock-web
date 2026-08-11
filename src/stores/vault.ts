@@ -133,9 +133,11 @@ export const useVaultStore = defineStore('vault', () => {
   }
 
   const visibleResults = ref<VaultEntry[]>([])
+  const visibleSelectedId = ref<string | null>(null)
 
-  function setVisibleResults(list: VaultEntry[]) {
+  function setVisibleResults(list: VaultEntry[], selectedId: string | null = null) {
     visibleResults.value = list
+    visibleSelectedId.value = selectedId
   }
 
   const copyableResults = computed(() =>
@@ -160,6 +162,13 @@ export const useVaultStore = defineStore('vault', () => {
     return entry ? copyEntry(entry) : false
   }
 
+  // Enter follows the highlighted row (Ctrl+Arrow walks it), falling back to the top result when
+  // nothing in the current results is selected
+  async function copySelectedSearchResult(): Promise<boolean> {
+    const index = copyableResults.value.findIndex((e) => e.id === visibleSelectedId.value)
+    return copySearchResult(index === -1 ? 0 : index)
+  }
+
   function clear() {
     entries.value = []
     error.value = null
@@ -180,6 +189,7 @@ export const useVaultStore = defineStore('vault', () => {
     copyableResults,
     setVisibleResults,
     copySearchResult,
+    copySelectedSearchResult,
     copyEntry,
     copiedEntryId,
     breachCheckingIds,

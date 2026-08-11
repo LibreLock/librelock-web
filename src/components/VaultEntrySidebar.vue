@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watchEffect } from 'vue'
 import type { VaultEntry } from '@/api/vault'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
@@ -83,7 +83,9 @@ const filtered = computed(() => {
 
 const isSearching = computed(() => vault.globalSearch.trim().length > 0)
 
-watchEffect(() => vault.setVisibleResults(isSearching.value ? filtered.value : []))
+watchEffect(() =>
+  vault.setVisibleResults(isSearching.value ? filtered.value : [], props.selectedId),
+)
 onUnmounted(() => vault.setVisibleResults([]))
 
 function copyLabel(entry: VaultEntry): string {
@@ -127,14 +129,57 @@ function releaseModifiers() {
   modifiersHeld.value = false
 }
 
+const listEl = ref<HTMLElement | null>(null)
+
+// The walked entry can sit outside the scrolled viewport; nextTick lets the new selection render first
+async function revealEntry(id: string) {
+  await nextTick()
+  listEl.value
+    ?.querySelector<HTMLElement>(`[data-entry-id="${CSS.escape(id)}"]`)
+    ?.scrollIntoView({ block: 'nearest' })
+}
+
+// Ctrl/Cmd+Arrow walks the results as if each were clicked, so the hands stay on the keyboard
+// between typing the query and reading the entry. Arrows only — Ctrl+1…9 stays the copy shortcut.
+function handleArrowNav(e: KeyboardEvent) {
+  if (!(e.ctrlKey || e.metaKey) || (e.key !== 'ArrowDown' && e.key !== 'ArrowUp')) return
+  if (!isSearching.value) return
+
+  const list = filtered.value
+  if (list.length === 0) return
+
+  e.preventDefault()
+
+  const step = e.key === 'ArrowDown' ? 1 : -1
+  const current = list.findIndex((entry) => entry.id === props.selectedId)
+  // Nothing selected yet (or the selection is filtered out): enter the list from the matching end
+  const next =
+    current === -1
+      ? step === 1
+        ? 0
+        : list.length - 1
+      : Math.min(Math.max(current + step, 0), list.length - 1)
+
+  const target = list[next]
+  if (!target) return
+
+  emit('select', target.id)
+  revealEntry(target.id)
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  syncModifiers(e)
+  handleArrowNav(e)
+}
+
 onMounted(() => {
-  window.addEventListener('keydown', syncModifiers)
+  window.addEventListener('keydown', handleKeydown)
   window.addEventListener('keyup', syncModifiers)
   window.addEventListener('blur', releaseModifiers)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', syncModifiers)
+  window.removeEventListener('keydown', handleKeydown)
   window.removeEventListener('keyup', syncModifiers)
   window.removeEventListener('blur', releaseModifiers)
 })
@@ -204,13 +249,14 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
       </div>
     </div>
 
-    <ul class="flex-1 overflow-y-auto">
+    <ul ref="listEl" class="flex-1 overflow-y-auto">
       <li v-if="filtered.length === 0" class="px-4 py-8 text-center text-sm text-gray-400">
         No items found
       </li>
       <li
         v-for="(entry, index) in filtered"
         :key="entry.id"
+        :data-entry-id="entry.id"
         class="relative group"
         :title="isSearching && index < 9 ? `Copy with Ctrl+${index + 1}` : undefined"
       >
