@@ -1639,7 +1639,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     v-model="note.content"
                     rows="8"
                     required
-                    class="w-full wrap-break-word resize-y field-sizing-content min-h-44 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 font-mono text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full wrap-break-word resize-y field-sizing-content min-h-44 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
               </template>

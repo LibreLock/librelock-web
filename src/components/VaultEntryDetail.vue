@@ -911,7 +911,7 @@ function strengthDot(score: number): string {
             class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
           >
             <p
-              class="whitespace-pre-wrap wrap-break-word font-mono text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              class="whitespace-pre-wrap wrap-break-word text-sm text-gray-700 dark:text-gray-300"
             >
               {{ entry.content }}
             </p>
