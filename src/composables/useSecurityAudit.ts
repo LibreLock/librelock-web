@@ -1,7 +1,7 @@
 import { computed, ref, type Ref } from 'vue'
 import { useEntries } from '@/composables/useEntries'
 import { checkPasswordBreach } from '@/composables/useBreachCheck'
-import type { VaultPassword } from '@/api/vault'
+import { isAuditable, type VaultPassword } from '@/api/vault'
 
 export const WEAK_THRESHOLD = 7 // below "Strong" on the 0-10 strength scale
 
@@ -16,12 +16,19 @@ const BREACH_CONCURRENCY = 4
 export function useSecurityAudit(scope: Ref<SecurityScope> = ref('personal')) {
   const vault = useEntries()
 
-  // Scoped to personal-only or organization-only entries when requested; breach scanning still covers everything so toggling scope never re-queries HIBP
-  const passwords = computed<VaultPassword[]>(() => {
-    if (scope.value === 'personal') return vault.passwords.filter((e) => !e.shared)
-    if (scope.value === 'organization') return vault.passwords.filter((e) => e.shared)
-    return vault.passwords
-  })
+  const auditable = computed<VaultPassword[]>(() => vault.passwords.filter(isAuditable))
+
+  function inScope(list: VaultPassword[]): VaultPassword[] {
+    if (scope.value === 'personal') return list.filter((e) => !e.shared)
+    if (scope.value === 'organization') return list.filter((e) => e.shared)
+    return list
+  }
+
+  const passwords = computed<VaultPassword[]>(() => inScope(auditable.value))
+
+  const excludedCount = computed<number>(
+    () => inScope(vault.passwords.filter((e) => e.password && e.excludeFromAnalytics)).length,
+  )
 
   const reusedGroups = computed<VaultPassword[][]>(() => {
     const map = new Map<string, VaultPassword[]>()
@@ -48,12 +55,9 @@ export function useSecurityAudit(scope: Ref<SecurityScope> = ref('personal')) {
     passwords.value.filter((e) => breachedPasswords.value.has(e.password)),
   )
 
-  // Checks every distinct password against HIBP (k-anonymity range API) with bounded concurrency
-  // Always covers all entries (not just the current scope) so switching scope later never re-triggers a scan
-  // Results land incrementally so the UI fills in live
   async function runBreachScan(): Promise<void> {
     if (checkingBreaches.value) return
-    const unique = [...new Set(vault.passwords.map((e) => e.password).filter(Boolean))]
+    const unique = [...new Set(auditable.value.map((e) => e.password))]
     breachTotal.value = unique.length
     breachProgress.value = 0
     checkingBreaches.value = true
@@ -84,7 +88,7 @@ export function useSecurityAudit(scope: Ref<SecurityScope> = ref('personal')) {
     }
 
     // Sync the per-entry flag so detail views agree with the audit
-    for (const e of vault.passwords) {
+    for (const e of auditable.value) {
       e.breached = breachedPasswords.value.has(e.password)
     }
   }
@@ -106,6 +110,7 @@ export function useSecurityAudit(scope: Ref<SecurityScope> = ref('personal')) {
 
   return {
     passwords,
+    excludedCount,
     reused,
     reusedGroups,
     weak,

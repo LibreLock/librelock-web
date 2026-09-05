@@ -22,6 +22,10 @@ export interface VaultPassword {
   password: string
   url: string
   notes: string
+  ssoProvider: string | null
+  ssoLabel: string
+  ssoEntryId: string | null
+  excludeFromAnalytics: boolean
   color: string
   icon: string | null
   categoryId: string | null
@@ -74,6 +78,10 @@ export interface CreatePasswordPayload {
   password: string
   url: string
   notes: string
+  ssoProvider?: string | null
+  ssoLabel?: string
+  ssoEntryId?: string | null
+  excludeFromAnalytics?: boolean
   color?: string
   icon?: string | null
   categoryId?: string | null
@@ -127,6 +135,10 @@ interface VaultBlobData {
   cardNumber?: string
   expiration?: string
   cvv?: string
+  ssoProvider?: string | null
+  ssoLabel?: string
+  ssoEntryId?: string | null
+  excludeFromAnalytics?: boolean
   color: string
   icon?: string | null
 }
@@ -177,6 +189,10 @@ function rawToEntry(raw: RawVaultEntry, blob: VaultBlobData, shared = false): Va
     password,
     url: blob.url ?? '',
     notes: blob.notes ?? '',
+    ssoProvider: blob.ssoProvider ?? null,
+    ssoLabel: blob.ssoLabel ?? '',
+    ssoEntryId: blob.ssoEntryId ?? null,
+    excludeFromAnalytics: blob.excludeFromAnalytics === true,
     passwordStrength: scorePassword(password),
     reused: false,
     breached: false,
@@ -214,6 +230,10 @@ export async function encryptEntryBlob(
       password: payload.password,
       url: payload.url,
       notes: payload.notes,
+      ssoProvider: payload.ssoProvider ?? null,
+      ssoLabel: payload.ssoLabel ?? '',
+      ssoEntryId: payload.ssoEntryId ?? null,
+      excludeFromAnalytics: payload.excludeFromAnalytics === true,
       color: payload.color ?? DEFAULT_COLOR,
       icon: payload.icon ?? null,
     }
@@ -263,6 +283,10 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
       password: payload.password,
       url: payload.url,
       notes: payload.notes,
+      ssoProvider: payload.ssoProvider ?? null,
+      ssoLabel: payload.ssoLabel ?? '',
+      ssoEntryId: payload.ssoEntryId ?? null,
+      excludeFromAnalytics: payload.excludeFromAnalytics === true,
       color: payload.color ?? DEFAULT_COLOR,
       icon: payload.icon ?? null,
     }
@@ -303,6 +327,35 @@ function scorePassword(password: string): number {
   if (/[0-9]/.test(password)) score += 1
   if (/[^A-Za-z0-9]/.test(password)) score += 2
   return Math.min(score, 10)
+}
+
+export function hasPassword(entry: VaultEntry): entry is VaultPassword {
+  return entry.type === 'password' && entry.password.length > 0
+}
+
+// A password entry re-expressed as a payload, so an existing entry can be written back with one
+// field changed (blob writes always replace the whole blob)
+export function toPasswordPayload(entry: VaultPassword): CreatePasswordPayload {
+  return {
+    type: 'password',
+    name: entry.name,
+    username: entry.username,
+    email: entry.email,
+    password: entry.password,
+    url: entry.url,
+    notes: entry.notes,
+    ssoProvider: entry.ssoProvider,
+    ssoLabel: entry.ssoLabel,
+    ssoEntryId: entry.ssoEntryId,
+    excludeFromAnalytics: entry.excludeFromAnalytics,
+    color: entry.color,
+    icon: entry.icon,
+    categoryId: entry.categoryId,
+  }
+}
+
+export function isAuditable(entry: VaultPassword): boolean {
+  return entry.password.length > 0 && !entry.excludeFromAnalytics
 }
 
 export async function getVaultEntries(): Promise<VaultEntry[]> {

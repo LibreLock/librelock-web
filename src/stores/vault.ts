@@ -10,8 +10,11 @@ import {
   type VaultCard,
   type VaultEntry,
   type VaultPassword,
+  isAuditable,
 } from '@/api/vault'
 import { checkPasswordBreach } from '@/composables/useBreachCheck'
+import { toast } from '@/composables/useToast'
+import { ssoLabel } from '@/services/sso'
 import { useOrgVaultStore } from '@/stores/orgVault'
 
 export { type VaultEntry, type VaultPassword, type VaultNote, type VaultCard } from '@/api/vault'
@@ -30,6 +33,7 @@ export const useVaultStore = defineStore('vault', () => {
   const reusedPasswordMap = computed(() => {
     const map = new Map<string, VaultPassword[]>()
     for (const e of passwords.value) {
+      if (!isAuditable(e)) continue
       const list = map.get(e.password) ?? []
       list.push(e)
       map.set(e.password, list)
@@ -38,10 +42,12 @@ export const useVaultStore = defineStore('vault', () => {
   })
 
   function isPasswordReused(password: string): boolean {
+    if (!password) return false
     return (reusedPasswordMap.value.get(password)?.length ?? 0) > 1
   }
 
   function getReusedWith(password: string, excludeId: string): VaultPassword[] {
+    if (!password) return []
     return (reusedPasswordMap.value.get(password) ?? []).filter((e) => e.id !== excludeId)
   }
 
@@ -53,6 +59,7 @@ export const useVaultStore = defineStore('vault', () => {
   const checkedBreachIds = ref(new Set<string>())
 
   async function checkEntryBreach(entry: VaultPassword): Promise<void> {
+    if (!isAuditable(entry)) return
     if (checkedBreachIds.value.has(entry.id) || breachCheckingIds.value.has(entry.id)) return
 
     breachCheckingIds.value.add(entry.id)
@@ -119,17 +126,44 @@ export const useVaultStore = defineStore('vault', () => {
     })
   })
 
-  function primaryValue(entry: VaultEntry): string | null {
+  function ssoSource(entry: VaultEntry): VaultPassword | null {
+    if (entry.type !== 'password' || entry.password || !entry.ssoEntryId) return null
+    const org = useOrgVaultStore()
+    const linked =
+      entries.value.find((e) => e.id === entry.ssoEntryId) ??
+      org.entries.find((e) => e.id === entry.ssoEntryId) ??
+      null
+    return linked?.type === 'password' && linked.password ? linked : null
+  }
+
+  function primaryValue(entry: VaultEntry): string {
     switch (entry.type) {
       case 'password':
-        return entry.password
+        return entry.password || (ssoSource(entry)?.password ?? '')
       case 'card':
         return entry.cardNumber
       case 'note':
         return entry.content
       default:
-        return null
+        return ''
     }
+  }
+
+  function canCopy(entry: VaultEntry): boolean {
+    return primaryValue(entry).length > 0
+  }
+
+  function nothingToCopyMessage(entry: VaultEntry): string {
+    if (entry.type === 'card') return `${entry.name} has no card number saved`
+    if (entry.type === 'note') return `${entry.name} is empty`
+    if (entry.type === 'password' && entry.ssoEntryId) {
+      // The link outlives the entry it points at (deleted, or private to another member)
+      return `${entry.name}'s sign-in entry is no longer in your vault`
+    }
+    if (entry.type === 'password' && entry.ssoProvider) {
+      return `${entry.name} signs in with ${ssoLabel(entry.ssoProvider, entry.ssoLabel)} - no password saved`
+    }
+    return `${entry.name} has no password stored`
   }
 
   const visibleResults = ref<VaultEntry[]>([])
@@ -149,7 +183,16 @@ export const useVaultStore = defineStore('vault', () => {
 
   async function copyEntry(entry: VaultEntry): Promise<boolean> {
     const value = primaryValue(entry)
-    if (!value) return false
+    if (!value) {
+      toast.info(nothingToCopyMessage(entry))
+      return false
+    }
+    // An SSO entry holds no password of its own, so the copy silently comes from the entry it signs
+    // in through - say whose password is now on the clipboard
+    const source = ssoSource(entry)
+    if (source) {
+      toast.info(`Copied ${source.name}'s password - ${entry.name} signs in through it`)
+    }
     await navigator.clipboard.writeText(value)
     copiedEntryId.value = entry.id
     clearTimeout(copiedTimer)
@@ -162,8 +205,6 @@ export const useVaultStore = defineStore('vault', () => {
     return entry ? copyEntry(entry) : false
   }
 
-  // Enter follows the highlighted row (Ctrl+Arrow walks it), falling back to the top result when
-  // nothing in the current results is selected
   async function copySelectedSearchResult(): Promise<boolean> {
     const index = copyableResults.value.findIndex((e) => e.id === visibleSelectedId.value)
     return copySearchResult(index === -1 ? 0 : index)
@@ -191,6 +232,7 @@ export const useVaultStore = defineStore('vault', () => {
     copySearchResult,
     copySelectedSearchResult,
     copyEntry,
+    canCopy,
     copiedEntryId,
     breachCheckingIds,
     checkEntryBreach,

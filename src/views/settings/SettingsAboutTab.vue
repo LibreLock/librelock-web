@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { getServerVersion } from '@/api/version'
-import { APP_HELP_URL, APP_NAME, APP_REPO_URL, APP_VERSION } from '@/constants'
+import { APP_NAME, APP_REPO_URL, APP_VERSION } from '@/constants'
 
 const serverVersion = ref<string | null>(null)
 const loading = ref(true)
@@ -36,7 +36,7 @@ onMounted(async () => {
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">About</h2>
-        <p class="mt-0.5 text-sm text-gray-400">Version running on this installation</p>
+        <p class="mt-0.5 text-sm text-gray-400">LibreLock version, source and help</p>
       </div>
 
       <hr class="mt-3 border-gray-100 dark:border-gray-700" />
@@ -83,34 +83,6 @@ onMounted(async () => {
                 />
               </svg>
               <span class="truncate">github.com/librelock</span>
-            </a>
-          </dd>
-        </div>
-
-        <div class="flex items-baseline justify-between gap-4">
-          <dt class="text-gray-500 dark:text-gray-400">Help</dt>
-          <dd>
-            <a
-              :href="APP_HELP_URL"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex max-w-full items-center gap-1.5 font-medium text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-            >
-              <svg
-                class="h-4 w-4 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                />
-              </svg>
-              <span class="truncate">Documentation</span>
             </a>
           </dd>
         </div>

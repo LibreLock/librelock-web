@@ -19,6 +19,10 @@ const password: VaultEntry = {
   password: 'hunter2',
   url: 'https://github.com',
   notes: 'work account',
+  ssoProvider: null,
+  ssoLabel: '',
+  ssoEntryId: null,
+  excludeFromAnalytics: false,
   color: 'bg-blue-500',
   icon: null,
   categoryId: 'cat-1',
@@ -45,6 +49,15 @@ const note: VaultEntry = {
 
 const lookup = (id: string | null) => (id === 'cat-1' ? 'Work' : '')
 
+// Envelope for hand-built plaintext files in the tests below
+const blankFile = {
+  format: 'librelock.backup',
+  version: 1,
+  scope: 'personal',
+  exportedAt: '2026-01-01T00:00:00Z',
+  encrypted: false,
+}
+
 describe('backup', () => {
   it('serializes entries with category names and without ids or derived fields', () => {
     const payload = buildPayload([password, note], ['Work'], lookup)
@@ -57,6 +70,10 @@ describe('backup', () => {
       password: 'hunter2',
       url: 'https://github.com',
       notes: 'work account',
+      ssoProvider: null,
+      ssoLabel: '',
+      ssoEntry: null,
+      excludeFromAnalytics: false,
       color: 'bg-blue-500',
       icon: null,
       category: 'Work',
@@ -120,6 +137,65 @@ describe('backup', () => {
     expect(parsed.payload.categories).toEqual(['Work'])
     expect(parsed.payload.entries).toHaveLength(1)
     expect(parsed.payload.entries.at(0)?.color).toBe(DEFAULT_COLOR)
+  })
+
+  it('round-trips an SSO-only entry and the analytics opt-out', () => {
+    const sso: VaultEntry = {
+      ...(password as Extract<VaultEntry, { type: 'password' }>),
+      id: '3',
+      name: 'Figma',
+      password: '',
+      ssoProvider: 'google',
+      ssoLabel: '',
+      excludeFromAnalytics: true,
+    }
+
+    const payload = buildPayload([sso], [], lookup)
+    const parsed = parseBackupFile(JSON.stringify({ ...blankFile, payload }))
+    if (parsed.encrypted) throw new Error('expected a plaintext file')
+
+    const [entry] = parsed.payload.entries
+    if (!entry || entry.type !== 'password') throw new Error('expected a password entry')
+
+    expect(entry.password).toBe('')
+    expect(entry.ssoProvider).toBe('google')
+    expect(entry.excludeFromAnalytics).toBe(true)
+    expect(toCreatePayload(entry, null)).toMatchObject({
+      password: '',
+      ssoProvider: 'google',
+      ssoLabel: '',
+      excludeFromAnalytics: true,
+    })
+  })
+
+  it('writes an SSO link as the linked entry name and leaves the id for the import pass', () => {
+    const linked: VaultEntry = {
+      ...(password as Extract<VaultEntry, { type: 'password' }>),
+      id: '9',
+      name: 'Google',
+    }
+    const sso: VaultEntry = {
+      ...(password as Extract<VaultEntry, { type: 'password' }>),
+      id: '10',
+      name: 'Figma',
+      password: '',
+      ssoProvider: 'google',
+      ssoEntryId: '9',
+    }
+
+    const payload = buildPayload([linked, sso], [], lookup)
+    const written = payload.entries.at(1)
+    expect(written?.type === 'password' && written.ssoEntry).toBe('Google')
+
+    const parsed = parseBackupFile(JSON.stringify({ ...blankFile, payload }))
+    if (parsed.encrypted) throw new Error('expected a plaintext file')
+
+    const restored = parsed.payload.entries.at(1)
+    if (!restored || restored.type !== 'password') throw new Error('expected a password entry')
+
+    expect(restored.ssoEntry).toBe('Google')
+    // Ids mean nothing across accounts, so the link is resolved by name after every entry exists
+    expect(toCreatePayload(restored, null)).toMatchObject({ ssoEntryId: null })
   })
 
   it('maps a backup entry back to a create payload', () => {

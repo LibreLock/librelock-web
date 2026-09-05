@@ -272,8 +272,8 @@ const statusClasses: Record<Invite['status'], string> = {
       >
         <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Remove all invites?</h3>
         <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-          This deletes <strong>every</strong> invite, including pending ones that haven't been used
-          yet. Any links already shared will stop working.
+          This deletes every invite, including pending ones that haven't been used yet.
+          Any links already shared will stop working.
         </p>
         <div class="mt-5 flex justify-end gap-2">
           <button

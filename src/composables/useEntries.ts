@@ -1,12 +1,14 @@
 import { computed, reactive } from 'vue'
+import { ApiError } from '@/services/api'
 import { useVaultStore } from '@/stores/vault'
 import { useOrgVaultStore } from '@/stores/orgVault'
-import type {
-  CreateEntryPayload,
-  UpdateEntryPayload,
-  VaultCard,
-  VaultEntry,
-  VaultPassword,
+import {
+  toPasswordPayload,
+  type CreateEntryPayload,
+  type UpdateEntryPayload,
+  type VaultCard,
+  type VaultEntry,
+  type VaultPassword,
 } from '@/api/vault'
 
 // Facade over the personal vault and the organization shared vault
@@ -45,15 +47,61 @@ export function useEntries() {
     return entry.shared ? org.removeEntry(entry.id) : vault.removeEntry(entry.id)
   }
 
-  // One-way move of a private entry into the shared vault: create it in the org vault, then delete the personal copy
-  // Demotion (shared -> private) is not offered; unsharing does not un-leak a secret others already saw
+  // Move a private entry into the shared vault: create it in the org vault, then delete the personal copy
   async function promoteToShared(
     entry: VaultEntry,
     payload: CreateEntryPayload,
   ): Promise<VaultEntry> {
     const created = await org.addEntry(payload)
     await vault.removeEntry(entry.id)
+    await relinkSsoTargets(entry.id, created.id)
     return created
+  }
+
+  // The way back out: create the private copy first, then drop the shared one. A failure between the
+  // two leaves a duplicate the user can delete by hand, where the reverse order could destroy the
+  // only copy. The secret stays known to everyone who had shared access - the caller is responsible
+  // for prompting a rotation (see EntryFormView's exposure dialog)
+  async function demoteToPrivate(
+    entry: VaultEntry,
+    payload: CreateEntryPayload,
+  ): Promise<VaultEntry> {
+    // Category ids are per-vault, so an org category means nothing in the personal vault
+    const created = await vault.addEntry({ ...payload, categoryId: null })
+    try {
+      await org.removeEntry(entry.id)
+    } catch (err) {
+      // Another member deleting it first is the outcome we wanted; anything else leaves the secret
+      // in the shared vault, which is exactly what the move was meant to end - say so plainly
+      if (!(err instanceof ApiError) || err.status !== 404) {
+        throw new Error(
+          'Saved to your private vault, but the shared copy could not be removed. Delete it from the shared vault.',
+        )
+      }
+    }
+    // Only personal linkers: pointing a shared entry at a now-private id would resolve for the owner
+    // and dangle invisibly for every other member, which is worse than leaving the link broken
+    await relinkSsoTargets(entry.id, created.id, 'personal')
+    return created
+  }
+
+  // Either move is a create plus a delete, so the moved entry carries a new id. Entries that pointed
+  // at the original are moved over to it; left alone they would keep a dead ssoEntryId and silently
+  // lose their password fall-through
+  async function relinkSsoTargets(
+    oldId: string,
+    newId: string,
+    scope: 'all' | 'personal' = 'all',
+  ): Promise<void> {
+    const pool = scope === 'personal' ? vault.passwords : passwords.value
+    const linked = pool.filter((e) => e.ssoEntryId === oldId)
+    for (const e of linked) {
+      try {
+        await editEntry(e, { ...toPasswordPayload(e), ssoEntryId: newId })
+      } catch {
+        // A link is a convenience: a failed rewrite must not fail the move itself
+      }
+    }
   }
 
   // reactive() so nested refs unwrap on property access (`vault.passwords`), matching how consumers used the Pinia store this facade replaced
@@ -70,5 +118,6 @@ export function useEntries() {
     editEntry,
     removeEntry,
     promoteToShared,
+    demoteToPrivate,
   })
 }

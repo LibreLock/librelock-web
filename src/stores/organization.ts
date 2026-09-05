@@ -18,6 +18,8 @@ export interface Organization {
   mode: AppMode
   registration: RegistrationPolicy
   auto_grant_shared: boolean
+  member_manage_shared: boolean
+  member_edit_shared: boolean
 }
 
 interface OrganizationResponse {
@@ -35,6 +37,10 @@ export const useOrganizationStore = defineStore('organization', () => {
   const isOrganization = computed(() => mode.value === 'organization')
   const registration = computed<RegistrationPolicy>(() => org.value?.registration ?? 'open')
   const autoGrantShared = computed(() => org.value?.auto_grant_shared ?? false)
+  // Shared-vault permissions for plain members; both fail closed until /organization has landed
+  // Off means only admins may add, delete or move a shared entry, and only admins may edit one
+  const memberManageShared = computed(() => org.value?.member_manage_shared ?? false)
+  const memberEditShared = computed(() => org.value?.member_edit_shared ?? false)
   const supportEmail = computed(() => org.value?.support_email?.trim() || '')
   const supportUrl = computed(() => org.value?.support_url?.trim() || '')
   const loginMessage = computed(() => org.value?.login_message?.trim() || '')
@@ -114,6 +120,23 @@ export const useOrganizationStore = defineStore('organization', () => {
     if (data?.organization) apply(data.organization)
   }
 
+  // Admin/owner: which shared-vault writes plain members may perform (also enforced server-side)
+  async function setMemberManageShared(enabled: boolean) {
+    const data = await apiRequest<OrganizationResponse>('/organization/shared-settings', {
+      method: 'PUT',
+      body: JSON.stringify({ member_manage_shared: enabled }),
+    })
+    if (data?.organization) apply(data.organization)
+  }
+
+  async function setMemberEditShared(enabled: boolean) {
+    const data = await apiRequest<OrganizationResponse>('/organization/shared-settings', {
+      method: 'PUT',
+      body: JSON.stringify({ member_edit_shared: enabled }),
+    })
+    if (data?.organization) apply(data.organization)
+  }
+
   return {
     org,
     loaded,
@@ -123,6 +146,8 @@ export const useOrganizationStore = defineStore('organization', () => {
     isOrganization,
     registration,
     autoGrantShared,
+    memberManageShared,
+    memberEditShared,
     supportEmail,
     supportUrl,
     loginMessage,
@@ -134,5 +159,7 @@ export const useOrganizationStore = defineStore('organization', () => {
     revertToPersonal,
     setRegistration,
     setAutoGrantShared,
+    setMemberManageShared,
+    setMemberEditShared,
   }
 })

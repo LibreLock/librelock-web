@@ -161,6 +161,21 @@ import {
   siZalando,
   siProtondrive,
   siProtoncalendar,
+  siStrava,
+  siFitbit,
+  siGarmin,
+  siDuckduckgo,
+  siBrave,
+  siGooglemaps,
+  siBookingdotcom,
+  siExpedia,
+  siShopify,
+  siMailchimp,
+  siAirtable,
+  siZapier,
+  siVimeo,
+  siHomeassistant,
+  siNextcloud,
   type SimpleIcon,
 } from 'simple-icons'
 
@@ -202,7 +217,7 @@ function brand(
   }
 }
 
-// LinkedIn and Microsoft are excluded from simple-icons for trademark reasons but are common enough to warrant hand-authored glyphs
+// LinkedIn, Slack and Microsoft are excluded from simple-icons for trademark reasons but are common enough to warrant hand-authored glyphs
 const LINKEDIN: CatalogIcon = {
   id: 'linkedin',
   label: 'LinkedIn',
@@ -213,6 +228,18 @@ const LINKEDIN: CatalogIcon = {
   ],
   keywords: ['linkedin'],
   domains: ['linkedin.com'],
+}
+
+const SLACK: CatalogIcon = {
+  id: 'slack',
+  label: 'Slack',
+  group: 'Brands',
+  mode: 'fill',
+  paths: [
+    'M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z',
+  ],
+  keywords: ['slack'],
+  domains: ['slack.com'],
 }
 
 const MICROSOFT: CatalogIcon = {
@@ -256,6 +283,7 @@ const BRANDS: CatalogIcon[] = [
   brand('line', siLine, ['line.me']),
   brand('wechat', siWechat, ['wechat.com', 'weixin.qq.com'], ['weixin']),
   brand('zoom', siZoom, ['zoom.us', 'zoom.com']),
+  SLACK,
   brand('github', siGithub, ['github.com']),
   brand('gitlab', siGitlab, ['gitlab.com']),
   brand('bitbucket', siBitbucket, ['bitbucket.org']),
@@ -398,6 +426,21 @@ const BRANDS: CatalogIcon[] = [
   brand('zalando', siZalando, ['zalando.com']),
   brand('protondrive', siProtondrive, ['drive.proton.me'], ['proton drive']),
   brand('protoncalendar', siProtoncalendar, ['calendar.proton.me'], ['proton calendar']),
+  brand('strava', siStrava, ['strava.com']),
+  brand('fitbit', siFitbit, ['fitbit.com']),
+  brand('garmin', siGarmin, ['garmin.com', 'connect.garmin.com']),
+  brand('duckduckgo', siDuckduckgo, ['duckduckgo.com'], ['ddg']),
+  brand('brave', siBrave, ['brave.com']),
+  brand('googlemaps', siGooglemaps, ['maps.google.com'], ['google maps', 'maps']),
+  brand('bookingdotcom', siBookingdotcom, ['booking.com'], ['booking']),
+  brand('expedia', siExpedia, ['expedia.com']),
+  brand('shopify', siShopify, ['shopify.com', 'myshopify.com']),
+  brand('mailchimp', siMailchimp, ['mailchimp.com']),
+  brand('airtable', siAirtable, ['airtable.com']),
+  brand('zapier', siZapier, ['zapier.com']),
+  brand('vimeo', siVimeo, ['vimeo.com']),
+  brand('homeassistant', siHomeassistant, ['home-assistant.io'], ['home assistant', 'hass']),
+  brand('nextcloud', siNextcloud, ['nextcloud.com']),
 ]
 
 // Generic, non-brand icons (Heroicons-style outline glyphs) for categorising entries

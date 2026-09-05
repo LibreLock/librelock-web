@@ -55,7 +55,16 @@ watch(
     <div class="flex min-w-0 flex-1 flex-col">
       <AppTopbar />
       <main class="flex-1 overflow-hidden">
-        <RouterView />
+        <!-- The entry form serves both vault-new and vault-edit, so router-view would otherwise
+             reuse the instance across a form-to-form move and keep the old entry loaded. Keying
+             those routes by path forces a remount; every other route stays unkeyed so selecting an
+             entry in a list view does not throw the list away -->
+        <RouterView v-slot="{ Component, route: current }">
+          <component
+            :is="Component"
+            :key="FORM_NAMES.has(String(current.name)) ? current.fullPath : undefined"
+          />
+        </RouterView>
       </main>
       <AppBottomNav />
     </div>
