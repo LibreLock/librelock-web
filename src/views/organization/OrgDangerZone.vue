@@ -77,11 +77,11 @@ async function confirmRevertToPersonal() {
         class="rounded-lg bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-700 dark:text-red-300 space-y-2"
       >
         <p>
-          This <strong>permanently deletes every other user</strong> and all of their vault data:
+          This permanently deletes every other user and all of their vault data:
           passwords, categories, and sessions. Only your account survives. Roles, invites, branding,
           and the audit log are removed.
         </p>
-        <p><strong>This action cannot be undone.</strong></p>
+        <p>This action cannot be undone.</p>
       </div>
       <button
         type="button"
@@ -106,12 +106,12 @@ async function confirmRevertToPersonal() {
           </h3>
           <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
             <p>
-              This will <strong>permanently delete every other user</strong> and all of their vault
+              This will permanently delete every other user and all of their vault
               data. Only your account ({{ auth.user?.username }}) will remain.
             </p>
             <p>
               The organization, its invites, branding, and audit log are dropped.
-              <strong>This cannot be undone</strong>.
+              This cannot be undone.
             </p>
           </div>
 
@@ -131,6 +131,8 @@ async function confirmRevertToPersonal() {
                   type="button"
                   class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
                   :title="showRevertPassword ? 'Hide password' : 'Show password'"
+                  :aria-label="showRevertPassword ? 'Hide password' : 'Show password'"
+                  :aria-pressed="showRevertPassword"
                   @click="showRevertPassword = !showRevertPassword"
                 >
                   <svg

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watchEffect } from 'vue'
 import type { VaultEntry } from '@/api/vault'
+import { ssoLabel } from '@/services/sso'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
 import { useOrgCategoriesStore } from '@/stores/orgCategories'
 import { useAuthStore } from '@/stores/auth'
+import { useOrganizationStore } from '@/stores/organization'
 import CategoryPill from '@/components/CategoryPill.vue'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
@@ -14,10 +16,7 @@ const props = withDefaults(
     entries: VaultEntry[]
     selectedId: string | null
     title: string
-    // Filter by shared (org) categories instead of personal ones
     shared?: boolean
-    // Show the Passwords/Cards/Notes type selector (mobile "All" view, where those
-    // types no longer have their own bottom-nav tabs)
     showTypeFilter?: boolean
   }>(),
   { shared: false, showTypeFilter: false },
@@ -31,13 +30,16 @@ const vault = useVaultStore()
 const categoriesStore = useCategoriesStore()
 const orgCategoriesStore = useOrgCategoriesStore()
 const auth = useAuthStore()
+const orgStore = useOrganizationStore()
 
 // Filter chips draw from the store matching this sidebar's scope
-// Shared categories are editable only by admins
+// Shared categories take both shared-vault permissions (Organization -> Management -> Access)
 const categoryList = computed(() =>
   props.shared ? orgCategoriesStore.categories : categoriesStore.categories,
 )
-const canEditCategories = computed(() => (props.shared ? auth.isAdmin : true))
+const canEditCategories = computed(() =>
+  props.shared ? auth.isAdmin || (orgStore.memberManageShared && orgStore.memberEditShared) : true,
+)
 
 onMounted(() => (props.shared ? orgCategoriesStore : categoriesStore).fetchCategories())
 
@@ -95,7 +97,11 @@ function copyLabel(entry: VaultEntry): string {
 }
 
 function entrySubtitle(entry: VaultEntry): string {
-  if (entry.type === 'password') return entry.username || entry.email || 'Password'
+  if (entry.type === 'password') {
+    if (entry.username || entry.email) return entry.username || entry.email
+    if (entry.ssoProvider) return `${ssoLabel(entry.ssoProvider, entry.ssoLabel)} sign-in`
+    return 'Password'
+  }
   if (entry.type === 'card') {
     const digits = entry.cardNumber.replace(/\D/g, '')
     return digits.length >= 4 ? `•••• ${digits.slice(-4)}` : 'Card'
@@ -298,6 +304,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
         </button>
 
         <button
+          v-if="vault.canCopy(entry)"
           type="button"
           class="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded transition-all"
           :class="

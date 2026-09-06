@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useOrganizationStore } from '@/stores/organization'
+import { externalHref } from '@/services/url'
 
 const org = useOrganizationStore()
 
-const hasSupport = computed(() => Boolean(org.supportEmail || org.supportUrl))
+const supportHref = computed(() => externalHref(org.supportUrl))
 
-// User may type a bare host ("lan.si"); add a scheme so it isn't treated as a
-// relative link. Leave existing schemes (https://, http://, mailto:) untouched.
-const supportHref = computed(() => {
-  const url = org.supportUrl
-  if (!url) return ''
-  return /^[a-z][a-z0-9+.-]*:/i.test(url) ? url : `https://${url}`
-})
+const hasSupport = computed(() => Boolean(org.supportEmail || supportHref.value))
 </script>
 
 <template>
@@ -27,9 +22,9 @@ const supportHref = computed(() => {
     >
       Contact support
     </a>
-    <span v-if="org.supportEmail && org.supportUrl" aria-hidden="true">·</span>
+    <span v-if="org.supportEmail && supportHref" aria-hidden="true">·</span>
     <a
-      v-if="org.supportUrl"
+      v-if="supportHref"
       :href="supportHref"
       target="_blank"
       rel="noopener noreferrer"

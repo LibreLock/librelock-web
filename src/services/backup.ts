@@ -2,11 +2,6 @@ import { DEFAULT_COLOR, ENTRY_COLORS, KDF_ITER, KDF_MEMORY, KDF_PARALLELISM } fr
 import { decryptString, deriveKeys, encryptString, generateKdfSalt } from '@/services/crypto'
 import type { CreateEntryPayload, VaultEntry } from '@/api/vault'
 
-// Backup files are produced and consumed entirely in the browser: entries are decrypted with the
-// vault (or org) key, re-serialised as plaintext, and optionally re-encrypted under a passphrase the
-// user picks here. The server never sees either side of this - it only ever gets the usual opaque
-// per-entry blobs when an import writes the restored entries back through the normal CRUD routes.
-
 export const BACKUP_FORMAT = 'librelock.backup'
 export const BACKUP_VERSION = 1
 
@@ -30,6 +25,10 @@ export type BackupEntry =
       password: string
       url: string
       notes: string
+      ssoProvider?: string | null
+      ssoLabel?: string
+      ssoEntry?: string | null
+      excludeFromAnalytics?: boolean
     })
   | (BackupEntryBase & { type: 'note'; content: string })
   | (BackupEntryBase & {
@@ -85,6 +84,7 @@ function categoryNameOf(entry: VaultEntry, lookup: (id: string | null) => string
 export function serializeEntry(
   entry: VaultEntry,
   lookup: (id: string | null) => string,
+  entryName: (id: string | null) => string = () => '',
 ): BackupEntry {
   const base: BackupEntryBase = {
     name: entry.name,
@@ -117,6 +117,10 @@ export function serializeEntry(
     password: entry.password,
     url: entry.url,
     notes: entry.notes,
+    ssoProvider: entry.ssoProvider,
+    ssoLabel: entry.ssoLabel,
+    ssoEntry: entryName(entry.ssoEntryId) || null,
+    excludeFromAnalytics: entry.excludeFromAnalytics,
   }
 }
 
@@ -125,7 +129,12 @@ export function buildPayload(
   categories: string[],
   lookup: (id: string | null) => string,
 ): BackupPayload {
-  return { categories: [...categories], entries: entries.map((e) => serializeEntry(e, lookup)) }
+  const names = new Map(entries.map((e) => [e.id, e.name]))
+  const entryName = (id: string | null) => (id ? (names.get(id) ?? '') : '')
+  return {
+    categories: [...categories],
+    entries: entries.map((e) => serializeEntry(e, lookup, entryName)),
+  }
 }
 
 export async function buildBackupFile(
@@ -180,8 +189,6 @@ export function downloadBackup(file: BackupFile, filename: string): void {
   URL.revokeObjectURL(url)
 }
 
-// Import
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -190,7 +197,6 @@ function str(value: unknown): string {
   return typeof value === 'string' ? value : ''
 }
 
-// Colors land in the DOM as utility classes, so anything not from the palette falls back
 function sanitizeColor(value: unknown): string {
   const color = str(value)
   return ENTRY_COLORS.some((c) => c.bg === color) ? color : DEFAULT_COLOR
@@ -210,7 +216,6 @@ function parseEntry(raw: unknown): BackupEntry | null {
     category: category.length > 0 ? category : null,
   }
 
-  // Kept for the reader's benefit only: the server stamps its own timestamps on import
   if (typeof raw.createdAt === 'string') base.createdAt = raw.createdAt
   if (typeof raw.updatedAt === 'string') base.updatedAt = raw.updatedAt
 
@@ -229,6 +234,7 @@ function parseEntry(raw: unknown): BackupEntry | null {
   }
 
   if (raw.type === 'password') {
+    const ssoProvider = str(raw.ssoProvider).trim()
     return {
       ...base,
       type: 'password',
@@ -237,6 +243,10 @@ function parseEntry(raw: unknown): BackupEntry | null {
       password: str(raw.password),
       url: str(raw.url),
       notes: str(raw.notes),
+      ssoProvider: ssoProvider.length > 0 ? ssoProvider : null,
+      ssoLabel: str(raw.ssoLabel),
+      ssoEntry: str(raw.ssoEntry).trim() || null,
+      excludeFromAnalytics: raw.excludeFromAnalytics === true,
     }
   }
 
@@ -256,7 +266,6 @@ function parsePayload(raw: unknown): BackupPayload {
   return { categories, entries }
 }
 
-/** Validates the envelope only - an encrypted file still needs {@link decryptPayload}. */
 export function parseBackupFile(text: string): BackupFile {
   let raw: unknown
   try {
@@ -353,6 +362,10 @@ export function toCreatePayload(entry: BackupEntry, categoryId: string | null): 
     password: entry.password,
     url: entry.url,
     notes: entry.notes,
+    ssoProvider: entry.ssoProvider ?? null,
+    ssoLabel: entry.ssoLabel ?? '',
+    ssoEntryId: null,
+    excludeFromAnalytics: entry.excludeFromAnalytics === true,
   }
 }
 
@@ -361,10 +374,14 @@ function fingerprint(type: string, name: string, secret: string): string {
   return `${type} ${name.trim().toLowerCase()} ${secret}`
 }
 
+function passwordSecret(password: string, ssoProvider: string | null | undefined): string {
+  return password || `sso:${ssoProvider ?? ''}`
+}
+
 export function fingerprintExisting(entry: VaultEntry): string {
   const secret =
     entry.type === 'password'
-      ? entry.password
+      ? passwordSecret(entry.password, entry.ssoProvider)
       : entry.type === 'card'
         ? entry.cardNumber
         : entry.content
@@ -374,7 +391,7 @@ export function fingerprintExisting(entry: VaultEntry): string {
 export function fingerprintImported(entry: BackupEntry): string {
   const secret =
     entry.type === 'password'
-      ? entry.password
+      ? passwordSecret(entry.password, entry.ssoProvider)
       : entry.type === 'card'
         ? entry.cardNumber
         : entry.content

@@ -7,15 +7,15 @@ import type { VaultPassword } from '@/api/vault'
 import EntryIcon from '@/components/EntryIcon.vue'
 import PasswordGeneratorCard from '@/components/PasswordGeneratorCard.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { displayUrl } from '@/services/url'
 
 const router = useRouter()
 const vault = useEntries()
 
-// Scope: audit everything, or split personal vault vs. organization shared vault
-// Only shown once the user actually has org access
 const scope = ref<SecurityScope>('personal')
 const {
   passwords,
+  excludedCount,
   reused,
   weak,
   breached,
@@ -84,8 +84,6 @@ const sections = computed(() => [
   },
 ])
 
-// Only surface a card when it has issues (or is still being checked)
-// A section with zero entries and nothing pending is a clean result - hide it entirely
 const visibleSections = computed(() =>
   sections.value.filter((s) => s.entries.length > 0 || s.pending),
 )
@@ -216,6 +214,12 @@ const visibleSections = computed(() =>
               </svg>
               No breached, reused, or weak passwords found
             </div>
+
+            <p v-if="excludedCount > 0" class="mt-3 text-xs text-gray-400">
+              {{ excludedCount }}
+              {{ excludedCount === 1 ? 'entry is' : 'entries are' }} excluded from analytics.
+              Entries without a password (SSO-only) are not scored either.
+            </p>
           </div>
         </div>
 
@@ -260,7 +264,7 @@ const visibleSections = computed(() =>
                     {{ entry.name }}
                   </p>
                   <p class="truncate text-xs text-gray-500">
-                    {{ entry.username || entry.email || entry.url }}
+                    {{ entry.username || entry.email || displayUrl(entry.url) }}
                   </p>
                 </div>
                 <span v-if="entry.shared" class="text-xs text-gray-400">Shared</span>

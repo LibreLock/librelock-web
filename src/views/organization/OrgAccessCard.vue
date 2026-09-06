@@ -56,6 +56,39 @@ async function toggleAutoGrant() {
     shareBusy.value = false
   }
 }
+
+// --- What plain members may do to shared entries (admins and owners may always do both) ---
+const memberManageShared = computed(() => org.memberManageShared)
+const manageBusy = ref(false)
+
+async function toggleMemberManageShared() {
+  if (manageBusy.value) return
+  error.value = null
+  manageBusy.value = true
+  try {
+    await org.setMemberManageShared(!memberManageShared.value)
+  } catch (err) {
+    error.value = err instanceof ApiError ? err.message : 'Failed to update setting.'
+  } finally {
+    manageBusy.value = false
+  }
+}
+
+const memberEditShared = computed(() => org.memberEditShared)
+const editBusy = ref(false)
+
+async function toggleMemberEditShared() {
+  if (editBusy.value) return
+  error.value = null
+  editBusy.value = true
+  try {
+    await org.setMemberEditShared(!memberEditShared.value)
+  } catch (err) {
+    error.value = err instanceof ApiError ? err.message : 'Failed to update setting.'
+  } finally {
+    editBusy.value = false
+  }
+}
 </script>
 
 <template>
@@ -64,7 +97,7 @@ async function toggleAutoGrant() {
   >
     <div class="px-4 sm:px-6 pt-6 pb-1">
       <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Access</h2>
-      <p class="mt-0.5 text-sm text-gray-400">Who can join and what they can see</p>
+      <p class="mt-0.5 text-sm text-gray-400">Manage instance access and member permissions</p>
     </div>
 
     <hr class="mt-3 border-gray-100 dark:border-gray-700" />
@@ -111,6 +144,46 @@ async function toggleAutoGrant() {
           :model-value="autoGrant"
           :disabled="shareBusy"
           @change="toggleAutoGrant"
+        />
+      </div>
+
+      <div class="flex items-start justify-between gap-4 px-4 sm:px-6 py-5">
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            Allow members to manage shared entries
+          </p>
+          <p class="mt-1 text-xs text-gray-400">
+            Adding an entry to the shared vault, deleting from it, and moving entries back into a
+            private vault. Off (default) allows all three only to admins and owners.
+          </p>
+        </div>
+
+        <ToggleSwitch
+          class="mt-0.5"
+          :model-value="memberManageShared"
+          :disabled="manageBusy"
+          @change="toggleMemberManageShared"
+        />
+      </div>
+
+      <div class="flex items-start justify-between gap-4 px-4 sm:px-6 py-5">
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            Allow members to edit shared entries
+          </p>
+          <p class="mt-1 text-xs text-gray-400">
+            Changing the contents of shared entries (name, password, notes...). Off (default) means
+            members can read and copy shared entries but not alter them. Managing shared categories
+            needs this and the permission above together. Both are enforced on the server, not only
+            in the interface.
+          </p>
+        </div>
+
+        <ToggleSwitch
+          class="mt-0.5"
+          :model-value="memberEditShared"
+          :disabled="editBusy"
+          @change="toggleMemberEditShared"
         />
       </div>
     </div>

@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import AppToaster from '@/components/AppToaster.vue'
 import AppUnreachable from '@/components/AppUnreachable.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { isOffline } from '@/services/connectivity'
@@ -40,4 +41,6 @@ router.afterEach((to, _from, failure) => {
     <RouterView />
     <AppUnreachable v-if="isOffline" variant="banner" />
   </template>
+
+  <AppToaster />
 </template>

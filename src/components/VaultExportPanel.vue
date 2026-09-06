@@ -176,8 +176,7 @@ const passwordInputClass = `${inputClass} pr-10`
 
       <p v-else class="text-sm text-gray-600 dark:text-gray-300">
         You don't have shared-vault access yet, so its entries can't be decrypted in your browser.
-        Ask an owner or a member with access to grant it in the <strong>Users</strong> tab, then
-        reload.
+        Ask an owner or a member with access to grant it in the Users tab, then reload.
       </p>
     </div>
 
@@ -405,9 +404,8 @@ const passwordInputClass = `${inputClass} pr-10`
         >
           <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Import backup?</h3>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            {{ pendingPayload.entries.length }} entries will be added to the
-            <strong>{{ vaultLabel }}</strong
-            >. Nothing currently in it is changed or removed.
+            {{ pendingPayload.entries.length }} entries will be added to the {{ vaultLabel }}.
+            Nothing currently in it is changed or removed.
           </p>
           <p v-if="isShared" class="mt-2 text-sm text-amber-600 dark:text-amber-400">
             Shared entries are readable by every member with shared-vault access.

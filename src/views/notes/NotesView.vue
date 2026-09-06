@@ -37,7 +37,7 @@ function onBack() {
     <VaultEntrySidebar
       :entries="vault.notes"
       :selected-id="selectedId"
-      title="Secure Notes"
+      title="Notes"
       @select="onSelect"
     />
 

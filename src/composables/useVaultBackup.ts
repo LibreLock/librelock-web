@@ -14,6 +14,7 @@ import {
   type BackupPayload,
   type BackupScope,
 } from '@/services/backup'
+import type { CreatePasswordPayload } from '@/api/vault'
 
 export interface ImportSummary {
   imported: number
@@ -106,6 +107,10 @@ export function useVaultBackup() {
       droppedCategories: dropped,
     }
 
+    // SSO links travel as the linked entry's name; they can only be turned back into ids once
+    // every entry exists, so they are collected here and resolved in a second pass
+    const pendingLinks: { id: string; target: string; payload: CreatePasswordPayload }[] = []
+
     const total = payload.entries.length
     let done = 0
     progress.value = { done, total }
@@ -119,7 +124,11 @@ export function useVaultBackup() {
             ? (byName.get(entry.category.toLowerCase()) ?? null)
             : null
           try {
-            await s.entries.addEntry(toCreatePayload(entry, categoryId))
+            const createPayload = toCreatePayload(entry, categoryId)
+            const created = await s.entries.addEntry(createPayload)
+            if (entry.type === 'password' && entry.ssoEntry && createPayload.type === 'password') {
+              pendingLinks.push({ id: created.id, target: entry.ssoEntry, payload: createPayload })
+            }
             seen.add(key)
             summary.imported++
           } catch {
@@ -132,7 +141,30 @@ export function useVaultBackup() {
       progress.value = null
     }
 
+    await relinkSso(scope, pendingLinks)
+
     return summary
+  }
+
+  // Second import pass: match each pending link's target name against the vault and write the id
+  // back. A name that matches nothing is dropped - the link is a convenience, not a secret.
+  async function relinkSso(
+    scope: BackupScope,
+    links: { id: string; target: string; payload: CreatePasswordPayload }[],
+  ): Promise<void> {
+    if (links.length === 0) return
+    const s = stores(scope)
+    const byName = new Map(s.entries.entries.map((e) => [e.name.trim().toLowerCase(), e.id]))
+
+    for (const link of links) {
+      const targetId = byName.get(link.target.trim().toLowerCase())
+      if (!targetId || targetId === link.id) continue
+      try {
+        await s.entries.editEntry(link.id, { ...link.payload, ssoEntryId: targetId })
+      } catch {
+        // Leaving the entry unlinked is the acceptable outcome here
+      }
+    }
   }
 
   return reactive({ progress, exportVault, importVault })

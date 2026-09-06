@@ -224,6 +224,10 @@ function onRoleSelect(user: OrgUser, event: Event) {
   const select = event.target as HTMLSelectElement
   const role = select.value as OrgUser['role']
   if (role === user.role) return
+  if (user.status !== 'active') {
+    select.value = user.role
+    return
+  }
   if (role === 'owner' || role === 'admin') {
     // The modal drives the change, so put the select back until it is confirmed
     select.value = user.role
@@ -413,9 +417,10 @@ function formatDate(iso: string) {
               v-for="user in users"
               :key="user.id"
               class="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-3"
-              :class="{ 'opacity-60': user.status === 'suspended' }"
             >
-              <div class="min-w-0 flex-1">
+              <!-- Fade only the identity block: fading the whole row would also
+                   fade the action menu rendered inside it. -->
+              <div class="min-w-0 flex-1" :class="{ 'opacity-60': user.status === 'suspended' }">
                 <div class="flex items-center gap-2">
                   <p class="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
                     {{ user.username }}
@@ -470,8 +475,13 @@ function formatDate(iso: string) {
                   <div class="relative">
                     <select
                       :value="user.role"
-                      :disabled="busyId === user.id"
-                      class="h-7 appearance-none rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 pl-2.5 pr-7 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 disabled:opacity-50 cursor-pointer"
+                      :disabled="busyId === user.id || user.status !== 'active'"
+                      :title="
+                        user.status !== 'active'
+                          ? 'Suspended users cannot have their role changed'
+                          : undefined
+                      "
+                      class="h-7 appearance-none rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 pl-2.5 pr-7 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                       @change="onRoleSelect(user, $event)"
                     >
                       <option value="member" :disabled="user.role === 'admin' && isLastAdmin(user)">
@@ -581,8 +591,7 @@ function formatDate(iso: string) {
           </h3>
           <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
             <p>
-              <strong>{{ revokeTarget.username }}</strong> will no longer open shared entries after
-              their next sign-in.
+              {{ revokeTarget.username }} will no longer open shared entries after their next sign-in.
             </p>
             <p class="text-amber-700 dark:text-amber-300">
               They already held the shared key while a member, so anything they saw or exported
@@ -626,13 +635,12 @@ function formatDate(iso: string) {
           </h3>
           <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
             <p v-if="adminTarget.role === 'owner'">
-              <strong>{{ adminTarget.username }}</strong> stops being an owner and stays on as an
-              <strong>admin</strong>. They lose the owner-only powers: adding or dropping owners,
-              and reverting the instance to personal mode. Their shared-vault access is kept.
+              {{ adminTarget.username }} stops being an owner and stays on as an admin.
+              They lose the owner-only powers: adding or dropping owners, and reverting the instance to personal mode.
+              Their shared-vault access is kept.
             </p>
             <p v-else>
-              <strong>{{ adminTarget.username }}</strong> will become an <strong>admin</strong> and
-              will get access to the Organization area.
+              {{ adminTarget.username }} will become an admin and will get access to the Organization area.
             </p>
             <div v-if="adminTarget.role !== 'owner'" class="space-y-2">
               <p>An admin can:</p>
@@ -645,14 +653,12 @@ function formatDate(iso: string) {
                 <li>Change the organization name, logo, and branding</li>
                 <li>Read the audit log, including actions taken before they were promoted</li>
                 <li>
-                  Grant and revoke shared-vault access, and change the auto-grant setting, once they
-                  hold the shared key themselves
+                  Grant and revoke shared-vault access, and change the auto-grant setting, once they hold the shared key themselves
                 </li>
               </ul>
             </div>
             <p>
-              An admin cannot touch owners or their own account here, and cannot revert the instance
-              to personal mode.
+              An admin cannot touch owners or their own account here, and cannot revert the instance to personal mode.
             </p>
           </div>
           <div class="mt-5 flex justify-end gap-2">
@@ -695,8 +701,7 @@ function formatDate(iso: string) {
           <h3 class="text-lg font-semibold text-amber-700 dark:text-amber-400">Add owner?</h3>
           <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
             <p>
-              <strong>{{ ownerTarget.username }}</strong> will become an <strong>owner</strong> of
-              this organization.
+              {{ ownerTarget.username }} will become an owner of this organization.
               <span v-if="ownerTarget.role === 'admin'"
                 >They already run the Organization area as an admin.
               </span>
@@ -707,14 +712,12 @@ function formatDate(iso: string) {
             <p>An owner can:</p>
             <ul class="list-disc space-y-1 pl-5">
               <li>
-                Do everything an admin can: manage users, invites, the registration policy,
-                branding, the audit log, and shared-vault access
+                Do everything an admin can: manage users, invites, the registration policy, branding, the audit log, and shared-vault access
               </li>
               <li>Make any other user an owner</li>
               <li>Demote, suspend, or remove other owners, you included</li>
               <li>
-                Revert the instance to personal mode, permanently deleting every account except
-                their own
+                Revert the instance to personal mode, permanently deleting every account except their own
               </li>
             </ul>
             <p>Owner's access can no longer be revoked after this!</p>
@@ -790,8 +793,7 @@ function formatDate(iso: string) {
         >
           <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Remove user?</h3>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            This <strong>permanently deletes</strong> user {{ removeTarget.username }} and their
-            entire vault: passwords, categories, and sessions.
+            This permanently deletes user {{ removeTarget.username }} and their entire vault: passwords, categories, and sessions.
             <br />
             Their data cannot be recovered.
           </p>

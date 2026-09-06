@@ -11,8 +11,11 @@ const props = withDefaults(
     useOrg?: boolean
     // When false the right-click rename/delete menu is disabled (read-only)
     canEdit?: boolean
+    // The pill itself cannot be picked either. A separate prop because the template has two roots
+    // (the button and its Teleport), so attribute fallthrough would drop a plain `disabled`
+    disabled?: boolean
   }>(),
-  { useOrg: false, canEdit: true },
+  { useOrg: false, canEdit: true, disabled: false },
 )
 
 const emit = defineEmits<{ click: []; removed: [] }>()
@@ -95,12 +98,13 @@ onBeforeUnmount(closeMenu)
 <template>
   <button
     type="button"
-    class="max-w-40 truncate rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
+    class="max-w-40 truncate rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
     :class="
       active
         ? 'bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900'
         : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
     "
+    :disabled="disabled"
     @click="emit('click')"
     @contextmenu="openMenu"
   >
@@ -173,7 +177,7 @@ onBeforeUnmount(closeMenu)
       @click.self="showDelete = false"
     >
       <div class="w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 p-4 shadow-xl">
-        <h2 class="mb-2 break-words text-base font-semibold text-gray-900 dark:text-gray-100">
+        <h2 class="mb-2 wrap-break-word text-base font-semibold text-gray-900 dark:text-gray-100">
           Delete "{{ category.name }}"?
         </h2>
         <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">

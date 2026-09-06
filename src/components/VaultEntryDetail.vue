@@ -1,25 +1,49 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import type { VaultEntry } from '@/api/vault'
+import { ssoIcon, ssoLabel } from '@/services/sso'
 import { useCategoriesStore } from '@/stores/categories'
 import { useOrgCategoriesStore } from '@/stores/orgCategories'
 import { useVaultStore } from '@/stores/vault'
+import { useOrgVaultStore } from '@/stores/orgVault'
+import { useAuthStore } from '@/stores/auth'
+import { useOrganizationStore } from '@/stores/organization'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
+import { displayUrl, externalHref } from '@/services/url'
 
 const { entry } = defineProps<{
   entry: VaultEntry
 }>()
 
+// The stored value is whatever the user typed, which may already carry a scheme ("https://x.com")
+// or be a bare host ("x.com"). Prefixing unconditionally produced "https://https://x.com" for the
+// first; externalHref adds the scheme only when one is missing, and refuses anything outside
+// http/https/mailto - an entry can arrive from an imported file or another member's shared entry
+const linkHref = computed(() => (entry.type === 'password' ? externalHref(entry.url) : ''))
+// The scheme is dropped from the label only; linkHref keeps it so the anchor still resolves
+const linkLabel = computed(() => (entry.type === 'password' ? displayUrl(entry.url) : ''))
+
 const categoriesStore = useCategoriesStore()
 const orgCategoriesStore = useOrgCategoriesStore()
 const vault = useVaultStore()
+const orgVault = useOrgVaultStore()
 
 // Shared entries resolve their category name from the org store
 const categoryName = computed(() =>
   entry.shared
     ? orgCategoriesStore.getCategoryName(entry.categoryId)
     : categoriesStore.getCategoryName(entry.categoryId),
+)
+
+const auth = useAuthStore()
+const orgStore = useOrganizationStore()
+
+// A shared entry the user may neither change nor remove has nothing for the form to offer, so the
+// Edit button is not shown at all. The form still refuses those actions on its own: it is reachable
+// by URL and from history (see Organization -> Management -> Access)
+const canOpenForm = computed(
+  () => !entry.shared || auth.isAdmin || orgStore.memberEditShared || orgStore.memberManageShared,
 )
 
 const emit = defineEmits<{
@@ -40,6 +64,44 @@ const maskedCardNumber = computed(() => {
   return masked.replace(/(.{4})/g, '$1 ').trim()
 })
 
+// A password entry may carry no password at all (SSO-only), and may be opted out of analytics -
+// both cases have nothing to reveal, copy or score
+const hasPassword = computed(() => entry.type === 'password' && entry.password.length > 0)
+const isExcluded = computed(() => entry.type === 'password' && entry.excludeFromAnalytics)
+const showSecurity = computed(() => hasPassword.value && !isExcluded.value)
+
+const sso = computed(() =>
+  entry.type === 'password' && entry.ssoProvider
+    ? { label: ssoLabel(entry.ssoProvider, entry.ssoLabel), icon: ssoIcon(entry.ssoProvider) }
+    : null,
+)
+
+// The entry that holds the actual SSO login. Missing is normal rather than broken: it may have
+// been deleted, or belong to another member's private vault when this entry is shared.
+const linked = computed(() => {
+  if (entry.type !== 'password' || !entry.ssoEntryId) return null
+  const found = vault.getEntry(entry.ssoEntryId) ?? orgVault.getEntry(entry.ssoEntryId)
+  return found?.type === 'password' ? found : null
+})
+
+const linkedRoute = computed(() =>
+  linked.value ? `${linked.value.shared ? '/shared' : '/passwords'}/${linked.value.id}` : '',
+)
+
+// Entries that sign in through this one - the mirror of `linked`. One pass over both vaults,
+// cached until their entries change, and skipped entirely for cards and notes
+const linkers = computed(() => {
+  if (entry.type !== 'password') return []
+  const id = entry.id
+  return [...vault.passwords, ...orgVault.passwords].filter(
+    (e) => e.id !== id && e.ssoEntryId === id,
+  )
+})
+
+function entryRoute(e: { id: string; shared: boolean }): string {
+  return `${e.shared ? '/shared' : '/passwords'}/${e.id}`
+}
+
 const isReused = computed(() =>
   entry.type === 'password' ? vault.isPasswordReused(entry.password) : false,
 )
@@ -51,7 +113,7 @@ const reusedWith = computed(() =>
 const isBreachChecking = computed(() => vault.breachCheckingIds.has(entry.id))
 
 function triggerBreachCheck() {
-  if (entry.type === 'password') vault.checkEntryBreach(entry)
+  if (entry.type === 'password' && showSecurity.value) vault.checkEntryBreach(entry)
 }
 
 onMounted(triggerBreachCheck)
@@ -129,14 +191,14 @@ function strengthDot(score: number): string {
           </span>
         </div>
         <a
-          v-if="entry.type === 'password' && entry.url"
-          :href="`https://${entry.url}`"
+          v-if="entry.type === 'password' && linkHref"
+          :href="linkHref"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex max-w-full items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
         >
           <!-- Truncated like the title above: a long URL would otherwise push the header wide -->
-          <span class="truncate">{{ entry.url }}</span>
+          <span class="truncate">{{ linkLabel }}</span>
           <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
@@ -158,6 +220,7 @@ function strengthDot(score: number): string {
       </div>
 
       <button
+        v-if="canOpenForm"
         type="button"
         class="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
         @click="emit('edit')"
@@ -282,17 +345,27 @@ function strengthDot(score: number): string {
             >
               <div class="min-w-0 flex-1">
                 <p class="text-xs text-gray-400">Password</p>
-                <p class="break-all font-mono text-sm text-gray-800 dark:text-gray-200">
+                <p
+                  v-if="hasPassword"
+                  class="break-all font-mono text-sm text-gray-800 dark:text-gray-200"
+                >
                   {{
                     showPassword ? entry.password : '•'.repeat(Math.min(entry.password.length, 18))
                   }}
                 </p>
+                <!-- No password stored: say why rather than render an empty row -->
+                <p v-else class="text-sm text-gray-400 dark:text-gray-500">
+                  <template v-if="linked">Stored in {{ linked.name }}</template>
+                  <template v-else>{{ sso ? `Signs in with ${sso.label}` : 'Not set' }}</template>
+                </p>
               </div>
-              <div class="ml-3 flex shrink-0 gap-2">
+              <div v-if="hasPassword" class="ml-3 flex shrink-0 gap-2">
                 <button
                   type="button"
                   class="text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
                   :title="showPassword ? 'Hide password' : 'Show password'"
+                  :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                  :aria-pressed="showPassword"
                   @click="showPassword = !showPassword"
                 >
                   <svg
@@ -361,10 +434,95 @@ function strengthDot(score: number): string {
                 </button>
               </div>
             </div>
+
+            <!-- Sign-in method, when this account goes through an identity provider -->
+            <div
+              v-if="sso"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3"
+            >
+              <div class="min-w-0">
+                <p class="text-xs text-gray-400">Sign-in</p>
+                <p class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
+                  {{ sso.label }}
+                </p>
+              </div>
+              <EntryIcon
+                v-if="sso.icon"
+                :name="sso.label"
+                color="bg-gray-100 dark:bg-gray-800 text-gray-600! dark:text-gray-300!"
+                :icon="sso.icon"
+                size="sm"
+                class="ml-3"
+              />
+            </div>
+
+            <!-- The entry that holds this provider's account: jump to it, or copy its password
+                 straight from here -->
+            <div
+              v-if="entry.type === 'password' && entry.ssoEntryId"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3"
+            >
+              <div class="min-w-0">
+                <p class="text-xs text-gray-400">Login entry</p>
+                <RouterLink
+                  v-if="linked"
+                  :to="linkedRoute"
+                  class="truncate text-sm font-medium text-gray-800 dark:text-gray-200 underline decoration-gray-300 dark:decoration-gray-600 underline-offset-2 hover:decoration-gray-500"
+                >
+                  {{ linked.name }}
+                </RouterLink>
+                <p v-else class="truncate text-sm text-gray-400 dark:text-gray-500">
+                  Linked entry not available
+                </p>
+              </div>
+              <button
+                v-if="linked"
+                type="button"
+                class="ml-3 shrink-0 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+                :title="`Copy ${linked.name}'s password`"
+                @click="copy(linked.password, 'ssoEntry')"
+              >
+                <svg
+                  v-if="copiedField !== 'ssoEntry'"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+                <svg
+                  v-else
+                  class="h-4 w-4 text-emerald-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </section>
 
-        <section>
+        <p
+          v-if="isExcluded"
+          class="rounded-lg border border-dashed border-gray-200 dark:border-gray-700 px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400"
+        >
+          This entry is excluded from analytics, so it is not included in the Security Center score and not checked for weak, reused and breached passwords.
+        </p>
+
+        <section v-if="showSecurity">
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
             Security
           </h2>
@@ -447,6 +605,38 @@ function strengthDot(score: number): string {
           </div>
         </section>
 
+        <!-- The mirror of the Login entry row above: who depends on this one to sign in -->
+        <section v-if="linkers.length > 0">
+          <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+            Used for sign-in by
+          </h2>
+          <div
+            class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+          >
+            <RouterLink
+              v-for="e in linkers"
+              :key="e.id"
+              :to="entryRoute(e)"
+              class="flex items-center gap-3 border-b border-gray-100 dark:border-gray-700 px-4 py-3 last:border-b-0 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              <EntryIcon :name="e.name" :color="e.color" :icon="e.icon" :url="e.url" size="sm" />
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
+                  {{ e.name }}
+                </p>
+                <p v-if="e.username || e.email" class="truncate text-xs text-gray-400">
+                  {{ e.username || e.email }}
+                </p>
+              </div>
+              <span
+                v-if="e.shared"
+                class="shrink-0 rounded bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 dark:text-gray-400"
+                >Shared</span
+              >
+            </RouterLink>
+          </div>
+        </section>
+
         <section v-if="entry.notes">
           <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
             Notes
@@ -454,7 +644,7 @@ function strengthDot(score: number): string {
           <div
             class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
           >
-            <p class="whitespace-pre-wrap break-words text-sm text-gray-700 dark:text-gray-300">
+            <p class="whitespace-pre-wrap wrap-break-word text-sm text-gray-700 dark:text-gray-300">
               {{ entry.notes }}
             </p>
           </div>
@@ -707,7 +897,7 @@ function strengthDot(score: number): string {
           <div
             class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
           >
-            <p class="whitespace-pre-wrap break-words text-sm text-gray-700 dark:text-gray-300">
+            <p class="whitespace-pre-wrap wrap-break-word text-sm text-gray-700 dark:text-gray-300">
               {{ entry.notes }}
             </p>
           </div>
@@ -723,7 +913,7 @@ function strengthDot(score: number): string {
             class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
           >
             <p
-              class="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              class="whitespace-pre-wrap wrap-break-word text-sm text-gray-700 dark:text-gray-300"
             >
               {{ entry.content }}
             </p>

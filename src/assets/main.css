@@ -2,18 +2,14 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* The app shell owns all scrolling (each view scrolls internally). Locking the document keeps the
-   installed PWA from scrolling its topbar/bottom nav out of view on input focus or overscroll. */
-html,
-body {
+html, body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
   background: var(--color-gray-50);
 }
 
-html.dark,
-html.dark body {
+html.dark, html.dark body {
   background: var(--color-gray-950);
 }
 
@@ -38,8 +34,6 @@ html.dark body {
   --scrollbar-thumb-hover: var(--color-gray-600);
 }
 
-/* Chrome 121+ / Firefox: standard properties take precedence and disable
-   the ::-webkit-scrollbar rules below, which remain as the Safari fallback. */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) transparent;
