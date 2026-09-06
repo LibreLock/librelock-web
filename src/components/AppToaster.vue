@@ -21,7 +21,7 @@ const DOTS: Record<ToastVariant, string> = {
 <template>
   <Teleport to="body">
     <div
-      class="pointer-events-none fixed inset-x-0 bottom-0 z-100 flex flex-col items-center gap-2 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:pb-6"
+      class="pointer-events-none fixed inset-x-0 bottom-0 z-[100] flex flex-col items-center gap-2 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:pb-6"
       role="status"
       aria-live="polite"
       aria-atomic="false"
