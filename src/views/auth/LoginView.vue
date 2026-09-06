@@ -8,6 +8,8 @@ import AppSupportLinks from '@/components/AppSupportLinks.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { useOrganizationStore } from '@/stores/organization'
 import { MAX_PASSWORD_LENGTH, MAX_USERNAME_LENGTH } from '@/constants'
+import { listBiometricRecords, type BiometricRecord } from '@/services/biometric'
+import FingerprintIcon from '@/components/icons/FingerprintIcon.vue'
 
 const org = useOrganizationStore()
 
@@ -15,11 +17,42 @@ const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 
-onMounted(() => {
+// Accounts enrolled for fingerprint unlock on this device (the record is local, so this is empty
+// on every other device and the password form is all anyone sees there)
+const enrolled = ref<BiometricRecord[]>([])
+// Shown once the user picks the password instead, or when nothing is enrolled here
+const showPasswordForm = ref(true)
+
+onMounted(async () => {
   auth.clearError()
   // Refetch so the sign-up link reflects the instance's current setting, not the one cached at app start
   org.load()
+
+  enrolled.value = await listBiometricRecords()
+  const first = enrolled.value[0]
+  if (first) {
+    showPasswordForm.value = false
+    form.username = first.username
+  }
 })
+
+async function unlock(username: string) {
+  auth.sessionExpired = false
+  try {
+    await auth.unlockWithBiometrics(username)
+    await router.replace(redirectPath.value)
+  } catch {
+    // The store has already classified this: a cancelled prompt leaves no error, a dead
+    // enrollment clears itself. Reflect whatever survived
+    enrolled.value = await listBiometricRecords()
+    if (!enrolled.value.length) showPasswordForm.value = true
+  }
+}
+
+function useMasterPassword() {
+  auth.clearError()
+  showPasswordForm.value = true
+}
 
 const form = reactive({
   username: '',
@@ -79,7 +112,43 @@ async function handleSubmit() {
         Session expired. Please log in again.
       </p>
 
-      <form class="space-y-4" @submit.prevent="handleSubmit">
+      <div v-if="enrolled.length" class="space-y-3">
+        <button
+          v-for="record in enrolled"
+          :key="record.username"
+          type="button"
+          :disabled="auth.isSubmitting"
+          class="w-full flex items-center justify-center gap-2 rounded-md bg-gray-800 hover:bg-gray-700 text-white py-2 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+          @click="unlock(record.username)"
+        >
+          <LoadingSpinner v-if="auth.isSubmitting" size="sm" />
+          <FingerprintIcon v-else class="h-5 w-5" />
+          Unlock as {{ record.username }}
+        </button>
+
+        <button
+          v-if="!showPasswordForm"
+          type="button"
+          class="w-full text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 cursor-pointer transition-colors"
+          @click="useMasterPassword"
+        >
+          Use master password instead
+        </button>
+      </div>
+
+      <p
+        v-if="enrolled.length && !showPasswordForm && auth.error"
+        class="mt-4 text-sm text-red-600"
+      >
+        {{ auth.error }}
+      </p>
+
+      <form
+        v-show="showPasswordForm"
+        class="space-y-4"
+        :class="enrolled.length ? 'mt-6' : ''"
+        @submit.prevent="handleSubmit"
+      >
         <div>
           <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
             >Username</label
