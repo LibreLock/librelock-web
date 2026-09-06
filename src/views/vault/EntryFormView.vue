@@ -319,6 +319,10 @@ onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleSsoOutsideClick)
   window.removeEventListener('scroll', handleSsoReflow, true)
   window.removeEventListener('resize', handleSsoReflow)
+  clearTimeout(passwordCopiedTimer)
+  clearTimeout(rotationCopiedTimer)
+  clearTimeout(breachTimer)
+  clearTimeout(candidateBreachTimer)
 })
 
 const linkCandidates = computed(() => {
