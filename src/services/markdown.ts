@@ -62,6 +62,7 @@ function renderInline(escaped: string): string {
     escapes.push(char)
     return `${ESCAPE_TOKEN}${escapes.length - 1}${ESCAPE_TOKEN}`
   })
+  text = text.replace(/\\$/, '')
 
   text = text.replace(
     /&lt;((?:https?:\/\/|mailto:)(?:(?!&gt;)\S)+)&gt;/g,

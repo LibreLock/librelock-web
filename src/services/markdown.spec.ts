@@ -106,6 +106,15 @@ describe('renderMarkdown', () => {
     expect(bad).toContain('[click]')
   })
 
+  it('drops the trailing backslash the editor writes for a Shift+Enter break', () => {
+    const html = renderMarkdown('test\\\ntest\\\ntest')
+    expect(html).toContain('test<br />test<br />test')
+    expect(html).not.toContain('\\')
+
+    // An escaped backslash is still a backslash
+    expect(renderMarkdown('back\\\\slash')).toContain('back\\slash')
+  })
+
   it('treats backslash-escaped punctuation as literal text', () => {
     // What an editor writes when the author typed the brackets rather than a link
     const html = renderMarkdown('Visit \\[nvm\\](https://example.com) later')
