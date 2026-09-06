@@ -24,11 +24,11 @@ export function shortcutFor(to: string): string | undefined {
   return NAV_SHORTCUTS.find((s) => s.to === to)?.key
 }
 
-function isTyping(target: EventTarget | null): boolean {
+export function isTyping(target: EventTarget | null): boolean {
   const el = target as HTMLElement | null
   if (!el) return false
   const tag = el.tagName
-  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable === true
 }
 
 export function useNavShortcuts() {

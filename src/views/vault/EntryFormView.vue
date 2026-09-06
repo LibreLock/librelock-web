@@ -10,6 +10,7 @@ import { useOrganizationStore } from '@/stores/organization'
 import CategoryPill from '@/components/CategoryPill.vue'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
+import NoteEditor from '@/components/NoteEditor.vue'
 import { usePasswordGenerator } from '@/composables/usePasswordGenerator'
 import { checkPasswordBreach } from '@/composables/useBreachCheck'
 import { DEFAULT_COLOR, ENTRY_COLORS } from '@/constants'
@@ -777,9 +778,11 @@ async function handleDelete() {
   }
 }
 
-// Two independent gates, each answered by its own dialog; a confirmed one is carried forward so
-// answering the second never re-asks the first
 async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boolean } = {}) {
+  if (entryType.value === 'note' && !note.content.trim()) {
+    error.value = 'Note content is required'
+    return
+  }
   if (isDemoting.value && !confirmed.exposure) {
     showExposureConfirm.value = true
     return
@@ -1225,11 +1228,11 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                   <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
                     >Notes</label
                   >
-                  <textarea
-                    :disabled="readOnly"
+                  <NoteEditor
                     v-model="account.notes"
-                    rows="3"
-                    class="w-full wrap-break-word resize-y field-sizing-content min-h-20 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="readOnly"
+                    min-height-class="min-h-20"
+                    aria-label="Notes"
                   />
                 </div>
 
@@ -1612,11 +1615,11 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                   <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
                     >Notes</label
                   >
-                  <textarea
-                    :disabled="readOnly"
+                  <NoteEditor
                     v-model="card.notes"
-                    rows="3"
-                    class="w-full wrap-break-word resize-y field-sizing-content min-h-20 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="readOnly"
+                    min-height-class="min-h-20"
+                    aria-label="Notes"
                   />
                 </div>
               </template>
@@ -1639,12 +1642,11 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                   <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
                     >Content<span class="text-red-400">*</span></label
                   >
-                  <textarea
-                    :disabled="readOnly"
+                  <NoteEditor
                     v-model="note.content"
-                    rows="8"
-                    required
-                    class="w-full wrap-break-word resize-y field-sizing-content min-h-44 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-gray-400 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="readOnly"
+                    min-height-class="min-h-44"
+                    aria-label="Note content"
                   />
                 </div>
               </template>

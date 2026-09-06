@@ -29,6 +29,7 @@ export const MAX_PASSWORD_LENGTH = 10000
 export const MAX_USERNAME_LENGTH = 500
 
 export const THEME_STORAGE_KEY = 'theme'
+export const ENTRY_SORT_STORAGE_KEY = 'entry-sort'
 
 export const DEFAULT_CATEGORIES: string[] = ['Personal', 'Work', 'Finance', 'Social', 'Development']
 export const ENTRY_COLORS: Array<{ label: string; bg: string }> = [

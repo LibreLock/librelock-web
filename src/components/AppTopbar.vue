@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useVaultStore } from '@/stores/vault'
 import AppBrand from '@/components/AppBrand.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
-import { shortcutFor } from '@/composables/useNavShortcuts'
+import { isTyping, shortcutFor } from '@/composables/useNavShortcuts'
 
 const vault = useVaultStore()
 
@@ -17,10 +17,7 @@ function digitIndex(code: string): number {
 }
 
 async function handleKeydown(e: KeyboardEvent) {
-  const tag = (e.target as HTMLElement).tagName
-  const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
-
-  if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !isTyping)) {
+  if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !isTyping(e.target))) {
     e.preventDefault()
     searchInput.value?.focus()
     searchInput.value?.select()

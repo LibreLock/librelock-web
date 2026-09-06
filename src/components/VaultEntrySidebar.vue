@@ -10,12 +10,14 @@ import { useOrganizationStore } from '@/stores/organization'
 import CategoryPill from '@/components/CategoryPill.vue'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
+import { SORT_OPTIONS, sortLabel, useEntrySort, type SortId } from '@/composables/useEntrySort'
 
 const props = withDefaults(
   defineProps<{
     entries: VaultEntry[]
     selectedId: string | null
     title: string
+    sortKey: string
     shared?: boolean
     showTypeFilter?: boolean
   }>(),
@@ -54,6 +56,15 @@ const typeFilters: Array<{ value: TypeFilter; label: string }> = [
   { value: 'note', label: 'Notes' },
 ]
 
+const { sortId, setSort, sortEntries } = useEntrySort(props.sortKey)
+
+const sortOpen = ref(false)
+
+function chooseSort(value: SortId) {
+  setSort(value)
+  sortOpen.value = false
+}
+
 const filtered = computed(() => {
   const q = vault.globalSearch.trim().toLowerCase()
   let list = props.entries
@@ -80,7 +91,7 @@ const filtered = computed(() => {
     list = list.filter((e) => e.categoryId != null && activeCategories.value.has(e.categoryId))
   }
 
-  return list
+  return sortEntries(list)
 })
 
 const isSearching = computed(() => vault.globalSearch.trim().length > 0)
@@ -175,6 +186,7 @@ function handleArrowNav(e: KeyboardEvent) {
 
 function handleKeydown(e: KeyboardEvent) {
   syncModifiers(e)
+  if (e.key === 'Escape' && sortOpen.value) sortOpen.value = false
   handleArrowNav(e)
 }
 
@@ -202,9 +214,91 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
     <div class="shrink-0 border-b border-gray-100 dark:border-gray-700">
       <div class="px-4 pb-2 pt-3">
         <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ title }}</h2>
-        <span class="text-xs text-gray-400">
-          {{ filtered.length }} item{{ filtered.length !== 1 ? 's' : '' }}
-        </span>
+        <div class="mt-0.5 flex items-center justify-between gap-2">
+          <span class="text-xs text-gray-400">
+            {{ filtered.length }} item{{ filtered.length !== 1 ? 's' : '' }}
+          </span>
+
+          <div class="relative">
+            <button
+              type="button"
+              class="flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
+              :class="
+                sortOpen ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200' : ''
+              "
+              :aria-expanded="sortOpen"
+              aria-haspopup="menu"
+              :title="`Sorted by ${sortLabel(sortId).toLowerCase()}`"
+              @click="sortOpen = !sortOpen"
+            >
+              <svg
+                class="h-3.5 w-3.5 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 6h11M4 12h7M4 18h4" />
+                <path d="M18 8v10m0 0 3-3m-3 3-3-3" />
+              </svg>
+              <span>{{ sortLabel(sortId) }}</span>
+              <svg
+                class="h-3 w-3 shrink-0 transition-transform"
+                :class="sortOpen ? 'rotate-180' : ''"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            <template v-if="sortOpen">
+              <div class="fixed inset-0 z-40" @click="sortOpen = false" />
+              <div
+                role="menu"
+                class="absolute right-0 z-50 mt-1 w-44 overflow-hidden rounded-lg bg-white dark:bg-gray-900 py-1 shadow-lg ring-1 ring-gray-200 dark:ring-gray-700"
+              >
+                <button
+                  v-for="opt in SORT_OPTIONS"
+                  :key="opt.value"
+                  type="button"
+                  role="menuitemradio"
+                  :aria-checked="sortId === opt.value"
+                  class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs font-medium transition-colors"
+                  :class="
+                    sortId === opt.value
+                      ? 'text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  "
+                  @click="chooseSort(opt.value)"
+                >
+                  <svg
+                    class="h-3.5 w-3.5 shrink-0"
+                    :class="sortId === opt.value ? 'opacity-100' : 'opacity-0'"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m5 13 4 4L19 7" />
+                  </svg>
+                  {{ opt.label }}
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
       </div>
 
       <!-- Type selector: on mobile the "All" view absorbs Passwords/Cards/Notes, so switch between them here -->

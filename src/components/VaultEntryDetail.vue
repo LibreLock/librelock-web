@@ -10,18 +10,14 @@ import { useAuthStore } from '@/stores/auth'
 import { useOrganizationStore } from '@/stores/organization'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
+import MarkdownText from '@/components/MarkdownText.vue'
 import { displayUrl, externalHref } from '@/services/url'
 
 const { entry } = defineProps<{
   entry: VaultEntry
 }>()
 
-// The stored value is whatever the user typed, which may already carry a scheme ("https://x.com")
-// or be a bare host ("x.com"). Prefixing unconditionally produced "https://https://x.com" for the
-// first; externalHref adds the scheme only when one is missing, and refuses anything outside
-// http/https/mailto - an entry can arrive from an imported file or another member's shared entry
 const linkHref = computed(() => (entry.type === 'password' ? externalHref(entry.url) : ''))
-// The scheme is dropped from the label only; linkHref keeps it so the anchor still resolves
 const linkLabel = computed(() => (entry.type === 'password' ? displayUrl(entry.url) : ''))
 
 const categoriesStore = useCategoriesStore()
@@ -29,7 +25,6 @@ const orgCategoriesStore = useOrgCategoriesStore()
 const vault = useVaultStore()
 const orgVault = useOrgVaultStore()
 
-// Shared entries resolve their category name from the org store
 const categoryName = computed(() =>
   entry.shared
     ? orgCategoriesStore.getCategoryName(entry.categoryId)
@@ -644,9 +639,7 @@ function strengthDot(score: number): string {
           <div
             class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
           >
-            <p class="whitespace-pre-wrap wrap-break-word text-sm text-gray-700 dark:text-gray-300">
-              {{ entry.notes }}
-            </p>
+            <MarkdownText :text="entry.notes" />
           </div>
         </section>
       </template>
@@ -897,9 +890,7 @@ function strengthDot(score: number): string {
           <div
             class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
           >
-            <p class="whitespace-pre-wrap wrap-break-word text-sm text-gray-700 dark:text-gray-300">
-              {{ entry.notes }}
-            </p>
+            <MarkdownText :text="entry.notes" />
           </div>
         </section>
       </template>
@@ -912,11 +903,7 @@ function strengthDot(score: number): string {
           <div
             class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
           >
-            <p
-              class="whitespace-pre-wrap wrap-break-word text-sm text-gray-700 dark:text-gray-300"
-            >
-              {{ entry.content }}
-            </p>
+            <MarkdownText :text="entry.content" />
           </div>
         </section>
       </template>

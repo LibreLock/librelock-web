@@ -35,6 +35,7 @@ function onBack() {
 <template>
   <div class="flex h-full">
     <VaultEntrySidebar
+      sort-key="notes"
       :entries="vault.notes"
       :selected-id="selectedId"
       title="Notes"
