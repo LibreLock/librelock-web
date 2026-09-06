@@ -153,7 +153,7 @@ async function handleRemove() {
             class="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 cursor-pointer"
             @click="openEnrollForm"
           >
-            <FingerprintIcon class="h-4 w-4" />
+            <FingerprintIcon class="h-5 w-5" />
             Set up fingerprint unlock
           </button>
 

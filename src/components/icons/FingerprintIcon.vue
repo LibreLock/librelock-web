@@ -1,12 +1,15 @@
 <template>
   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-    <g stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
-      <path d="M12 11v2a9 9 0 0 1-.6 3.2" />
-      <path d="M8.5 11a3.5 3.5 0 1 1 7 0v2a13 13 0 0 1-.5 3.6" />
-      <path d="M5.5 13v-2a6.5 6.5 0 0 1 9.8-5.6" />
-      <path d="M18.5 11v2c0 1.3-.1 2.5-.4 3.7" />
-      <path d="M5.7 17.5c.5-1.4.8-2.9.8-4.5" />
-      <path d="M3 8.5A9.6 9.6 0 0 1 12 3a9.6 9.6 0 0 1 6.3 2.3" />
+    <g stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 12a10 10 0 0 1 18-6" />
+      <path d="M2 16h.01" />
+      <path d="M21.8 16c.2-2 .131-5.354 0-6" />
+      <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2" />
+      <path d="M8.65 22c.21-.66.45-1.32.57-2" />
+      <path d="M9 6.8a6 6 0 0 1 9 5.2v2" />
+      <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4" />
+      <path d="M14 13.12c0 2.38 0 6.38-1 8.88" />
+      <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02" />
     </g>
   </svg>
 </template>
