@@ -2,17 +2,19 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import SettingsAccountTab from './SettingsAccountTab.vue'
+import SettingsSecurityTab from './SettingsSecurityTab.vue'
 import SettingsInstanceTab from './SettingsInstanceTab.vue'
 import SettingsSessionsTab from './SettingsSessionsTab.vue'
 import SettingsExportTab from './SettingsExportTab.vue'
 import SettingsAboutTab from './SettingsAboutTab.vue'
 import { useOrganizationStore } from '@/stores/organization'
 
-const ALL_TABS = ['account', 'instance', 'sessions', 'export', 'about'] as const
+const ALL_TABS = ['account', 'security', 'instance', 'sessions', 'export', 'about'] as const
 type Tab = (typeof ALL_TABS)[number]
 
 const TAB_LABELS: Record<Tab, string> = {
   account: 'Account',
+  security: 'Security',
   instance: 'Instance',
   sessions: 'Sessions',
   export: 'Export & Import',
@@ -62,6 +64,7 @@ function onTabChange(tab: Tab) {
       </div>
 
       <SettingsAccountTab v-if="activeTab === 'account'" />
+      <SettingsSecurityTab v-if="activeTab === 'security'" />
       <SettingsInstanceTab v-if="activeTab === 'instance'" />
       <SettingsSessionsTab v-if="activeTab === 'sessions'" />
       <SettingsExportTab v-if="activeTab === 'export'" />

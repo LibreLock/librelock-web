@@ -39,22 +39,9 @@ export function generateKdfSalt(): string {
   return bytesToHex(crypto.getRandomValues(new Uint8Array(32)))
 }
 
-export async function deriveKeys(
-  password: string,
-  params: KdfParams,
+export async function deriveFromMasterKey(
+  masterKeyBytes: Uint8Array<ArrayBuffer>,
 ): Promise<{ wrappingKey: CryptoKey; authCredential: string }> {
-  const salt = hexToBytes(params.kdfSalt)
-
-  const masterKeyBytes = (await argon2id({
-    password,
-    salt,
-    parallelism: params.kdfParallelism,
-    iterations: params.kdfIter,
-    memorySize: params.kdfMemory,
-    hashLength: 32,
-    outputType: 'binary',
-  })) as Uint8Array<ArrayBuffer>
-
   const hkdfKey = await crypto.subtle.importKey('raw', masterKeyBytes, 'HKDF', false, [
     'deriveBits',
   ])
@@ -82,6 +69,31 @@ export async function deriveKeys(
   )
 
   return { wrappingKey, authCredential }
+}
+
+export async function deriveKeys(
+  password: string,
+  params: KdfParams,
+): Promise<{
+  wrappingKey: CryptoKey
+  authCredential: string
+  masterKeyBytes: Uint8Array<ArrayBuffer>
+}> {
+  const salt = hexToBytes(params.kdfSalt)
+
+  const masterKeyBytes = (await argon2id({
+    password,
+    salt,
+    parallelism: params.kdfParallelism,
+    iterations: params.kdfIter,
+    memorySize: params.kdfMemory,
+    hashLength: 32,
+    outputType: 'binary',
+  })) as Uint8Array<ArrayBuffer>
+
+  // Handed back so a caller that just re-authenticated can enrol biometric unlock without a
+  // second password prompt. It is password-equivalent: never store or log it outside that path
+  return { ...(await deriveFromMasterKey(masterKeyBytes)), masterKeyBytes }
 }
 
 export async function generateVaultKey(): Promise<CryptoKey> {

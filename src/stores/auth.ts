@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import { ApiError, NetworkError, apiRequest } from '@/services/api'
 import {
   deriveKeys,
+  deriveFromMasterKey,
   encryptString,
   generateKdfSalt,
   generateVaultKey,
@@ -40,6 +41,12 @@ import {
   type TabSyncUser,
   type TabSyncKeys,
 } from '@/services/tabsync'
+import {
+  CredentialMissingError,
+  UserCancelledError,
+  removeBiometric,
+  unlockWithBiometric,
+} from '@/services/biometric'
 import { useCategoriesStore } from '@/stores/categories'
 import { useOrgCategoriesStore } from '@/stores/orgCategories'
 import { useVaultStore } from '@/stores/vault'
@@ -235,6 +242,37 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Everything after the two subkeys exist, shared by the password path and the biometric one
+  // The subkeys are all that differs between them: one pays Argon2id, the other reads the
+  // MasterKey back off the device
+  async function completeLogin(
+    username: string,
+    wrappingKey: CryptoKey,
+    authCredential: string,
+  ): Promise<AuthUser | null> {
+    const response =
+      (await apiRequest<AuthResponse>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, auth_credential: authCredential }),
+      })) ?? {}
+
+    const protectedKey = response.user?.protected_key
+    if (!protectedKey) throw new Error('Server did not return protected_key.')
+    const vaultKey = await unwrapKey(protectedKey, wrappingKey)
+
+    setVaultKey(vaultKey)
+    await saveSessionKey(vaultKey)
+    if (response.user) {
+      await restoreOrBackfillKeypair(response.user, wrappingKey)
+      await loadOrgKeyFromServer()
+    }
+    user.value = response.user ?? null
+    status.value = 'authenticated'
+    if (user.value) useThemeStore().adopt(user.value.theme)
+    broadcastAuth({ key: vaultKey, privateKey: getPrivateKey(), orgKey: getOrgKey() }, user.value!)
+    return user.value
+  }
+
   async function logIn(username: string, password: string) {
     isSubmitting.value = true
     error.value = null
@@ -242,33 +280,44 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const kdfParams = await fetchKdfParams(username)
       const { wrappingKey, authCredential } = await deriveKeys(password, kdfParams)
-
-      const response =
-        (await apiRequest<AuthResponse>('/auth/login', {
-          method: 'POST',
-          body: JSON.stringify({ username, auth_credential: authCredential }),
-        })) ?? {}
-
-      const protectedKey = response.user?.protected_key
-      if (!protectedKey) throw new Error('Server did not return protected_key.')
-      const vaultKey = await unwrapKey(protectedKey, wrappingKey)
-
-      setVaultKey(vaultKey)
-      await saveSessionKey(vaultKey)
-      if (response.user) {
-        await restoreOrBackfillKeypair(response.user, wrappingKey)
-        await loadOrgKeyFromServer()
-      }
-      user.value = response.user ?? null
-      status.value = 'authenticated'
-      if (user.value) useThemeStore().adopt(user.value.theme)
-      broadcastAuth(
-        { key: vaultKey, privateKey: getPrivateKey(), orgKey: getOrgKey() },
-        user.value!,
-      )
-      return user.value
+      return await completeLogin(username, wrappingKey, authCredential)
     } catch (caughtError) {
       error.value = getErrorMessage(caughtError)
+      throw caughtError
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+  // Cold start on an enrolled device: the authenticator releases the PRF bytes, those decrypt the
+  // stored MasterKey, and the ordinary login runs from there - no KDF fetch, no Argon2id
+  async function unlockWithBiometrics(username: string) {
+    isSubmitting.value = true
+    error.value = null
+
+    try {
+      const masterKeyBytes = await unlockWithBiometric(username)
+      const { wrappingKey, authCredential } = await deriveFromMasterKey(masterKeyBytes)
+      return await completeLogin(username, wrappingKey, authCredential)
+    } catch (caughtError) {
+      // A 401 here means the stored MasterKey no longer matches the account - the master password
+      // (or its KDF parameters) changed elsewhere. The enrollment can never succeed again, so drop
+      // it rather than leaving a button that always fails
+      if (caughtError instanceof ApiError && caughtError.status === 401) {
+        await removeBiometric(username)
+        const stale = new Error(
+          'Your master password changed since fingerprint unlock was set up. Log in with your master password, then set it up again.',
+        )
+        error.value = stale.message
+        throw stale
+      }
+      if (caughtError instanceof CredentialMissingError) {
+        await removeBiometric(username)
+      }
+      // A dismissed prompt is a normal thing to do; it must not leave an error banner behind
+      if (!(caughtError instanceof UserCancelledError)) {
+        error.value = getErrorMessage(caughtError)
+      }
       throw caughtError
     } finally {
       isSubmitting.value = false
@@ -382,6 +431,7 @@ export const useAuthStore = defineStore('auth', () => {
     isSubmitting,
     refreshSession,
     logIn,
+    unlockWithBiometrics,
     logOut,
     receiveTabAuth,
     register,

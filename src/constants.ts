@@ -10,12 +10,18 @@ export const API_BASE_URL = configuredApiBaseUrl ? configuredApiBaseUrl : '/api'
 export const APP_VERSION = __APP_VERSION__
 
 export const DB_NAME = 'librelock'
+// Bumped to 2 to add the device store; openDb creates whatever is missing, so v1 databases upgrade in place
+export const DB_VERSION = 2
 export const STORE = 'session'
+// Durable, never wrapped under the session secret: survives logout and browser restart
+export const DEVICE_STORE = 'device'
 export const KEY_ID = 'vault_key'
 export const PRIVATE_KEY_ID = 'private_key'
 export const ORG_KEY_ID = 'org_key'
 // Per-tab random key that every stored key is wrapped under; dies with the tab, taking the usefulness of anything left in IndexedDB with it
 export const SESSION_SECRET = 'vault_session_key'
+// One device-store record per enrolled account, so several accounts can enrol on one device
+export const BIOMETRIC_PREFIX = 'biometric:'
 
 export const KDF_ALGO = 'argon2id'
 export const KDF_ITER = 4

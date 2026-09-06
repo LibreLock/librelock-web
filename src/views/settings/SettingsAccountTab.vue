@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import { ApiError, apiRequest } from '@/services/api'
 import { useAuthStore, fetchKdfParams } from '@/stores/auth'
+import { getBiometricRecord, removeBiometric } from '@/services/biometric'
+import { toast } from '@/composables/useToast'
 import {
   deriveKeys,
   generateKdfSalt,
@@ -122,6 +124,14 @@ async function handleChangePassword() {
       }),
     })
 
+    // The enrolled device holds the old MasterKey, which no longer opens this account. Nothing
+    // can re-derive the new one without a fresh WebAuthn prompt, so drop it and say so rather
+    // than leaving an unlock button that fails on next use
+    if (username && (await getBiometricRecord(username))) {
+      await removeBiometric(username)
+      toast.info('Fingerprint unlock was turned off - set it up again in Settings → Security')
+    }
+
     passwordSuccess.value = true
     currentPassword.value = ''
     newPassword.value = ''
@@ -179,6 +189,8 @@ async function confirmDeleteAccount() {
       body: JSON.stringify({ auth_credential: deleteAuthCredential.value }),
     })
 
+    // logOut deliberately keeps biometric enrolments; this account no longer exists, so its own has to go
+    if (auth.user?.username) await removeBiometric(auth.user.username)
     await auth.logOut()
     router.push('/login')
   } catch (err) {
@@ -272,7 +284,9 @@ async function confirmDeleteAccount() {
               <button
                 type="button"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
-                :aria-label="showCurrentPassword ? 'Hide current password' : 'Show current password'"
+                :aria-label="
+                  showCurrentPassword ? 'Hide current password' : 'Show current password'
+                "
                 :aria-pressed="showCurrentPassword"
                 @click="showCurrentPassword = !showCurrentPassword"
               >
@@ -558,8 +572,8 @@ async function confirmDeleteAccount() {
           >
             <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Delete account?</h3>
             <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-              This permanently deletes your account and all associated data - passwords, cards, notes, and categories.
-              This action cannot be undone.
+              This permanently deletes your account and all associated data - passwords, cards,
+              notes, and categories. This action cannot be undone.
             </p>
             <div class="mt-5 flex justify-end gap-2">
               <button

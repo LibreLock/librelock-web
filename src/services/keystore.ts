@@ -1,22 +1,39 @@
-import { DB_NAME, KEY_ID, ORG_KEY_ID, PRIVATE_KEY_ID, SESSION_SECRET, STORE } from '@/constants'
+import {
+  DB_NAME,
+  DB_VERSION,
+  DEVICE_STORE,
+  KEY_ID,
+  ORG_KEY_ID,
+  PRIVATE_KEY_ID,
+  SESSION_SECRET,
+  STORE,
+} from '@/constants'
 
 type WrappedKey = { iv: Uint8Array<ArrayBuffer>; data: ArrayBuffer }
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1)
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE)
+    const req = indexedDB.open(DB_NAME, DB_VERSION)
+    req.onupgradeneeded = () => {
+      const db = req.result
+      // Guarded rather than keyed off oldVersion: a v1 database already has STORE, a fresh one has neither, and both end up with the same two stores
+      if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE)
+      if (!db.objectStoreNames.contains(DEVICE_STORE)) db.createObjectStore(DEVICE_STORE)
+    }
+    // Another tab on the old version holds the database open, so the upgrade never runs
+    // Every access here opens and closes, so this only happens if a tab is mid-transaction; failing loudly beats hanging on a promise that will not settle
+    req.onblocked = () => reject(new Error('Another LibreLock tab is blocking a storage upgrade'))
     req.onsuccess = () => resolve(req.result)
     req.onerror = () => reject(req.error)
   })
 }
 
-function putRecord(id: string, record: WrappedKey): Promise<void> {
+function putRecord(store: string, id: string, record: unknown): Promise<void> {
   return openDb().then(
     (db) =>
       new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, 'readwrite')
-        tx.objectStore(STORE).put(record, id)
+        const tx = db.transaction(store, 'readwrite')
+        tx.objectStore(store).put(record, id)
         tx.oncomplete = () => {
           db.close()
           resolve()
@@ -29,15 +46,15 @@ function putRecord(id: string, record: WrappedKey): Promise<void> {
   )
 }
 
-function getRecord(id: string): Promise<WrappedKey | null> {
+function getRecord<T>(store: string, id: string): Promise<T | null> {
   return openDb().then(
     (db) =>
       new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, 'readonly')
-        const req = tx.objectStore(STORE).get(id)
+        const tx = db.transaction(store, 'readonly')
+        const req = tx.objectStore(store).get(id)
         req.onsuccess = () => {
           db.close()
-          resolve((req.result as WrappedKey) ?? null)
+          resolve((req.result as T) ?? null)
         }
         req.onerror = () => {
           db.close()
@@ -47,12 +64,12 @@ function getRecord(id: string): Promise<WrappedKey | null> {
   )
 }
 
-function deleteKeys(ids: string[]): Promise<void> {
+function deleteKeys(store: string, ids: string[]): Promise<void> {
   return openDb().then(
     (db) =>
       new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, 'readwrite')
-        for (const id of ids) tx.objectStore(STORE).delete(id)
+        const tx = db.transaction(store, 'readwrite')
+        for (const id of ids) tx.objectStore(store).delete(id)
         tx.oncomplete = () => {
           db.close()
           resolve()
@@ -113,7 +130,7 @@ async function putWrapped(id: string, key: CryptoKey, format: 'raw' | 'pkcs8'): 
   const iv = crypto.getRandomValues(new Uint8Array(12))
   const wrapper = await sessionKey(secret)
   const data = await crypto.subtle.wrapKey(format, key, wrapper, { name: 'AES-GCM', iv })
-  await putRecord(id, { iv, data })
+  await putRecord(STORE, id, { iv, data })
 }
 
 async function getWrapped(
@@ -125,11 +142,11 @@ async function getWrapped(
   const secret = readSessionSecret()
   if (!secret) {
     // No secret means the tab that wrote these rows is gone; whatever is left can never be read
-    await deleteKeys(ALL_IDS)
+    await deleteKeys(STORE, ALL_IDS)
     return null
   }
 
-  const record = await getRecord(id)
+  const record = await getRecord<WrappedKey>(STORE, id)
   if (!record) return null
 
   try {
@@ -177,7 +194,48 @@ export async function loadOrgKey(): Promise<CryptoKey | null> {
   return getWrapped(ORG_KEY_ID, 'raw', VAULT_KEY_ALGO, ['encrypt', 'decrypt'])
 }
 
+// Ends the unlocked session. The device store is deliberately untouched: a biometric enrolment
+// has to outlive a logout, which is the whole point of it
 export async function clearSessionKey(): Promise<void> {
   sessionStorage.removeItem(SESSION_SECRET)
-  await deleteKeys(ALL_IDS)
+  await deleteKeys(STORE, ALL_IDS)
+}
+
+// Device store: survives logout, tab close and browser restart, and is never wrapped under the session secret.
+// Only put things here that carry their own encryption
+export function putDeviceRecord(id: string, record: unknown): Promise<void> {
+  return putRecord(DEVICE_STORE, id, record)
+}
+
+export function getDeviceRecord<T>(id: string): Promise<T | null> {
+  return getRecord<T>(DEVICE_STORE, id)
+}
+
+export function deleteDeviceRecord(id: string): Promise<void> {
+  return deleteKeys(DEVICE_STORE, [id])
+}
+
+export function listDeviceRecords<T>(prefix: string): Promise<T[]> {
+  return openDb().then(
+    (db) =>
+      new Promise((resolve, reject) => {
+        const tx = db.transaction(DEVICE_STORE, 'readonly')
+        const req = tx.objectStore(DEVICE_STORE).openCursor()
+        const out: T[] = []
+        req.onsuccess = () => {
+          const cursor = req.result
+          if (cursor) {
+            if (String(cursor.key).startsWith(prefix)) out.push(cursor.value as T)
+            cursor.continue()
+            return
+          }
+          db.close()
+          resolve(out)
+        }
+        req.onerror = () => {
+          db.close()
+          reject(req.error)
+        }
+      }),
+  )
 }
