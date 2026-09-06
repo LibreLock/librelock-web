@@ -546,6 +546,7 @@ watch(rotationCandidate, (pw) => {
 
 // The Name input of whichever type's form is rendered (only one branch exists at a time)
 const nameInput = ref<HTMLInputElement | null>(null)
+const formEl = ref<HTMLFormElement | null>(null)
 
 async function focusName() {
   await nextTick()
@@ -716,7 +717,8 @@ function handleFormShortcuts(e: KeyboardEvent) {
       return
     e.preventDefault()
     e.stopPropagation()
-    handleSubmit()
+    if (saveBlocked.value) return
+    formEl.value?.requestSubmit()
     return
   }
 
@@ -778,9 +780,37 @@ async function handleDelete() {
   }
 }
 
+function validate(): string | null {
+  if (entryType.value === 'password') {
+    account.name = account.name.trim()
+    if (!account.name) return 'Name is required'
+    return null
+  }
+  if (entryType.value === 'card') {
+    card.name = card.name.trim()
+    card.cardNumber = card.cardNumber.trim()
+    card.expiration = card.expiration.trim()
+    card.cvv = card.cvv.trim()
+    if (!card.name) return 'Name is required'
+    if (!card.cardNumber) return 'Card number is required'
+    if (!card.expiration) return 'Expiration is required'
+    if (!card.cvv) return 'CVV is required'
+    return null
+  }
+  note.name = note.name.trim()
+  if (!note.name) return 'Name is required'
+  if (!note.content.trim()) return 'Note content is required'
+  return null
+}
+
 async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boolean } = {}) {
-  if (entryType.value === 'note' && !note.content.trim()) {
-    error.value = 'Note content is required'
+  const problem = validate()
+  if (problem) {
+    error.value = problem
+    showExposureConfirm.value = false
+    showPrivateLinkConfirm.value = false
+    await nextTick()
+    formEl.value?.reportValidity()
     return
   }
   if (isDemoting.value && !confirmed.exposure) {
@@ -992,7 +1022,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
         v-else
         class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 overflow-hidden"
       >
-        <form @submit.prevent="handleSubmit()">
+        <form ref="formEl" @submit.prevent="handleSubmit()">
           <div
             class="grid grid-cols-1 lg:grid-cols-[1fr_360px] lg:divide-x lg:divide-gray-100 dark:lg:divide-gray-700"
           >
