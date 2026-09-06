@@ -364,6 +364,8 @@ function strengthDot(score: number): string {
                   type="button"
                   class="text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
                   :title="showPassword ? 'Hide password' : 'Show password'"
+                  :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                  :aria-pressed="showPassword"
                   @click="showPassword = !showPassword"
                 >
                   <svg

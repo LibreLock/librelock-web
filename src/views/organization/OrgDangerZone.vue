@@ -131,6 +131,8 @@ async function confirmRevertToPersonal() {
                   type="button"
                   class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
                   :title="showRevertPassword ? 'Hide password' : 'Show password'"
+                  :aria-label="showRevertPassword ? 'Hide password' : 'Show password'"
+                  :aria-pressed="showRevertPassword"
                   @click="showRevertPassword = !showRevertPassword"
                 >
                   <svg

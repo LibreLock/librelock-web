@@ -272,6 +272,8 @@ async function confirmDeleteAccount() {
               <button
                 type="button"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
+                :aria-label="showCurrentPassword ? 'Hide current password' : 'Show current password'"
+                :aria-pressed="showCurrentPassword"
                 @click="showCurrentPassword = !showCurrentPassword"
               >
                 <svg
@@ -327,6 +329,8 @@ async function confirmDeleteAccount() {
               <button
                 type="button"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
+                :aria-label="showNewPasswords ? 'Hide new password' : 'Show new password'"
+                :aria-pressed="showNewPasswords"
                 @click="showNewPasswords = !showNewPasswords"
               >
                 <svg
@@ -407,6 +411,8 @@ async function confirmDeleteAccount() {
               <button
                 type="button"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
+                :aria-label="showNewPasswords ? 'Hide confirm password' : 'Show confirm password'"
+                :aria-pressed="showNewPasswords"
                 @click="showNewPasswords = !showNewPasswords"
               >
                 <svg

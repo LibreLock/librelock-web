@@ -1102,6 +1102,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                         type="button"
                         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
                         :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                        :aria-pressed="showPassword"
                         @click="showPassword = !showPassword"
                       >
                         <svg
