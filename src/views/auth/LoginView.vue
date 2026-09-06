@@ -122,7 +122,7 @@ async function handleSubmit() {
           @click="unlock(record.username)"
         >
           <LoadingSpinner v-if="auth.isSubmitting" size="sm" />
-          <FingerprintIcon v-else class="h-[22px] w-[22px]" />
+          <FingerprintIcon v-else class="h-5 w-5 shrink-0" />
           Unlock as {{ record.username }}
         </button>
 
