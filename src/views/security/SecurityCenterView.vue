@@ -24,15 +24,20 @@ const {
   breachProgress,
   breachTotal,
   runBreachScan,
+  runDeepScoring,
 } = useSecurityAudit(scope)
 
 onMounted(async () => {
   await vault.fetchAll()
   runBreachScan()
+  runDeepScoring()
 })
 
 // The scan itself always covers every entry (cheap once cached); re-running it after a scope switch just fills in any passwords not yet checked
-watch(scope, () => runBreachScan())
+watch(scope, () => {
+  runBreachScan()
+  runDeepScoring()
+})
 
 const scoreColor = computed(() => {
   if (safetyScore.value >= 80) return 'text-emerald-500'

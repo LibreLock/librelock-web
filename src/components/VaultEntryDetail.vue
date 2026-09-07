@@ -12,6 +12,7 @@ import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
 import MarkdownText from '@/components/MarkdownText.vue'
 import { displayUrl, externalHref } from '@/services/url'
+import { scoreDeep, strengthLabel, strengthColor, strengthDot } from '@/services/passwordStrength'
 
 const { entry } = defineProps<{
   entry: VaultEntry
@@ -114,31 +115,31 @@ function triggerBreachCheck() {
 onMounted(triggerBreachCheck)
 watch(() => entry.id, triggerBreachCheck)
 
+// The entry carries the instant scoreSync estimate. Refine it here with the dictionary-aware
+// scorer, which loads its chunk on demand — the same reason the breach check is deferred to mount
+const deepStrength = ref<number | null>(null)
+
+async function refineStrength() {
+  deepStrength.value = null
+  if (entry.type !== 'password' || !showSecurity.value) return
+  const { id, password } = entry
+  const score = await scoreDeep(password)
+  if (entry.id === id) deepStrength.value = score
+}
+
+const strength = computed(() =>
+  entry.type === 'password' ? (deepStrength.value ?? entry.passwordStrength) : 0,
+)
+
+onMounted(refineStrength)
+watch(() => entry.id, refineStrength)
+
 async function copy(text: string, field: string) {
   await navigator.clipboard.writeText(text)
   copiedField.value = field
   setTimeout(() => {
     copiedField.value = null
   }, 2000)
-}
-
-function strengthLabel(score: number): string {
-  if (score >= 9) return 'Excellent'
-  if (score >= 7) return 'Strong'
-  if (score >= 5) return 'Fair'
-  return 'Weak'
-}
-
-function strengthColor(score: number): string {
-  if (score >= 7) return 'text-emerald-600'
-  if (score >= 5) return 'text-amber-600'
-  return 'text-red-600'
-}
-
-function strengthDot(score: number): string {
-  if (score >= 7) return 'bg-emerald-500'
-  if (score >= 5) return 'bg-amber-500'
-  return 'bg-red-500'
 }
 </script>
 
@@ -514,7 +515,8 @@ function strengthDot(score: number): string {
           v-if="isExcluded"
           class="rounded-lg border border-dashed border-gray-200 dark:border-gray-700 px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400"
         >
-          This entry is excluded from analytics, so it is not included in the Security Center score and not checked for weak, reused and breached passwords.
+          This entry is excluded from analytics, so it is not included in the Security Center score
+          and not checked for weak, reused and breached passwords.
         </p>
 
         <section v-if="showSecurity">
@@ -527,12 +529,9 @@ function strengthDot(score: number): string {
             >
               <p class="mb-1.5 text-xs text-gray-400">Password strength</p>
               <div class="flex items-center gap-1.5">
-                <span
-                  class="h-2 w-2 shrink-0 rounded-full"
-                  :class="strengthDot(entry.passwordStrength)"
-                ></span>
-                <span class="text-sm font-medium" :class="strengthColor(entry.passwordStrength)">
-                  {{ strengthLabel(entry.passwordStrength) }} · {{ entry.passwordStrength }}/10
+                <span class="h-2 w-2 shrink-0 rounded-full" :class="strengthDot(strength)"></span>
+                <span class="text-sm font-medium" :class="strengthColor(strength)">
+                  {{ strengthLabel(strength) }} · {{ strength }}/10
                 </span>
               </div>
             </div>

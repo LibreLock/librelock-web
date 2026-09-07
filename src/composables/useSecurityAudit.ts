@@ -2,8 +2,9 @@ import { computed, ref, type Ref } from 'vue'
 import { useEntries } from '@/composables/useEntries'
 import { checkPasswordBreach } from '@/composables/useBreachCheck'
 import { isAuditable, type VaultPassword } from '@/api/vault'
+import { scoreDeep, WEAK_THRESHOLD } from '@/services/passwordStrength'
 
-export const WEAK_THRESHOLD = 7 // below "Strong" on the 0-10 strength scale
+export { WEAK_THRESHOLD }
 
 export type SecurityScope = 'personal' | 'organization'
 
@@ -12,6 +13,11 @@ export type SecurityScope = 'personal' | 'organization'
 const breachCache = new Map<string, boolean>()
 
 const BREACH_CONCURRENCY = 4
+
+// Deep scoring is synchronous CPU work once the dictionaries are in. Awaiting it only drains the
+// microtask queue, so without a real macrotask break a few hundred entries freeze the page
+const DEEP_SCORE_YIELD_EVERY = 20
+const yieldToPaint = () => new Promise((resolve) => setTimeout(resolve, 0))
 
 export function useSecurityAudit(scope: Ref<SecurityScope> = ref('personal')) {
   const vault = useEntries()
@@ -45,6 +51,30 @@ export function useSecurityAudit(scope: Ref<SecurityScope> = ref('personal')) {
   const weak = computed<VaultPassword[]>(() =>
     passwords.value.filter((e) => e.passwordStrength < WEAK_THRESHOLD),
   )
+
+  // Entries arrive scored by scoreSync, which cannot see dictionary words or keyboard walks and so
+  // over-rates them. Refining here — rather than on decrypt — keeps the zxcvbn chunk and its
+  // ~10-50ms per password off the vault-load path
+  const deepScoring = ref(false)
+
+  async function runDeepScoring(): Promise<void> {
+    if (deepScoring.value) return
+    deepScoring.value = true
+    try {
+      const unique = [...new Set(auditable.value.map((e) => e.password))]
+      const scores = new Map<string, number>()
+      for (const [i, pw] of unique.entries()) {
+        scores.set(pw, await scoreDeep(pw))
+        if (i % DEEP_SCORE_YIELD_EVERY === DEEP_SCORE_YIELD_EVERY - 1) await yieldToPaint()
+      }
+      for (const e of auditable.value) {
+        const score = scores.get(e.password)
+        if (score !== undefined) e.passwordStrength = score
+      }
+    } finally {
+      deepScoring.value = false
+    }
+  }
 
   const breachedPasswords = ref(new Set<string>())
   const breachProgress = ref(0)
@@ -120,5 +150,7 @@ export function useSecurityAudit(scope: Ref<SecurityScope> = ref('personal')) {
     breachProgress,
     breachTotal,
     runBreachScan,
+    deepScoring,
+    runDeepScoring,
   }
 }

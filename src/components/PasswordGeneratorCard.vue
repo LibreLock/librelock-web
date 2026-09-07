@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { usePasswordGenerator } from '@/composables/usePasswordGenerator'
+import { scoreSync } from '@/services/passwordStrength'
+import PasswordStrengthMeter from '@/components/PasswordStrengthMeter.vue'
 
 const { length, useUppercase, useLowercase, useNumbers, useSymbols, generated, generate } =
   usePasswordGenerator()
 
 const copied = ref(false)
+const strength = computed(() => scoreSync(generated.value))
 
 async function copy() {
   if (!generated.value) return
@@ -59,9 +62,8 @@ async function copy() {
           {{ copied ? 'Copied!' : 'Copy' }}
         </button>
       </div>
-      <p v-if="!generated" class="mt-1.5 text-xs text-red-500">
-        Select at least one character type.
-      </p>
+      <PasswordStrengthMeter v-if="generated" :score="strength" class="mt-2.5" />
+      <p v-else class="mt-1.5 text-xs text-red-500">Select at least one character type.</p>
     </div>
 
     <div>
