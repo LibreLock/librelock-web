@@ -19,6 +19,8 @@ import { ICON_CATALOG, detectBrandIcon, getIcon } from '@/icons/catalog'
 import IconGlyph from '@/components/IconGlyph.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import ToggleSwitch from '@/components/ToggleSwitch.vue'
+import PasswordStrengthMeter from '@/components/PasswordStrengthMeter.vue'
+import { scoreSync, scoreDeep } from '@/services/passwordStrength'
 import {
   SSO_OTHER,
   SSO_PROVIDERS,
@@ -168,8 +170,7 @@ watch(activeCategories, (cats) => {
   }
 })
 
-// Opened from the Shared list by someone who may not add to it (or arriving before /organization
-// has landed): fall back to a private entry rather than offering a save the server would refuse
+// Opened from the Shared list by someone who may not add to it (or arriving before /organization has landed): fall back to a private entry rather than offering a save the server would refuse
 watch([shareBlocked, isShared], () => {
   if (shareBlocked.value && isShared.value && !wasShared.value) isShared.value = false
 })
@@ -347,9 +348,8 @@ const linkedEntry = computed(() =>
 
 const hasOwnPassword = computed(() => account.password.length > 0)
 
-// Saving into the shared vault while the login lives in a private entry: the link resolves for the
-// owner (both vaults are searched) but for every other member it points at something they cannot
-// see, so the fall-through gives them nothing
+// Saving into the shared vault while the login lives in a private entry:
+// the link resolves for the owner (both vaults are searched) but for every other member it points at something they cannot see, so the fall-through gives them nothing
 const linksToPrivateEntry = computed(
   () =>
     entryType.value === 'password' &&
@@ -358,14 +358,13 @@ const linksToPrivateEntry = computed(
     !linkedEntry.value.shared,
 )
 
-// Entries that sign in through this one. Nothing can point at a new entry yet, so the scan is
-// skipped there; while editing it is one pass over the loaded passwords, cached until they change
+// Entries that sign in through this one.
+// Nothing can point at a new entry yet, so the scan is skipped there; while editing it is one pass over the loaded passwords, cached until they change
 const linkers = computed(() =>
   isEditMode ? vault.passwords.filter((e) => e.id !== editId && e.ssoEntryId === editId) : [],
 )
 
-// The shared ones among them: after a move to the private vault they point at an entry only its
-// owner can resolve
+// The shared ones among them: after a move to the private vault they point at an entry only its owner can resolve
 const sharedLinkers = computed(() => linkers.value.filter((e) => e.shared))
 
 function candidateLabel(entry: (typeof linkCandidates.value)[number]): string {
@@ -448,10 +447,9 @@ function generateStrongPassword() {
   account.password = generated.value
 }
 
-// The exposure dialog offers a replacement for a secret the whole team has already seen. It is
-// generated when the dialog opens so the user can copy it before the entry moves
-// An SSO-only entry has no password of its own, and a card's number comes from its issuer: neither
-// can be rotated here, so those get the warning alone
+// The exposure dialog offers a replacement for a secret the whole team has already seen.
+// It is generated when the dialog opens so the user can copy it before the entry moves
+// An SSO-only entry has no password of its own, and a card's number comes from its issuer: neither can be rotated here, so those get the warning alone
 const canRotate = computed(() => entryType.value === 'password' && account.password.length > 0)
 const exposureConfirmLabel = computed(() =>
   canRotate.value ? 'Change password & make private' : 'Make private',
@@ -492,16 +490,24 @@ const showReusedTooltip = ref(false)
 const breachStatus = ref<'idle' | 'checking' | 'breached' | 'clean'>('idle')
 let breachTimer: ReturnType<typeof setTimeout> | undefined
 
+// The meter updates on every keystroke from the instant estimator, then settles onto the dictionary-aware one on the same debounce as the breach check, so typing never waits on it
+const deepStrength = ref<number | null>(null)
+const strength = computed(() => deepStrength.value ?? scoreSync(account.password))
+
 watch(
   () => account.password,
   (pw) => {
     clearTimeout(breachTimer)
+    deepStrength.value = null
     if (!pw) {
       breachStatus.value = 'idle'
       return
     }
     breachStatus.value = 'checking'
     breachTimer = setTimeout(async () => {
+      scoreDeep(pw).then((score) => {
+        if (account.password === pw) deepStrength.value = score
+      })
       try {
         const breached = await checkPasswordBreach(pw)
         if (account.password === pw) breachStatus.value = breached ? 'breached' : 'clean'
@@ -1187,6 +1193,8 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                       Signs in with {{ ssoLabel(account.ssoProvider, account.ssoLabel) }}
                     </template>
                   </p>
+
+                  <PasswordStrengthMeter v-if="account.password" :score="strength" class="mt-2.5" />
 
                   <div
                     v-if="account.password"

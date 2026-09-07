@@ -64,12 +64,24 @@ export default defineConfig({
       workbox: {
         // Static shell only, never cache or serve API responses (auth cookies, encrypted blobs)
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // The zxcvbn dictionaries are ~450KB gz and only load when the Security Center or an entry
+        // detail asks for a deep strength score. Precaching them would undo the lazy import
+        globIgnores: ['**/zxcvbn-*.js'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [],
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        // Pin the zxcvbn dictionaries to one predictably named chunk so the service worker
+        // precache can skip it (see workbox.globIgnores above)
+        manualChunks: (id: string) => (id.includes('@zxcvbn-ts') ? 'zxcvbn' : undefined),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

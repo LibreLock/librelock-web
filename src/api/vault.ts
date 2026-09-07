@@ -2,6 +2,7 @@ import { DEFAULT_COLOR } from '@/constants'
 import { apiRequest } from '@/services/api'
 import { encryptBlob, decryptBlob } from '@/services/crypto'
 import { getVaultKey } from '@/services/keyring'
+import { scoreSync } from '@/services/passwordStrength'
 
 export type CardNetwork = 'visa' | 'mastercard' | null
 
@@ -193,7 +194,7 @@ function rawToEntry(raw: RawVaultEntry, blob: VaultBlobData, shared = false): Va
     ssoLabel: blob.ssoLabel ?? '',
     ssoEntryId: blob.ssoEntryId ?? null,
     excludeFromAnalytics: blob.excludeFromAnalytics === true,
-    passwordStrength: scorePassword(password),
+    passwordStrength: scoreSync(password),
     reused: false,
     breached: false,
   }
@@ -315,18 +316,6 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
 
   const { encrypted_blob, iv } = await encryptBlob(blobData, vaultKey)
   return { encrypted_blob, iv, category_id: payload.categoryId, serverType }
-}
-
-function scorePassword(password: string): number {
-  let score = 0
-  if (password.length >= 8) score += 2
-  if (password.length >= 12) score += 2
-  if (password.length >= 16) score += 1
-  if (/[A-Z]/.test(password)) score += 1
-  if (/[a-z]/.test(password)) score += 1
-  if (/[0-9]/.test(password)) score += 1
-  if (/[^A-Za-z0-9]/.test(password)) score += 2
-  return Math.min(score, 10)
 }
 
 export function hasPassword(entry: VaultEntry): entry is VaultPassword {
