@@ -9,10 +9,10 @@ const { length, useUppercase, useLowercase, useNumbers, useSymbols, generated, g
   usePasswordGenerator()
 
 const CHARSETS = [
-  { label: 'Uppercase', sample: 'A-Z', model: useUppercase },
-  { label: 'Lowercase', sample: 'a-z', model: useLowercase },
-  { label: 'Numbers', sample: '0-9', model: useNumbers },
-  { label: 'Symbols', sample: '!@#…', model: useSymbols },
+  { label: 'Uppercase', model: useUppercase },
+  { label: 'Lowercase', model: useLowercase },
+  { label: 'Numbers', model: useNumbers },
+  { label: 'Symbols', model: useSymbols },
 ]
 
 const copied = ref(false)
@@ -98,26 +98,14 @@ async function copy() {
       <legend class="mb-2.5 text-[13px] font-medium text-gray-700 dark:text-gray-300">
         Characters
       </legend>
-      <div class="grid grid-cols-2 gap-2 @lg:grid-cols-4">
+      <div class="grid grid-cols-2 gap-x-4 gap-y-2.5">
         <label
           v-for="opt in CHARSETS"
           :key="opt.label"
-          class="flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 transition-colors"
-          :class="
-            opt.model.value
-              ? 'border-gray-300 bg-white dark:border-white/15 dark:bg-white/[0.06]'
-              : 'border-gray-200 bg-gray-50 hover:border-gray-300 dark:border-white/[0.06] dark:bg-transparent dark:hover:border-white/12'
-          "
+          class="flex cursor-pointer items-center gap-2.5 text-[13px] text-gray-900 dark:text-gray-100"
         >
           <input v-model="opt.model.value" type="checkbox" class="check" />
-          <span class="min-w-0 leading-tight">
-            <span class="block text-[13px] font-medium text-gray-900 dark:text-gray-100">
-              {{ opt.label }}
-            </span>
-            <span class="block font-mono text-[11.5px] text-gray-500 dark:text-gray-400">
-              {{ opt.sample }}
-            </span>
-          </span>
+          {{ opt.label }}
         </label>
       </div>
     </fieldset>
