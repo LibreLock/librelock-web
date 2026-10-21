@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
 import { ApiError, NetworkError, apiRequest } from '@/services/api'
+import { clearSessionExpiry } from '@/services/sessionWatch'
 import {
   deriveKeys,
   deriveFromMasterKey,
@@ -391,6 +392,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       // in case server session is gone (account deleted)
     } finally {
+      clearSessionExpiry()
       setVaultKey(null)
       setPrivateKey(null)
       setOrgKey(null)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watchEffect } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import type { VaultEntry } from '@/api/vault'
 import { ssoLabel } from '@/services/sso'
 import { useVaultStore } from '@/stores/vault'
@@ -11,6 +11,8 @@ import CategoryPill from '@/components/CategoryPill.vue'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
 import { SORT_OPTIONS, sortLabel, useEntrySort, type SortId } from '@/composables/useEntrySort'
+import SegmentedTabs from '@/components/SegmentedTabs.vue'
+import { PhCaretDown, PhCheck, PhCopy, PhSortAscending } from '@phosphor-icons/vue'
 
 const props = withDefaults(
   defineProps<{
@@ -49,12 +51,13 @@ const activeCategories = ref<Set<string>>(new Set())
 
 type TypeFilter = 'all' | 'password' | 'card' | 'note'
 const typeFilter = ref<TypeFilter>('all')
-const typeFilters: Array<{ value: TypeFilter; label: string }> = [
-  { value: 'all', label: 'All' },
-  { value: 'password', label: 'Passwords' },
-  { value: 'card', label: 'Cards' },
-  { value: 'note', label: 'Notes' },
-]
+const TYPE_FILTERS = ['all', 'password', 'card', 'note'] as const
+const TYPE_FILTER_LABELS: Record<TypeFilter, string> = {
+  all: 'All',
+  password: 'Passwords',
+  card: 'Cards',
+  note: 'Notes',
+}
 
 const { sortId, setSort, sortEntries } = useEntrySort(props.sortKey)
 
@@ -95,6 +98,12 @@ const filtered = computed(() => {
 })
 
 const isSearching = computed(() => vault.globalSearch.trim().length > 0)
+
+// A search looks across the whole vault: a category picked earlier would silently hide matches,
+// so starting one drops the filter back to All
+watch(isSearching, (searching) => {
+  if (searching) activeCategories.value = new Set()
+})
 
 watchEffect(() =>
   vault.setVisibleResults(isSearching.value ? filtered.value : [], props.selectedId),
@@ -207,15 +216,15 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
 
 <template>
   <aside
-    class="shrink-0 flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+    class="shrink-0 flex-col border-r border-gray-200/80 bg-white dark:border-white/[0.06] dark:bg-gray-900/60"
     :class="selectedId ? 'hidden sm:flex sm:w-72' : 'flex w-full sm:w-72'"
   >
     <!-- Header + filters share one bottom border so the divider is present even when there are no categories -->
-    <div class="shrink-0 border-b border-gray-100 dark:border-gray-700">
-      <div class="px-4 pb-2 pt-3">
-        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ title }}</h2>
+    <div class="shrink-0">
+      <div class="px-4 pb-2.5 pt-4">
+        <h2 class="text-[17px] font-semibold text-gray-900 dark:text-gray-50">{{ title }}</h2>
         <div class="mt-0.5 flex items-center justify-between gap-2">
-          <span class="text-xs text-gray-400">
+          <span class="text-xs tabular-nums text-gray-500 dark:text-gray-400">
             {{ filtered.length }} item{{ filtered.length !== 1 ? 's' : '' }}
           </span>
 
@@ -231,40 +240,22 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
               :title="`Sorted by ${sortLabel(sortId).toLowerCase()}`"
               @click="sortOpen = !sortOpen"
             >
-              <svg
-                class="h-3.5 w-3.5 shrink-0"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M4 6h11M4 12h7M4 18h4" />
-                <path d="M18 8v10m0 0 3-3m-3 3-3-3" />
-              </svg>
+              <PhSortAscending :size="14" class="shrink-0" aria-hidden="true" />
               <span>{{ sortLabel(sortId) }}</span>
-              <svg
-                class="h-3 w-3 shrink-0 transition-transform"
+              <PhCaretDown
+                :size="12"
+                weight="bold"
+                class="shrink-0 transition-transform"
                 :class="sortOpen ? 'rotate-180' : ''"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
                 aria-hidden="true"
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
+              />
             </button>
 
             <template v-if="sortOpen">
               <div class="fixed inset-0 z-40" @click="sortOpen = false" />
               <div
                 role="menu"
-                class="absolute right-0 z-50 mt-1 w-44 overflow-hidden rounded-lg bg-white dark:bg-gray-900 py-1 shadow-lg ring-1 ring-gray-200 dark:ring-gray-700"
+                class="absolute right-0 z-50 mt-1 w-44 origin-top-right overflow-hidden rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-gray-900/[0.07] backdrop-blur-xl dark:bg-gray-800/95 dark:ring-white/[0.08]"
               >
                 <button
                   v-for="opt in SORT_OPTIONS"
@@ -272,27 +263,21 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
                   type="button"
                   role="menuitemradio"
                   :aria-checked="sortId === opt.value"
-                  class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs font-medium transition-colors"
+                  class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium transition-colors"
                   :class="
                     sortId === opt.value
-                      ? 'text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      ? 'text-gray-900 dark:text-gray-100'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.07]'
                   "
                   @click="chooseSort(opt.value)"
                 >
-                  <svg
-                    class="h-3.5 w-3.5 shrink-0"
+                  <PhCheck
+                    :size="14"
+                    weight="bold"
+                    class="shrink-0"
                     :class="sortId === opt.value ? 'opacity-100' : 'opacity-0'"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="3"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
                     aria-hidden="true"
-                  >
-                    <path d="m5 13 4 4L19 7" />
-                  </svg>
+                  />
                   {{ opt.label }}
                 </button>
               </div>
@@ -303,33 +288,28 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
 
       <!-- Type selector: on mobile the "All" view absorbs Passwords/Cards/Notes, so switch between them here -->
       <div v-if="showTypeFilter" class="px-3 pb-3 md:hidden">
-        <div class="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-800 p-0.5">
-          <button
-            v-for="opt in typeFilters"
-            :key="opt.value"
-            type="button"
-            class="flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors cursor-pointer"
-            :class="
-              typeFilter === opt.value
-                ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 active:text-gray-700 dark:active:text-gray-200'
-            "
-            @click="typeFilter = opt.value"
-          >
-            {{ opt.label }}
-          </button>
-        </div>
+        <SegmentedTabs
+          stretch
+          size="sm"
+          :tabs="TYPE_FILTERS"
+          :labels="TYPE_FILTER_LABELS"
+          :active="typeFilter"
+          @select="typeFilter = $event"
+        />
       </div>
 
-      <div v-if="categoryList.length > 0" class="px-3 pb-3">
+      <div
+        v-if="categoryList.length > 0"
+        class="border-b border-gray-100 px-3 pb-3 dark:border-white/[0.05]"
+      >
         <div class="flex flex-wrap gap-1">
           <button
             type="button"
             class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer"
             :class="
               activeCategories.size === 0
-                ? 'bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
+                : 'bg-gray-900/[0.05] text-gray-600 hover:bg-gray-900/[0.09] dark:bg-white/[0.07] dark:text-gray-300 dark:hover:bg-white/[0.12]'
             "
             @click="activeCategories = new Set()"
           >
@@ -349,8 +329,11 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
       </div>
     </div>
 
-    <ul ref="listEl" class="flex-1 overflow-y-auto">
-      <li v-if="filtered.length === 0" class="px-4 py-8 text-center text-sm text-gray-400">
+    <ul ref="listEl" class="flex-1 space-y-px overflow-y-auto px-2 py-2">
+      <li
+        v-if="filtered.length === 0"
+        class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400"
+      >
         No items found
       </li>
       <li
@@ -362,10 +345,10 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
       >
         <button
           type="button"
-          class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+          class="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-gray-900/[0.04] dark:hover:bg-white/[0.05] cursor-pointer"
           :class="[
             entry.id === selectedId
-              ? 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800'
+              ? 'bg-gray-900/[0.07] hover:bg-gray-900/[0.07] dark:bg-white/[0.1] dark:hover:bg-white/[0.1]'
               : '',
             'pr-10',
           ]"
@@ -389,48 +372,30 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
 
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
-              <span class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">{{
+              <span class="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{{
                 entry.name
               }}</span>
             </div>
-            <span class="block truncate text-xs text-gray-400">{{ entrySubtitle(entry) }}</span>
+            <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{
+              entrySubtitle(entry)
+            }}</span>
           </div>
         </button>
 
         <button
           v-if="vault.canCopy(entry)"
           type="button"
-          class="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded transition-all"
+          class="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md transition-all"
           :class="
             vault.copiedEntryId === entry.id
               ? 'opacity-100 text-emerald-500'
-              : 'opacity-0 group-hover:opacity-100 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-200'
+              : 'opacity-0 group-hover:opacity-100 text-gray-400 hover:bg-gray-900/[0.06] dark:hover:bg-white/[0.08] hover:text-gray-700 dark:hover:text-gray-200'
           "
           :title="vault.copiedEntryId === entry.id ? 'Copied!' : copyLabel(entry)"
           @click="vault.copyEntry(entry)"
         >
-          <svg
-            v-if="vault.copiedEntryId !== entry.id"
-            class="h-3.5 w-3.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-            />
-          </svg>
-          <svg v-else class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
+          <PhCopy :size="14" v-if="vault.copiedEntryId !== entry.id" />
+          <PhCheck :size="14" weight="bold" v-else />
         </button>
 
         <span

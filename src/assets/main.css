@@ -1,16 +1,107 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-html, body {
+/* Design tokens. The whole app is written against Tailwind's gray scale, so the palette is
+   retuned here instead of in markup: a true neutral (no blue cast) with Apple-style surfaces -
+   #f5f5f7 canvas and white panels in light, layered charcoal in dark */
+@theme {
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-gray-50: #f5f5f7;
+  --color-gray-100: #ededf0;
+  --color-gray-200: #e2e2e6;
+  --color-gray-300: #cbcbd1;
+  --color-gray-400: #8e8e96;
+  --color-gray-500: #6e6e76;
+  --color-gray-600: #535359;
+  --color-gray-700: #36363b;
+  --color-gray-800: #26262a;
+  --color-gray-900: #1a1a1d;
+  --color-gray-950: #111113;
+
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
+
+  /* Shadows tinted to the neutral, never pure black, and kept low so panels read as layered
+     paper rather than floating cards */
+  --shadow-xs: 0 1px 1px rgb(17 17 19 / 0.04);
+  --shadow-sm: 0 1px 2px rgb(17 17 19 / 0.05), 0 0 0 0.5px rgb(17 17 19 / 0.04);
+  --shadow-md: 0 4px 12px -2px rgb(17 17 19 / 0.08), 0 1px 3px rgb(17 17 19 / 0.05);
+  --shadow-lg: 0 12px 32px -8px rgb(17 17 19 / 0.14), 0 2px 6px rgb(17 17 19 / 0.05);
+  --shadow-xl: 0 24px 56px -12px rgb(17 17 19 / 0.22), 0 4px 12px rgb(17 17 19 / 0.06);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  /* Tracking is size-specific: tighten display sizes, leave body text alone */
+  h1 {
+    letter-spacing: -0.022em;
+  }
+
+  h2,
+  h3 {
+    letter-spacing: -0.012em;
+  }
+
+  ::selection {
+    background: rgb(38 38 42 / 0.14);
+  }
+
+  .dark ::selection {
+    background: rgb(255 255 255 / 0.18);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gray-400);
+    outline-offset: 2px;
+  }
+
+  /* Hover and theme changes ease instead of snapping; nothing moves or scales on press */
+  button,
+  a[href] {
+    transition-property: color, background-color, border-color, box-shadow, opacity;
+    transition-duration: 160ms;
+    transition-timing-function: var(--ease-out);
+  }
+
+  /* The inline icons are 24px outline glyphs drawn at stroke 2; 1.75 matches the weight of the
+     surrounding text instead of overpowering it */
+  svg [stroke-width='2'],
+  svg[stroke-width='2'] {
+    stroke-width: 1.75;
+  }
+}
+
+html,
+body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
   background: var(--color-gray-50);
 }
 
-html.dark, html.dark body {
+html.dark,
+html.dark body {
   background: var(--color-gray-950);
+}
+
+/* Native controls (select popups, date pickers, autofill) follow the app theme */
+html.dark {
+  color-scheme: dark;
 }
 
 .boot-fade {
@@ -61,15 +152,38 @@ html.dark, html.dark body {
   background: transparent;
 }
 
+/* Translucent chrome: content scrolls under a frosted layer instead of a solid strip */
+.material {
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.dark .material {
+  background: rgb(26 26 29 / 0.72);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .material {
+    background: #fff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .dark .material {
+    background: var(--color-gray-900);
+  }
+}
+
 input[type='range'].slider {
   -webkit-appearance: none;
   appearance: none;
-  height: 6px;
+  height: 4px;
   border-radius: 9999px;
   background: linear-gradient(
     to right,
-    #1e293b var(--slider-fill, 50%),
-    #cbd5e1 var(--slider-fill, 50%)
+    var(--color-gray-800) var(--slider-fill, 50%),
+    var(--color-gray-200) var(--slider-fill, 50%)
   );
   outline: none;
 }
@@ -77,36 +191,173 @@ input[type='range'].slider {
 input[type='range'].slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 9999px;
-  background: #1e293b;
+  background: #fff;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0 0 0 0.5px rgb(17 17 19 / 0.12),
+    0 2px 6px rgb(17 17 19 / 0.18);
 }
 
 input[type='range'].slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 9999px;
-  background: #1e293b;
+  background: #fff;
   cursor: pointer;
   border: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0 0 0 0.5px rgb(17 17 19 / 0.12),
+    0 2px 6px rgb(17 17 19 / 0.18);
 }
 
 .dark input[type='range'].slider {
   background: linear-gradient(
     to right,
-    #e2e8f0 var(--slider-fill, 50%),
-    #475569 var(--slider-fill, 50%)
+    var(--color-gray-100) var(--slider-fill, 50%),
+    var(--color-gray-700) var(--slider-fill, 50%)
   );
 }
 
-.dark input[type='range'].slider::-webkit-slider-thumb {
-  background: #e2e8f0;
+/* Switching entries: the new detail settles in from slightly below, header first, body a beat
+   later. Short enough that rapid arrowing through a list never feels laggy */
+.detail-in {
+  animation: detail-in 280ms var(--ease-out) both;
 }
 
-.dark input[type='range'].slider::-moz-range-thumb {
-  background: #e2e8f0;
+.detail-in-late {
+  animation-delay: 40ms;
+}
+
+@keyframes detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-in {
+    animation-name: fade-in;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Sign-in backdrop: a soft pool of light above the card. Static, no motion */
+.auth-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.auth-backdrop::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -10%;
+  width: min(900px, 140vw);
+  height: 620px;
+  translate: -50% 0;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.95), transparent);
+}
+
+.dark .auth-backdrop::before {
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.06), transparent);
+}
+
+/* Dialogs: the scrim fades while the sheet rises and scales into place, so it reads as a surface
+   arriving above the page rather than a box being switched on */
+.modal-scrim {
+  animation: fade-in 180ms ease-out both;
+}
+
+.modal-scrim > * {
+  animation: sheet-in 300ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-scrim > * {
+    animation-name: fade-in;
+  }
+}
+
+/* Checkbox: a small rounded square that fills solid with a drawn tick, matching the primary
+   button fill in each theme */
+.check {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border-radius: 5px;
+  border: 1.5px solid var(--color-gray-300);
+  background: #fff center / 12px 12px no-repeat;
+  cursor: pointer;
+  transition:
+    background-color 140ms var(--ease-out),
+    border-color 140ms var(--ease-out);
+}
+
+.check:checked {
+  border-color: var(--color-gray-900);
+  background-color: var(--color-gray-900);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E");
+}
+
+.check:focus-visible {
+  outline: 2px solid var(--color-gray-400);
+  outline-offset: 2px;
+}
+
+.dark .check {
+  border-color: var(--color-gray-600);
+  background-color: transparent;
+}
+
+.dark .check:checked {
+  border-color: var(--color-gray-100);
+  background-color: var(--color-gray-100);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%231a1a1d' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E");
+}
+
+/* Settings-style pages with several cards: one stack on narrow screens, two balanced columns once
+   there is room, so wide windows are not one thin column beside empty space */
+.card-columns > * + * {
+  margin-top: 1rem;
+}
+
+@media (min-width: 1280px) {
+  .card-columns {
+    columns: 2;
+    column-gap: 1rem;
+  }
+
+  .card-columns > * {
+    break-inside: avoid;
+    margin: 0 0 1rem;
+  }
+}
+
+/* Theme switch cross-fade (ThemeToggle wraps the change in a view transition) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-out);
 }

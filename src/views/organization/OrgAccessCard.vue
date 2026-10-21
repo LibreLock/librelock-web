@@ -93,18 +93,18 @@ async function toggleMemberEditShared() {
 
 <template>
   <div
-    class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+    class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
   >
     <div class="px-4 sm:px-6 pt-6 pb-1">
       <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Access</h2>
       <p class="mt-0.5 text-sm text-gray-400">Manage instance access and member permissions</p>
     </div>
 
-    <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+    <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
     <p v-if="error" class="px-4 sm:px-6 pt-4 text-sm text-red-600">{{ error }}</p>
 
-    <div class="divide-y divide-gray-100 dark:divide-gray-800">
+    <div class="divide-y divide-gray-100 dark:divide-white/[0.06]">
       <!-- Public sign-up -->
       <div class="flex items-start justify-between gap-4 px-4 sm:px-6 py-5">
         <div class="min-w-0">
@@ -192,11 +192,11 @@ async function toggleMemberEditShared() {
     <Teleport to="body">
       <div
         v-if="showDangerModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
         @click.self="showDangerModal = false"
       >
         <div
-          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
         >
           <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">
             Enable public registration?
@@ -213,7 +213,7 @@ async function toggleMemberEditShared() {
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-900/[0.1] dark:ring-white/[0.12] hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
               @click="showDangerModal = false"
             >
               Cancel

@@ -19,14 +19,14 @@ const props = withDefaults(
 const resolved = computed(() => resolveEntryIcon(props.name, props.icon, props.url))
 
 const box = computed(() =>
-  props.size === 'md' ? 'h-12 w-12 rounded-xl text-lg' : 'h-9 w-9 rounded-lg text-sm',
+  props.size === 'md' ? 'h-12 w-12 rounded-[24%] text-lg' : 'h-9 w-9 rounded-[24%] text-sm',
 )
 const glyph = computed(() => (props.size === 'md' ? 'h-6 w-6' : 'h-5 w-5'))
 </script>
 
 <template>
   <span
-    class="flex shrink-0 items-center justify-center font-bold text-white"
+    class="flex shrink-0 items-center justify-center font-semibold text-white shadow-[inset_0_0_0_0.5px_rgb(255_255_255/0.12)]"
     :class="[box, color]"
   >
     <IconGlyph v-if="resolved" :icon="resolved" :class="glyph" />

@@ -237,8 +237,10 @@ const TOOL_GROUPS: ToolbarItem[][] = [
   ],
 ]
 
-const BUTTON_BASE = 'inline-flex h-9 w-9 sm:h-8 sm:w-8 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer transition-colors'
-const BUTTON_ACTIVE = 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700'
+const BUTTON_BASE =
+  'inline-flex h-9 w-9 sm:h-8 sm:w-8 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer transition-colors'
+const BUTTON_ACTIVE =
+  'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700'
 const DIVIDER = 'mx-1 h-5 w-px shrink-0 bg-gray-200 dark:bg-gray-700'
 </script>
 
@@ -251,7 +253,7 @@ const DIVIDER = 'mx-1 h-5 w-px shrink-0 bg-gray-200 dark:bg-gray-700'
       v-if="editor && !disabled"
       role="toolbar"
       :aria-label="`${ariaLabel} formatting`"
-      class="flex flex-wrap items-center gap-0.5 border-b border-gray-200 dark:border-gray-700 px-1.5 py-1"
+      class="flex flex-wrap items-center gap-0.5 border-b border-gray-200 dark:border-white/[0.08] px-1.5 py-1"
     >
       <template v-for="(group, index) in TOOL_GROUPS" :key="index">
         <span v-if="index > 0" :class="DIVIDER" aria-hidden="true" />
@@ -300,7 +302,7 @@ const DIVIDER = 'mx-1 h-5 w-px shrink-0 bg-gray-200 dark:bg-gray-700'
 
     <div
       v-if="linkOpen"
-      class="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 px-2 py-1.5"
+      class="flex items-center gap-2 border-b border-gray-200 dark:border-white/[0.08] px-2 py-1.5"
     >
       <label class="sr-only" for="note-link-url">Link URL</label>
       <input
@@ -309,7 +311,7 @@ const DIVIDER = 'mx-1 h-5 w-px shrink-0 bg-gray-200 dark:bg-gray-700'
         v-model="linkDraft"
         type="url"
         placeholder="example.com"
-        class="min-w-0 flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-1.5 text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600"
+        class="min-w-0 flex-1 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-2 py-1.5 text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06]"
         @keydown.enter.prevent="applyLink()"
         @keydown.esc.prevent="linkOpen = false"
       />

@@ -11,8 +11,10 @@ import { useOrganizationStore } from '@/stores/organization'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
 import MarkdownText from '@/components/MarkdownText.vue'
+import PasswordText from '@/components/PasswordText.vue'
 import { displayUrl, externalHref } from '@/services/url'
 import { scoreDeep, strengthLabel, strengthColor, strengthDot } from '@/services/passwordStrength'
+import { PhArrowSquareOut, PhCaretLeft, PhCheck, PhCopy, PhEye, PhEyeSlash, PhPencilSimple } from '@phosphor-icons/vue'
 
 const { entry } = defineProps<{
   entry: VaultEntry
@@ -144,20 +146,26 @@ async function copy(text: string, field: string) {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col overflow-y-auto">
+  <div class="relative isolate flex flex-1 flex-col overflow-y-auto">
+    <!-- Ambient wash in the entry's own colour, so each item has a sense of place without any
+         extra chrome. Purely decorative, sits behind everything -->
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute left-1/2 top-0 -z-10 h-56 w-[min(42rem,100%)] -translate-x-1/2 -translate-y-1/3 rounded-full opacity-[0.16] blur-3xl transition-colors duration-500 dark:opacity-[0.2]"
+      :class="entry.color || 'bg-gray-400'"
+    />
     <button
       type="button"
-      class="sm:hidden flex items-center gap-1 px-4 pt-3 pb-1 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 w-full transition-colors cursor-pointer"
+      class="sm:hidden flex items-center gap-1 px-2 pt-2.5 pb-0.5 text-[15px] font-medium text-gray-600 dark:text-gray-300 w-full transition-colors cursor-pointer"
       @click="emit('back')"
     >
-      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
+      <PhCaretLeft :size="16" />
       Back
     </button>
 
     <div
-      class="flex shrink-0 items-center gap-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 sm:px-6 py-4"
+      :key="`${entry.id}-head`"
+      class="detail-in mx-auto flex w-full max-w-3xl shrink-0 items-center gap-3.5 px-3 pb-1 pt-3 sm:gap-4 sm:px-6 sm:pb-2 sm:pt-6"
     >
       <span
         v-if="entry.type === 'card'"
@@ -176,12 +184,14 @@ async function copy(text: string, field: string) {
       />
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2">
-          <h1 class="truncate text-xl font-semibold text-gray-900 dark:text-gray-100">
+          <h1
+            class="truncate text-[22px] font-semibold leading-tight text-gray-900 dark:text-gray-50"
+          >
             {{ entry.name }}
           </h1>
           <span
             v-if="entry.shared"
-            class="shrink-0 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 px-2.5 py-0.5 text-xs font-semibold"
+            class="shrink-0 rounded-full bg-gray-900/[0.06] text-gray-700 dark:bg-white/[0.08] dark:text-gray-200 px-2.5 py-0.5 text-xs font-semibold"
           >
             Shared
           </span>
@@ -195,21 +205,14 @@ async function copy(text: string, field: string) {
         >
           <!-- Truncated like the title above: a long URL would otherwise push the header wide -->
           <span class="truncate">{{ linkLabel }}</span>
-          <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-            />
-          </svg>
+          <PhArrowSquareOut :size="12" class="shrink-0" />
         </a>
         <span v-else-if="entry.type === 'password'" class="text-sm text-gray-500">Password</span>
         <span v-else-if="entry.type === 'note'" class="text-sm text-gray-500">Secure Note</span>
         <span v-else-if="entry.type === 'card'" class="text-sm text-gray-500">Credit Card</span>
         <span
           v-if="entry.categoryId"
-          class="ml-2 rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300"
+          class="ml-2 rounded-full bg-gray-900/[0.05] px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-white/[0.08] dark:text-gray-300"
         >
           {{ categoryName }}
         </span>
@@ -218,35 +221,33 @@ async function copy(text: string, field: string) {
       <button
         v-if="canOpenForm"
         type="button"
-        class="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+        class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-white px-3 text-[13.5px] font-medium text-gray-800 shadow-xs ring-1 ring-gray-900/[0.08] transition-colors hover:bg-gray-50 dark:bg-white/[0.07] dark:text-gray-200 dark:shadow-none dark:ring-white/[0.08] dark:hover:bg-white/[0.1] cursor-pointer"
         @click="emit('edit')"
       >
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-          />
-        </svg>
+        <PhPencilSimple :size="16" />
         Edit
       </button>
     </div>
 
-    <div class="flex-1 space-y-5 p-4 sm:p-6">
+    <div
+      :key="`${entry.id}-body`"
+      class="detail-in detail-in-late mx-auto w-full max-w-3xl flex-1 space-y-5 px-2 py-3 sm:space-y-6 sm:p-6"
+    >
       <template v-if="entry.type === 'password'">
         <section>
-          <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <h2
+            class="mb-1.5 px-2 text-[13px] sm:mb-2 sm:px-1 font-medium text-gray-500 dark:text-gray-400"
+          >
             Credentials
           </h2>
           <div
-            class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+            class="overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07]"
           >
             <div
-              class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
             >
               <div class="min-w-0">
-                <p class="text-xs text-gray-400">Username</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Username</p>
                 <p class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
                   {{ entry.username || '-' }}
                 </p>
@@ -254,46 +255,20 @@ async function copy(text: string, field: string) {
               <button
                 v-if="entry.username"
                 type="button"
-                class="ml-3 shrink-0 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
                 title="Copy username"
                 @click="copy(entry.username, 'username')"
               >
-                <svg
-                  v-if="copiedField !== 'username'"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
-                <svg
-                  v-else
-                  class="h-4 w-4 text-emerald-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <PhCopy :size="16" v-if="copiedField !== 'username'" />
+                <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
               </button>
             </div>
 
             <div
-              class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
             >
               <div class="min-w-0">
-                <p class="text-xs text-gray-400">Email</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Email</p>
                 <p class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
                   {{ entry.email || '-' }}
                 </p>
@@ -301,53 +276,26 @@ async function copy(text: string, field: string) {
               <button
                 v-if="entry.email"
                 type="button"
-                class="ml-3 shrink-0 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
                 title="Copy email"
                 @click="copy(entry.email, 'email')"
               >
-                <svg
-                  v-if="copiedField !== 'email'"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
-                <svg
-                  v-else
-                  class="h-4 w-4 text-emerald-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <PhCopy :size="16" v-if="copiedField !== 'email'" />
+                <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
               </button>
             </div>
 
             <div
-              class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
             >
               <div class="min-w-0 flex-1">
-                <p class="text-xs text-gray-400">Password</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Password</p>
                 <p
                   v-if="hasPassword"
-                  class="break-all font-mono text-sm text-gray-800 dark:text-gray-200"
+                  class="break-all font-mono text-[15px] tracking-wide text-gray-900 dark:text-gray-100"
                 >
-                  {{
-                    showPassword ? entry.password : '•'.repeat(Math.min(entry.password.length, 18))
-                  }}
+                  <PasswordText v-if="showPassword" :value="entry.password" />
+                  <template v-else>{{ '•'.repeat(Math.min(entry.password.length, 18)) }}</template>
                 </p>
                 <!-- No password stored: say why rather than render an empty row -->
                 <p v-else class="text-sm text-gray-400 dark:text-gray-500">
@@ -364,34 +312,8 @@ async function copy(text: string, field: string) {
                   :aria-pressed="showPassword"
                   @click="showPassword = !showPassword"
                 >
-                  <svg
-                    v-if="!showPassword"
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                  <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                    />
-                  </svg>
+                  <PhEye :size="16" v-if="!showPassword" />
+                  <PhEyeSlash :size="16" v-else />
                 </button>
                 <button
                   type="button"
@@ -399,34 +321,8 @@ async function copy(text: string, field: string) {
                   title="Copy password"
                   @click="copy(entry.password, 'password')"
                 >
-                  <svg
-                    v-if="copiedField !== 'password'"
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <svg
-                    v-else
-                    class="h-4 w-4 text-emerald-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <PhCopy :size="16" v-if="copiedField !== 'password'" />
+                  <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
                 </button>
               </div>
             </div>
@@ -434,10 +330,10 @@ async function copy(text: string, field: string) {
             <!-- Sign-in method, when this account goes through an identity provider -->
             <div
               v-if="sso"
-              class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
             >
               <div class="min-w-0">
-                <p class="text-xs text-gray-400">Sign-in</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Sign-in</p>
                 <p class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
                   {{ sso.label }}
                 </p>
@@ -456,10 +352,10 @@ async function copy(text: string, field: string) {
                  straight from here -->
             <div
               v-if="entry.type === 'password' && entry.ssoEntryId"
-              class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
             >
               <div class="min-w-0">
-                <p class="text-xs text-gray-400">Login entry</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Login entry</p>
                 <RouterLink
                   v-if="linked"
                   :to="linkedRoute"
@@ -474,38 +370,12 @@ async function copy(text: string, field: string) {
               <button
                 v-if="linked"
                 type="button"
-                class="ml-3 shrink-0 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
                 :title="`Copy ${linked.name}'s password`"
                 @click="copy(linked.password, 'ssoEntry')"
               >
-                <svg
-                  v-if="copiedField !== 'ssoEntry'"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
-                <svg
-                  v-else
-                  class="h-4 w-4 text-emerald-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <PhCopy :size="16" v-if="copiedField !== 'ssoEntry'" />
+                <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
               </button>
             </div>
           </div>
@@ -513,21 +383,23 @@ async function copy(text: string, field: string) {
 
         <p
           v-if="isExcluded"
-          class="rounded-lg border border-dashed border-gray-200 dark:border-gray-700 px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400"
+          class="rounded-lg border border-dashed border-gray-200 dark:border-white/[0.08] px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400"
         >
           This entry is excluded from analytics, so it is not included in the Security Center score
           and not checked for weak, reused and breached passwords.
         </p>
 
         <section v-if="showSecurity">
-          <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <h2
+            class="mb-1.5 px-2 text-[13px] sm:mb-2 sm:px-1 font-medium text-gray-500 dark:text-gray-400"
+          >
             Security
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
             <div
-              class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
+              class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
             >
-              <p class="mb-1.5 text-xs text-gray-400">Password strength</p>
+              <p class="mb-1.5 text-xs text-gray-500 dark:text-gray-400">Password strength</p>
               <div class="flex items-center gap-1.5">
                 <span class="h-2 w-2 shrink-0 rounded-full" :class="strengthDot(strength)"></span>
                 <span class="text-sm font-medium" :class="strengthColor(strength)">
@@ -537,11 +409,11 @@ async function copy(text: string, field: string) {
             </div>
 
             <div
-              class="relative rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
+              class="relative rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
               @mouseenter="showReusedTooltip = true"
               @mouseleave="showReusedTooltip = false"
             >
-              <p class="mb-1.5 text-xs text-gray-400">Reused</p>
+              <p class="mb-1.5 text-xs text-gray-500 dark:text-gray-400">Reused</p>
               <div class="flex items-center gap-1.5">
                 <span
                   class="h-2 w-2 shrink-0 rounded-full"
@@ -554,7 +426,7 @@ async function copy(text: string, field: string) {
 
               <div
                 v-if="showReusedTooltip && isReused && reusedWith.length > 0"
-                class="absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 shadow-lg"
+                class="absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
               >
                 <p class="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
                   Also used by
@@ -573,9 +445,9 @@ async function copy(text: string, field: string) {
             </div>
 
             <div
-              class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
+              class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
             >
-              <p class="mb-1.5 text-xs text-gray-400">Breached</p>
+              <p class="mb-1.5 text-xs text-gray-500 dark:text-gray-400">Breached</p>
               <div class="flex items-center gap-1.5">
                 <template v-if="isBreachChecking">
                   <span
@@ -601,17 +473,19 @@ async function copy(text: string, field: string) {
 
         <!-- The mirror of the Login entry row above: who depends on this one to sign in -->
         <section v-if="linkers.length > 0">
-          <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <h2
+            class="mb-1.5 px-2 text-[13px] sm:mb-2 sm:px-1 font-medium text-gray-500 dark:text-gray-400"
+          >
             Used for sign-in by
           </h2>
           <div
-            class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+            class="overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07]"
           >
             <RouterLink
               v-for="e in linkers"
               :key="e.id"
               :to="entryRoute(e)"
-              class="flex items-center gap-3 border-b border-gray-100 dark:border-gray-700 px-4 py-3 last:border-b-0 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+              class="flex items-center gap-3 border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4 last:border-b-0 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               <EntryIcon :name="e.name" :color="e.color" :icon="e.icon" :url="e.url" size="sm" />
               <div class="min-w-0 flex-1">
@@ -632,11 +506,13 @@ async function copy(text: string, field: string) {
         </section>
 
         <section v-if="entry.notes">
-          <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <h2
+            class="mb-1.5 px-2 text-[13px] sm:mb-2 sm:px-1 font-medium text-gray-500 dark:text-gray-400"
+          >
             Notes
           </h2>
           <div
-            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
+            class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
           >
             <MarkdownText :text="entry.notes" />
           </div>
@@ -645,17 +521,19 @@ async function copy(text: string, field: string) {
 
       <template v-else-if="entry.type === 'card'">
         <section>
-          <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <h2
+            class="mb-1.5 px-2 text-[13px] sm:mb-2 sm:px-1 font-medium text-gray-500 dark:text-gray-400"
+          >
             Details
           </h2>
           <div
-            class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+            class="overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07]"
           >
             <div
-              class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
             >
               <div class="min-w-0 flex-1">
-                <p class="text-xs text-gray-400">Card number</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Card number</p>
                 <p
                   class="break-all font-mono text-sm text-gray-800 dark:text-gray-200 tracking-wider"
                 >
@@ -669,34 +547,8 @@ async function copy(text: string, field: string) {
                   :title="showCardNumber ? 'Hide number' : 'Show number'"
                   @click="showCardNumber = !showCardNumber"
                 >
-                  <svg
-                    v-if="!showCardNumber"
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                  <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                    />
-                  </svg>
+                  <PhEye :size="16" v-if="!showCardNumber" />
+                  <PhEyeSlash :size="16" v-else />
                 </button>
                 <button
                   type="button"
@@ -704,43 +556,17 @@ async function copy(text: string, field: string) {
                   title="Copy card number"
                   @click="copy(entry.cardNumber.replace(/\s/g, ''), 'cardNumber')"
                 >
-                  <svg
-                    v-if="copiedField !== 'cardNumber'"
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <svg
-                    v-else
-                    class="h-4 w-4 text-emerald-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <PhCopy :size="16" v-if="copiedField !== 'cardNumber'" />
+                  <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
                 </button>
               </div>
             </div>
 
             <div
-              class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
             >
               <div class="min-w-0">
-                <p class="text-xs text-gray-400">Cardholder name</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Cardholder name</p>
                 <p class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
                   {{ entry.cardholderName || '-' }}
                 </p>
@@ -748,53 +574,27 @@ async function copy(text: string, field: string) {
               <button
                 v-if="entry.cardholderName"
                 type="button"
-                class="ml-3 shrink-0 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
                 title="Copy cardholder name"
                 @click="copy(entry.cardholderName, 'cardholderName')"
               >
-                <svg
-                  v-if="copiedField !== 'cardholderName'"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
-                <svg
-                  v-else
-                  class="h-4 w-4 text-emerald-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <PhCopy :size="16" v-if="copiedField !== 'cardholderName'" />
+                <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
               </button>
             </div>
 
             <div
-              class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-gray-700"
+              class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-white/[0.08]"
             >
               <div class="px-4 py-3">
-                <p class="text-xs text-gray-400">Expiration</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Expiration</p>
                 <p class="font-mono text-sm font-medium text-gray-800 dark:text-gray-200">
                   {{ entry.expiration || '-' }}
                 </p>
               </div>
-              <div class="flex items-center justify-between px-4 py-3">
+              <div class="flex items-center justify-between px-3.5 py-3 sm:px-4">
                 <div>
-                  <p class="text-xs text-gray-400">CVV</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">CVV</p>
                   <p class="font-mono text-sm font-medium text-gray-800 dark:text-gray-200">
                     {{ showCvv ? entry.cvv : '•'.repeat(entry.cvv.length || 3) }}
                   </p>
@@ -806,40 +606,8 @@ async function copy(text: string, field: string) {
                     :title="showCvv ? 'Hide CVV' : 'Show CVV'"
                     @click="showCvv = !showCvv"
                   >
-                    <svg
-                      v-if="!showCvv"
-                      class="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                    <svg
-                      v-else
-                      class="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                      />
-                    </svg>
+                    <PhEye :size="16" v-if="!showCvv" />
+                    <PhEyeSlash :size="16" v-else />
                   </button>
                   <button
                     type="button"
@@ -847,34 +615,8 @@ async function copy(text: string, field: string) {
                     title="Copy CVV"
                     @click="copy(entry.cvv, 'cvv')"
                   >
-                    <svg
-                      v-if="copiedField !== 'cvv'"
-                      class="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <svg
-                      v-else
-                      class="h-4 w-4 text-emerald-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    <PhCopy :size="16" v-if="copiedField !== 'cvv'" />
+                    <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
                   </button>
                 </div>
               </div>
@@ -883,11 +625,13 @@ async function copy(text: string, field: string) {
         </section>
 
         <section v-if="entry.notes">
-          <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <h2
+            class="mb-1.5 px-2 text-[13px] sm:mb-2 sm:px-1 font-medium text-gray-500 dark:text-gray-400"
+          >
             Notes
           </h2>
           <div
-            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
+            class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
           >
             <MarkdownText :text="entry.notes" />
           </div>
@@ -896,11 +640,13 @@ async function copy(text: string, field: string) {
 
       <template v-else>
         <section>
-          <h2 class="mb-2 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <h2
+            class="mb-1.5 px-2 text-[13px] sm:mb-2 sm:px-1 font-medium text-gray-500 dark:text-gray-400"
+          >
             Content
           </h2>
           <div
-            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
+            class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
           >
             <MarkdownText :text="entry.content" />
           </div>

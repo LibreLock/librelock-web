@@ -8,6 +8,7 @@ import SettingsSessionsTab from './SettingsSessionsTab.vue'
 import SettingsExportTab from './SettingsExportTab.vue'
 import SettingsAboutTab from './SettingsAboutTab.vue'
 import { useOrganizationStore } from '@/stores/organization'
+import SegmentedTabs from '@/components/SegmentedTabs.vue'
 
 const ALL_TABS = ['account', 'security', 'instance', 'sessions', 'export', 'about'] as const
 type Tab = (typeof ALL_TABS)[number]
@@ -40,35 +41,28 @@ function onTabChange(tab: Tab) {
 
 <template>
   <div class="overflow-y-auto h-full p-4 sm:p-6">
-    <div class="max-w-3xl">
+    <div class="mx-auto max-w-6xl">
       <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Settings</h1>
-      <p class="mt-1 mb-6 text-sm text-gray-400">Manage your account and security preferences</p>
+      <p class="mt-1 mb-6 text-sm text-gray-500 dark:text-gray-400">
+        Manage your account and security preferences
+      </p>
 
-      <div
-        class="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-gray-200 dark:border-gray-700 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-      >
-        <button
-          v-for="tab in tabs"
-          :key="tab"
-          type="button"
-          class="shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px"
-          :class="
-            activeTab === tab
-              ? 'border-gray-800 dark:border-gray-100 text-gray-900 dark:text-gray-100'
-              : 'border-transparent text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          "
-          @click="onTabChange(tab)"
-        >
-          {{ TAB_LABELS[tab] }}
-        </button>
+      <SegmentedTabs
+        class="mb-6"
+        :tabs="tabs"
+        :labels="TAB_LABELS"
+        :active="activeTab"
+        @select="onTabChange"
+      />
+
+      <div :key="activeTab" class="detail-in">
+        <SettingsAccountTab v-if="activeTab === 'account'" />
+        <SettingsSecurityTab v-if="activeTab === 'security'" />
+        <SettingsInstanceTab v-if="activeTab === 'instance'" />
+        <SettingsSessionsTab v-if="activeTab === 'sessions'" />
+        <SettingsExportTab v-if="activeTab === 'export'" />
+        <SettingsAboutTab v-if="activeTab === 'about'" />
       </div>
-
-      <SettingsAccountTab v-if="activeTab === 'account'" />
-      <SettingsSecurityTab v-if="activeTab === 'security'" />
-      <SettingsInstanceTab v-if="activeTab === 'instance'" />
-      <SettingsSessionsTab v-if="activeTab === 'sessions'" />
-      <SettingsExportTab v-if="activeTab === 'export'" />
-      <SettingsAboutTab v-if="activeTab === 'about'" />
     </div>
   </div>
 </template>

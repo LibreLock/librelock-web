@@ -7,7 +7,7 @@ const auth = useAuthStore()
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="card-columns">
     <!-- Admins + owners: registration policy + auto-grant shared vault -->
     <OrgAccessCard />
 

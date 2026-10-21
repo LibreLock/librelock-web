@@ -20,6 +20,9 @@
     "prebuild": "npm run generate:sitemap"
   },
   "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@phosphor-icons/vue": "^2.2.1",
     "@tailwindcss/vite": "^4.2.4",
     "@tiptap/extension-heading": "^3.31.3",
     "@tiptap/extension-link": "^3.31.3",

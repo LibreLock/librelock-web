@@ -131,21 +131,21 @@ const statusClasses: Record<Invite['status'], string> = {
 
 <template>
   <div
-    class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+    class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
   >
     <div class="px-4 sm:px-6 pt-6 pb-1">
       <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Invites</h2>
       <p class="mt-0.5 text-sm text-gray-400">Generate single-use invite links for new members</p>
     </div>
 
-    <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+    <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
     <div class="px-4 sm:px-6 py-5 space-y-4">
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
 
       <form class="flex flex-col sm:flex-row sm:items-end gap-2" @submit.prevent="create">
         <div class="flex-1">
-          <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+          <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
             >Note (optional)</label
           >
           <input
@@ -153,11 +153,11 @@ const statusClasses: Record<Invite['status'], string> = {
             type="text"
             maxlength="200"
             placeholder="eg. John Doe"
-            class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+            class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
           />
         </div>
         <div class="w-full sm:w-28">
-          <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+          <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
             >Expires (days)</label
           >
           <input
@@ -165,12 +165,12 @@ const statusClasses: Record<Invite['status'], string> = {
             type="number"
             min="1"
             max="90"
-            class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+            class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
           />
         </div>
         <button
           type="submit"
-          class="w-full sm:w-auto rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+          class="w-full sm:w-auto rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
           :disabled="isCreating"
         >
           {{ isCreating ? 'Creating…' : 'New invite' }}
@@ -205,7 +205,7 @@ const statusClasses: Record<Invite['status'], string> = {
         <div class="flex items-center justify-end gap-2">
           <button
             type="button"
-            class="rounded-md px-2.5 py-1 text-xs font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+            class="rounded-md px-2.5 py-1 text-xs font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-900/[0.1] dark:ring-white/[0.12] transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
             :disabled="isPruning || spentCount === 0"
             :title="spentCount === 0 ? 'No used or expired invites to remove' : undefined"
             @click="prune('spent')"
@@ -222,7 +222,7 @@ const statusClasses: Record<Invite['status'], string> = {
           </button>
         </div>
 
-        <ul class="divide-y divide-gray-100 dark:divide-gray-800">
+        <ul class="divide-y divide-gray-100 dark:divide-white/[0.06]">
           <li
             v-for="invite in invites"
             :key="invite.id"
@@ -264,21 +264,21 @@ const statusClasses: Record<Invite['status'], string> = {
   <Teleport to="body">
     <div
       v-if="confirmClearAll"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
       @click.self="confirmClearAll = false"
     >
       <div
-        class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+        class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
       >
         <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Remove all invites?</h3>
         <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-          This deletes every invite, including pending ones that haven't been used yet.
-          Any links already shared will stop working.
+          This deletes every invite, including pending ones that haven't been used yet. Any links
+          already shared will stop working.
         </p>
         <div class="mt-5 flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
             :disabled="isPruning"
             @click="confirmClearAll = false"
           >

@@ -32,14 +32,14 @@ onMounted(async () => {
 <template>
   <div class="space-y-4">
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">About</h2>
         <p class="mt-0.5 text-sm text-gray-400">LibreLock version, source and help</p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
       <dl class="px-4 sm:px-6 py-5 space-y-3 text-sm">
         <div v-if="unified" class="flex items-baseline justify-between gap-4">

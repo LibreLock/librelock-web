@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PhCreditCard } from '@phosphor-icons/vue'
 import type { CardNetwork } from '@/api/vault'
 
 defineProps<{
@@ -30,20 +31,6 @@ defineProps<{
     >VISA</span
   >
 
-  <!-- Unknown - generic card icon -->
-  <svg
-    v-else
-    class="stroke-white"
-    :class="size === 'lg' ? 'h-8 w-8' : size === 'md' ? 'h-6 w-6' : 'h-5 w-5'"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-    />
-  </svg>
+  <!-- Unknown - generic card icon, the same glyph as Cards in the sidebar -->
+  <PhCreditCard v-else class="text-white" :size="size === 'lg' ? 32 : size === 'md' ? 24 : 20" />
 </template>

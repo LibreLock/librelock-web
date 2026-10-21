@@ -5,6 +5,9 @@ import { useAuthStore } from '@/stores/auth'
 import { useOrganizationStore } from '@/stores/organization'
 import { getOrgKey } from '@/services/keyring'
 import { listMembers, grantAccess, revokeAccess, bootstrapOrgKey } from '@/api/orgMembership'
+import UserAvatar from '@/components/UserAvatar.vue'
+import PaginationBar from '@/components/PaginationBar.vue'
+import { usePagination } from '@/composables/usePagination'
 
 interface OrgUser {
   id: string
@@ -33,6 +36,7 @@ const auth = useAuthStore()
 const orgStore = useOrganizationStore()
 
 const users = ref<OrgUser[]>([])
+const { page, pageSize, paged: pagedUsers } = usePagination(users, 10)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 const busyId = ref<string | null>(null)
@@ -347,14 +351,14 @@ function formatDate(iso: string) {
 <template>
   <div class="space-y-6">
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Users</h2>
         <p class="mt-0.5 text-sm text-gray-400">Manage users, roles, and access</p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
       <div class="px-4 sm:px-6 py-5">
         <p v-if="error" class="mb-3 text-sm text-red-600">{{ error }}</p>
@@ -373,7 +377,7 @@ function formatDate(iso: string) {
             <button
               v-if="auth.isOwner"
               type="button"
-              class="w-full shrink-0 rounded-lg bg-gray-800 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:opacity-50 cursor-pointer sm:w-auto"
+              class="w-full shrink-0 rounded-lg bg-gray-800 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:opacity-50 cursor-pointer sm:w-auto dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
               :disabled="isBootstrapping"
               @click="enableSharedVault"
             >
@@ -401,7 +405,7 @@ function formatDate(iso: string) {
             </p>
             <button
               type="button"
-              class="w-full shrink-0 rounded-lg bg-gray-800 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer sm:w-auto"
+              class="w-full shrink-0 rounded-lg bg-gray-800 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer sm:w-auto dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
               :disabled="isGrantingAll || grantable.length === 0"
               :title="
                 grantable.length === 0 ? 'No members are ready to receive access yet' : undefined
@@ -412,30 +416,38 @@ function formatDate(iso: string) {
             </button>
           </div>
 
-          <ul class="divide-y divide-gray-100 dark:divide-gray-800">
+          <ul class="divide-y divide-gray-100 dark:divide-white/[0.06]">
             <li
-              v-for="user in users"
+              v-for="user in pagedUsers"
               :key="user.id"
               class="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-3"
             >
               <!-- Fade only the identity block: fading the whole row would also
                    fade the action menu rendered inside it. -->
-              <div class="min-w-0 flex-1" :class="{ 'opacity-60': user.status === 'suspended' }">
-                <div class="flex items-center gap-2">
-                  <p class="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {{ user.username }}
-                    <span v-if="user.id === currentId" class="text-xs font-normal text-gray-400"
-                      >(You)</span
+              <div
+                class="flex min-w-0 flex-1 items-center gap-3"
+                :class="{ 'opacity-60': user.status === 'suspended' }"
+              >
+                <UserAvatar :name="user.username" />
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <p class="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {{ user.username }}
+                      <span v-if="user.id === currentId" class="text-xs font-normal text-gray-400"
+                        >(You)</span
+                      >
+                    </p>
+                    <span
+                      class="shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold capitalize"
+                      :class="roleBadgeClass(user.role)"
                     >
+                      {{ user.role }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Joined {{ formatDate(user.created_at) }}
                   </p>
-                  <span
-                    class="shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold capitalize"
-                    :class="roleBadgeClass(user.role)"
-                  >
-                    {{ user.role }}
-                  </span>
                 </div>
-                <p class="text-xs text-gray-400">Joined {{ formatDate(user.created_at) }}</p>
               </div>
 
               <div class="flex flex-wrap items-center gap-2 sm:ml-auto">
@@ -460,7 +472,7 @@ function formatDate(iso: string) {
                   <button
                     v-else-if="canManageAccess && !hasAccess(user)"
                     type="button"
-                    class="rounded-md px-2.5 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 ring-1 ring-gray-300 dark:ring-gray-600 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                    class="rounded-md px-2.5 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 ring-1 ring-gray-900/[0.1] dark:ring-white/[0.12] transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                     :disabled="busyId === user.id || !hasKeypair(user) || user.status !== 'active'"
                     :title="
                       !hasKeypair(user)
@@ -481,7 +493,7 @@ function formatDate(iso: string) {
                           ? 'Suspended users cannot have their role changed'
                           : undefined
                       "
-                      class="h-7 appearance-none rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 pl-2.5 pr-7 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                      class="h-7 appearance-none rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] pl-2.5 pr-7 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                       @change="onRoleSelect(user, $event)"
                     >
                       <option value="member" :disabled="user.role === 'admin' && isLastAdmin(user)">
@@ -509,7 +521,7 @@ function formatDate(iso: string) {
                   <div class="relative">
                     <button
                       type="button"
-                      class="flex h-7 w-7 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 ring-1 ring-gray-300 dark:ring-gray-600 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 cursor-pointer"
+                      class="flex h-7 w-7 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 ring-1 ring-gray-900/[0.1] dark:ring-white/[0.12] transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 cursor-pointer"
                       :disabled="busyId === user.id"
                       :aria-expanded="openMenuId === user.id"
                       aria-haspopup="menu"
@@ -533,12 +545,12 @@ function formatDate(iso: string) {
                       <div class="fixed inset-0 z-40" @click="closeMenu" />
                       <div
                         role="menu"
-                        class="absolute right-0 z-50 mt-1 w-40 overflow-hidden rounded-lg bg-white dark:bg-gray-900 py-1 shadow-lg ring-1 ring-gray-200 dark:ring-gray-700"
+                        class="absolute right-0 z-50 mt-1 w-40 origin-top-right overflow-hidden rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-gray-900/[0.07] backdrop-blur-xl dark:bg-gray-800/95 dark:ring-white/[0.08]"
                       >
                         <button
                           v-if="user.status === 'active'"
                           type="button"
-                          class="block w-full px-3 py-1.5 text-left text-xs font-medium text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                          class="block w-full rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer dark:text-gray-200 dark:hover:bg-white/[0.07]"
                           :disabled="isLastAdmin(user)"
                           :title="
                             isLastAdmin(user) ? 'The last admin cannot be suspended' : undefined
@@ -550,14 +562,14 @@ function formatDate(iso: string) {
                         <button
                           v-else
                           type="button"
-                          class="block w-full px-3 py-1.5 text-left text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 cursor-pointer"
+                          class="block w-full rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-gray-700 hover:bg-gray-100 cursor-pointer dark:text-gray-200 dark:hover:bg-white/[0.07]"
                           @click="setStatus(user, 'active')"
                         >
                           Reactivate
                         </button>
                         <button
                           type="button"
-                          class="block w-full px-3 py-1.5 text-left text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                          class="block w-full rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-red-600 hover:bg-red-500/[0.08] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer dark:text-red-400 dark:hover:bg-red-500/10"
                           :disabled="isLastAdmin(user)"
                           :title="
                             isLastAdmin(user) ? 'The last admin cannot be removed' : undefined
@@ -573,6 +585,12 @@ function formatDate(iso: string) {
               </div>
             </li>
           </ul>
+          <PaginationBar
+            v-model:page="page"
+            :page-size="pageSize"
+            :total="users.length"
+            class="mt-4"
+          />
         </template>
       </div>
     </div>
@@ -580,18 +598,19 @@ function formatDate(iso: string) {
     <Teleport to="body">
       <div
         v-if="revokeTarget"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
         @click.self="revokeTarget = null"
       >
         <div
-          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
         >
           <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">
             Revoke shared access?
           </h3>
           <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
             <p>
-              {{ revokeTarget.username }} will no longer open shared entries after their next sign-in.
+              {{ revokeTarget.username }} will no longer open shared entries after their next
+              sign-in.
             </p>
             <p class="text-amber-700 dark:text-amber-300">
               They already held the shared key while a member, so anything they saw or exported
@@ -602,7 +621,7 @@ function formatDate(iso: string) {
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+              class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
               :disabled="isRevoking"
               @click="revokeTarget = null"
             >
@@ -624,23 +643,24 @@ function formatDate(iso: string) {
     <Teleport to="body">
       <div
         v-if="adminTarget"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
         @click.self="adminTarget = null"
       >
         <div
-          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
         >
           <h3 class="text-lg font-semibold text-indigo-700 dark:text-indigo-400">
             {{ adminTarget.role === 'owner' ? 'Drop to admin?' : 'Make admin?' }}
           </h3>
           <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
             <p v-if="adminTarget.role === 'owner'">
-              {{ adminTarget.username }} stops being an owner and stays on as an admin.
-              They lose the owner-only powers: adding or dropping owners, and reverting the instance to personal mode.
-              Their shared-vault access is kept.
+              {{ adminTarget.username }} stops being an owner and stays on as an admin. They lose
+              the owner-only powers: adding or dropping owners, and reverting the instance to
+              personal mode. Their shared-vault access is kept.
             </p>
             <p v-else>
-              {{ adminTarget.username }} will become an admin and will get access to the Organization area.
+              {{ adminTarget.username }} will become an admin and will get access to the
+              Organization area.
             </p>
             <div v-if="adminTarget.role !== 'owner'" class="space-y-2">
               <p>An admin can:</p>
@@ -653,18 +673,20 @@ function formatDate(iso: string) {
                 <li>Change the organization name, logo, and branding</li>
                 <li>Read the audit log, including actions taken before they were promoted</li>
                 <li>
-                  Grant and revoke shared-vault access, and change the auto-grant setting, once they hold the shared key themselves
+                  Grant and revoke shared-vault access, and change the auto-grant setting, once they
+                  hold the shared key themselves
                 </li>
               </ul>
             </div>
             <p>
-              An admin cannot touch owners or their own account here, and cannot revert the instance to personal mode.
+              An admin cannot touch owners or their own account here, and cannot revert the instance
+              to personal mode.
             </p>
           </div>
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+              class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
               :disabled="isSettingAdmin"
               @click="adminTarget = null"
             >
@@ -692,11 +714,11 @@ function formatDate(iso: string) {
     <Teleport to="body">
       <div
         v-if="ownerTarget"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
         @click.self="ownerTarget = null"
       >
         <div
-          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
         >
           <h3 class="text-lg font-semibold text-amber-700 dark:text-amber-400">Add owner?</h3>
           <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
@@ -712,12 +734,14 @@ function formatDate(iso: string) {
             <p>An owner can:</p>
             <ul class="list-disc space-y-1 pl-5">
               <li>
-                Do everything an admin can: manage users, invites, the registration policy, branding, the audit log, and shared-vault access
+                Do everything an admin can: manage users, invites, the registration policy,
+                branding, the audit log, and shared-vault access
               </li>
               <li>Make any other user an owner</li>
               <li>Demote, suspend, or remove other owners, you included</li>
               <li>
-                Revert the instance to personal mode, permanently deleting every account except their own
+                Revert the instance to personal mode, permanently deleting every account except
+                their own
               </li>
             </ul>
             <p>Owner's access can no longer be revoked after this!</p>
@@ -725,7 +749,7 @@ function formatDate(iso: string) {
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+              class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
               :disabled="isAddingOwner"
               @click="ownerTarget = null"
             >
@@ -747,11 +771,11 @@ function formatDate(iso: string) {
     <Teleport to="body">
       <div
         v-if="suspendTarget"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
         @click.self="suspendTarget = null"
       >
         <div
-          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
         >
           <h3 class="text-lg font-semibold text-amber-700 dark:text-amber-400">Suspend user?</h3>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -763,7 +787,7 @@ function formatDate(iso: string) {
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+              class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
               :disabled="isActioning"
               @click="suspendTarget = null"
             >
@@ -785,22 +809,23 @@ function formatDate(iso: string) {
     <Teleport to="body">
       <div
         v-if="removeTarget"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
         @click.self="removeTarget = null"
       >
         <div
-          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
         >
           <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Remove user?</h3>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            This permanently deletes user {{ removeTarget.username }} and their entire vault: passwords, categories, and sessions.
+            This permanently deletes user {{ removeTarget.username }} and their entire vault:
+            passwords, categories, and sessions.
             <br />
             Their data cannot be recovered.
           </p>
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+              class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
               :disabled="isActioning"
               @click="removeTarget = null"
             >

@@ -110,10 +110,10 @@ async function removeLogo() {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="card-columns">
     <!-- Logo -->
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Company logo</h2>
@@ -122,7 +122,7 @@ async function removeLogo() {
         </p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
       <div class="px-4 sm:px-6 py-5">
         <div class="flex items-center gap-4">
@@ -130,7 +130,7 @@ async function removeLogo() {
           <div class="space-x-2">
             <button
               type="button"
-              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
               :disabled="isUploadingLogo"
               @click="fileInput?.click()"
             >
@@ -139,7 +139,7 @@ async function removeLogo() {
             <button
               v-if="org.hasLogo"
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
+              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-900/[0.1] dark:ring-white/[0.12] transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
               :disabled="isUploadingLogo"
               @click="removeLogo"
             >
@@ -161,19 +161,19 @@ async function removeLogo() {
 
     <!-- Details -->
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Branding</h2>
         <p class="mt-0.5 text-sm text-gray-400">Company name and support details</p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
       <div class="px-4 sm:px-6 py-5">
         <form class="space-y-4" @submit.prevent="saveDetails">
           <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+            <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
               >Company name</label
             >
             <input
@@ -181,13 +181,13 @@ async function removeLogo() {
               type="text"
               placeholder="LibreLock"
               maxlength="200"
-              class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
             />
             <p class="mt-1 text-xs text-gray-400">Leave blank to fall back to “LibreLock”</p>
           </div>
 
           <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+            <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
               >Support email</label
             >
             <input
@@ -195,12 +195,12 @@ async function removeLogo() {
               type="email"
               placeholder="support@company.com"
               maxlength="200"
-              class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
             />
           </div>
 
           <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+            <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
               >Support URL</label
             >
             <input
@@ -208,12 +208,12 @@ async function removeLogo() {
               type="text"
               placeholder="help.company.com"
               maxlength="300"
-              class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
             />
           </div>
 
           <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+            <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
               >Login message</label
             >
             <textarea
@@ -221,7 +221,7 @@ async function removeLogo() {
               rows="2"
               placeholder="Shown under the logo on the login screen"
               maxlength="500"
-              class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
             />
           </div>
 
@@ -230,7 +230,7 @@ async function removeLogo() {
           <div class="flex items-center gap-3">
             <button
               type="submit"
-              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
               :disabled="isSaving"
             >
               {{ isSaving ? 'Saving…' : 'Save changes' }}

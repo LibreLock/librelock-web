@@ -59,7 +59,7 @@ onBeforeUnmount(() => clearInterval(timer))
     <button
       type="button"
       :disabled="isProbing || reloading"
-      class="flex items-center justify-center gap-2 rounded-md bg-gray-800 hover:bg-gray-700 px-5 py-2 font-semibold text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+      class="flex items-center justify-center gap-2 rounded-md bg-gray-800 hover:bg-gray-700 px-5 py-2 font-semibold text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-colors dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
       @click="retry"
     >
       <LoadingSpinner v-if="isProbing || reloading" size="sm" />

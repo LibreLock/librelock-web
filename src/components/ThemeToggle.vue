@@ -1,49 +1,63 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { PhMoon, PhSun } from '@phosphor-icons/vue'
 import { useThemeStore } from '@/stores/theme'
 
-const theme = useThemeStore()
+const props = defineProps<{
+  /** With a label it renders as a full-width menu row (the mobile More sheet). */
+  label?: string
+}>()
 
-const label = computed(() =>
-  theme.theme === 'dark' ? 'Dark mode, click for light' : 'Light mode, click for dark',
-)
+const theme = useThemeStore()
+const dark = computed(() => theme.theme === 'dark')
+
+// Cross-fade the whole page instead of snapping between light and dark, so there is no abrupt
+// brightness jump. Skipped under reduced motion and in browsers without view transitions
+function toggle() {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (!document.startViewTransition || reduce) {
+    theme.toggle()
+    return
+  }
+  document.startViewTransition(() => theme.toggle())
+}
+
+// The glyph that is not showing sits rotated and shrunk, so a switch reads as one icon turning
+// into the other
+const GLYPH =
+  'absolute inset-0 transition-[opacity,rotate,scale] duration-500 ease-[var(--ease-out)] motion-reduce:transition-opacity'
 </script>
 
 <template>
   <button
     type="button"
-    class="rounded-md p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 cursor-pointer transition-colors"
-    :aria-label="label"
-    :title="label"
-    @click="theme.toggle()"
+    class="cursor-pointer rounded-lg transition-colors duration-150"
+    :class="
+      props.label
+        ? 'flex min-h-11 w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-600 active:bg-gray-100 dark:text-gray-400 dark:active:bg-white/[0.06]'
+        : 'flex h-9 w-9 items-center justify-center text-gray-500 hover:bg-gray-900/[0.05] hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-100'
+    "
+    :title="`${dark ? 'Dark' : 'Light'} theme`"
+    :aria-label="`Switch to ${dark ? 'light' : 'dark'} theme`"
+    @click="toggle"
   >
-    <svg
-      v-if="theme.theme === 'dark'"
-      class="h-5 w-5 transition-transform duration-300 hover:rotate-12"
-      viewBox="0 0 24 24"
-      fill="none"
+    <span
+      class="relative block shrink-0"
+      :class="props.label ? 'size-5' : 'size-[18px]'"
+      aria-hidden="true"
     >
-      <circle cx="12" cy="12" r="4" fill="currentColor" opacity="0.15" />
-      <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8" />
-      <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-        <path d="M12 2.5V4.5" />
-        <path d="M12 19.5V21.5" />
-        <path d="M2.5 12H4.5" />
-        <path d="M19.5 12H21.5" />
-        <path d="M18.36 5.64L16.95 7.05" />
-        <path d="M7.05 16.95L5.64 18.36" />
-        <path d="M18.36 18.36L16.95 16.95" />
-        <path d="M7.05 7.05L5.64 5.64" />
-      </g>
-    </svg>
-
-    <svg
-      v-else
-      class="h-5 w-5 transition-transform duration-300 hover:-rotate-6"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-    >
-      <path d="M21 12.8A8.5 8.5 0 1111.2 3 6.8 6.8 0 0021 12.8Z" />
-    </svg>
+      <PhSun
+        :size="props.label ? 20 : 18"
+        :class="[GLYPH, dark ? 'rotate-90 scale-50 opacity-0' : 'rotate-0 scale-100 opacity-100']"
+      />
+      <PhMoon
+        :size="props.label ? 20 : 18"
+        :class="[GLYPH, dark ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-50 opacity-0']"
+      />
+    </span>
+    <template v-if="props.label">
+      {{ props.label }}
+      <span class="ml-auto text-gray-400 dark:text-gray-500">{{ dark ? 'Dark' : 'Light' }}</span>
+    </template>
   </button>
 </template>

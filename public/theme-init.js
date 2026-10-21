@@ -5,7 +5,7 @@
   }
   var meta = document.querySelector('meta[name="theme-color"]')
   if (meta) {
-    meta.setAttribute('content', dark ? '#030712' : '#f9fafb')
+    meta.setAttribute('content', dark ? '#111113' : '#f5f5f7')
   }
 
   // The boot shell in index.html spins on its own; if the app bundle never arrives (server or VPN

@@ -8,6 +8,7 @@ import { MAX_PASSWORD_LENGTH } from '@/constants'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import ToggleSwitch from '@/components/ToggleSwitch.vue'
 import router from '@/router'
+import { PhEye, PhEyeSlash, PhLockSimple } from '@phosphor-icons/vue'
 
 const auth = useAuthStore()
 const org = useOrganizationStore()
@@ -110,7 +111,7 @@ async function confirmSwitchToOrganization() {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="card-columns">
     <div v-if="isLoading" class="flex justify-center py-10">
       <LoadingSpinner />
     </div>
@@ -122,19 +123,7 @@ async function confirmSwitchToOrganization() {
     >
       <div class="px-4 sm:px-6 py-6">
         <div class="flex items-start gap-3">
-          <svg
-            class="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            />
-          </svg>
+          <PhLockSimple :size="20" class="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
           <div class="min-w-0">
             <h2 class="text-base font-semibold text-amber-900 dark:text-amber-200">
               <template v-if="operator">Managed by {{ operator }}</template>
@@ -155,7 +144,7 @@ async function confirmSwitchToOrganization() {
 
     <template v-else>
       <div
-        class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+        class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
       >
         <div class="px-4 sm:px-6 pt-6 pb-1">
           <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Sign-up</h2>
@@ -164,7 +153,7 @@ async function confirmSwitchToOrganization() {
           </p>
         </div>
 
-        <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+        <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
         <p v-if="registrationError" class="px-4 sm:px-6 pt-4 text-sm text-red-600">
           {{ registrationError }}
@@ -193,7 +182,7 @@ async function confirmSwitchToOrganization() {
       </div>
 
       <div
-        class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+        class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
       >
         <div class="px-4 sm:px-6 pt-6 pb-1">
           <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">
@@ -204,7 +193,7 @@ async function confirmSwitchToOrganization() {
           </p>
         </div>
 
-        <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+        <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
         <div class="px-4 sm:px-6 py-5 space-y-4">
           <p class="text-sm text-gray-600 dark:text-gray-300">
@@ -219,7 +208,7 @@ async function confirmSwitchToOrganization() {
           </p>
           <button
             type="button"
-            class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 cursor-pointer"
+            class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 cursor-pointer dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
             @click="openSwitchModal"
           >
             Switch to organization…
@@ -231,13 +220,13 @@ async function confirmSwitchToOrganization() {
     <Teleport to="body">
       <div
         v-if="showSwitchModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
         @click.self="showSwitchModal = false"
       >
         <div
-          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
         >
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 class="text-[17px] font-semibold text-gray-900 dark:text-gray-50">
             Switch to organization mode?
           </h3>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -254,7 +243,7 @@ async function confirmSwitchToOrganization() {
           </p>
 
           <div class="mt-4">
-            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300">
               Confirm with your master password
             </label>
             <div class="relative">
@@ -263,7 +252,7 @@ async function confirmSwitchToOrganization() {
                 :type="showSwitchPassword ? 'text' : 'password'"
                 autocomplete="current-password"
                 :maxlength="MAX_PASSWORD_LENGTH"
-                class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
                 @keyup.enter="confirmSwitchToOrganization"
               />
               <button
@@ -273,35 +262,9 @@ async function confirmSwitchToOrganization() {
                 :aria-pressed="showSwitchPassword"
                 @click="showSwitchPassword = !showSwitchPassword"
               >
-                <svg
-                  v-if="showSwitchPassword"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                  />
-                </svg>
+                <PhEyeSlash :size="16" v-if="showSwitchPassword" />
 
-                <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
+                <PhEye :size="16" v-else />
               </button>
             </div>
           </div>
@@ -310,7 +273,7 @@ async function confirmSwitchToOrganization() {
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+              class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
               :disabled="isSwitching"
               @click="showSwitchModal = false"
             >
@@ -318,7 +281,7 @@ async function confirmSwitchToOrganization() {
             </button>
             <button
               type="button"
-              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
               :disabled="isSwitching || !switchPassword"
               @click="confirmSwitchToOrganization"
             >
@@ -332,11 +295,11 @@ async function confirmSwitchToOrganization() {
     <Teleport to="body">
       <div
         v-if="showRegistrationModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
         @click.self="showRegistrationModal = false"
       >
         <div
-          class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
         >
           <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Allow new accounts?</h3>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -354,7 +317,7 @@ async function confirmSwitchToOrganization() {
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-900/[0.1] dark:ring-white/[0.12] hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
               @click="showRegistrationModal = false"
             >
               Cancel

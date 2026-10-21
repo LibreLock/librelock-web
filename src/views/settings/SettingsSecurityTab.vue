@@ -99,7 +99,7 @@ async function handleRemove() {
 <template>
   <div class="space-y-4">
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Fingerprint unlock</h2>
@@ -109,7 +109,7 @@ async function handleRemove() {
         </p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
       <div class="px-4 sm:px-6 py-5 space-y-4">
         <p v-if="checking" class="text-sm text-gray-400">Checking this device…</p>
@@ -150,7 +150,7 @@ async function handleRemove() {
           <button
             v-if="!showEnrollForm"
             type="button"
-            class="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 cursor-pointer"
+            class="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 cursor-pointer dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
             @click="openEnrollForm"
           >
             <FingerprintIcon class="h-5 w-5" />
@@ -159,7 +159,7 @@ async function handleRemove() {
 
           <form v-else class="space-y-4" @submit.prevent="handleEnroll">
             <div>
-              <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+              <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                 >Confirm your master password</label
               >
               <div class="relative">
@@ -169,7 +169,7 @@ async function handleRemove() {
                   required
                   :maxlength="MAX_PASSWORD_LENGTH"
                   autocomplete="current-password"
-                  class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                  class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
                 />
                 <PasswordVisibilityToggle v-model="showPassword" />
               </div>
@@ -180,7 +180,7 @@ async function handleRemove() {
             <div class="flex items-center gap-3">
               <button
                 type="submit"
-                class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
                 :disabled="isEnrolling || !password"
               >
                 {{ isEnrolling ? 'Setting up…' : 'Continue' }}
@@ -200,8 +200,9 @@ async function handleRemove() {
           class="rounded-lg bg-gray-50 dark:bg-gray-800/50 px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400"
         >
           <p>
-            Your master password is stored on this device, encrypted with a key that only your authenticator can produce and only after it verifies you.
-            It is never sent anywhere, and it does not travel to your other devices even if your passkeys sync.
+            Your master password is stored on this device, encrypted with a key that only your
+            authenticator can produce and only after it verifies you. It is never sent anywhere, and
+            it does not travel to your other devices even if your passkeys sync.
           </p>
           <p class="mt-2">
             Careful! Anyone who can unlock this device can therefore open your vault.

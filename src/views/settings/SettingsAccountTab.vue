@@ -15,6 +15,7 @@ import {
 } from '@/services/crypto'
 import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, MAX_USERNAME_LENGTH } from '@/constants'
 import router from '@/router'
+import { PhEye, PhEyeSlash } from '@phosphor-icons/vue'
 
 const auth = useAuthStore()
 
@@ -205,21 +206,23 @@ async function confirmDeleteAccount() {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <!-- Wide: the tall password form gets its own column, profile and the danger zone share the
+       other, so deleting the account is never the first thing in view -->
+  <div class="grid items-start gap-4 xl:grid-cols-2">
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Profile</h2>
         <p class="mt-0.5 text-sm text-gray-400">Update your profile settings</p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
       <div class="px-4 sm:px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleSaveUsername">
           <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+            <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
               >Username</label
             >
             <input
@@ -227,7 +230,7 @@ async function confirmDeleteAccount() {
               type="text"
               :maxlength="MAX_USERNAME_LENGTH"
               placeholder="Your username"
-              class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
             />
           </div>
 
@@ -236,7 +239,7 @@ async function confirmDeleteAccount() {
           <div class="flex items-center gap-3">
             <button
               type="submit"
-              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+              class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
               :disabled="isSavingUsername || !editUsername.trim()"
             >
               {{ isSavingUsername ? 'Saving…' : 'Save changes' }}
@@ -248,14 +251,14 @@ async function confirmDeleteAccount() {
     </div>
 
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07] xl:col-start-2 xl:row-span-2 xl:row-start-1"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Master password</h2>
         <p class="mt-0.5 text-sm text-gray-400">Change the password used to unlock your vault</p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
       <div class="px-4 sm:px-6 py-5">
         <div
@@ -267,7 +270,7 @@ async function confirmDeleteAccount() {
 
         <form v-else class="space-y-4" @submit.prevent="handleChangePassword">
           <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300">
               Current password
             </label>
 
@@ -278,7 +281,7 @@ async function confirmDeleteAccount() {
                 required
                 :maxlength="MAX_PASSWORD_LENGTH"
                 autocomplete="current-password"
-                class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
               />
 
               <button
@@ -290,41 +293,15 @@ async function confirmDeleteAccount() {
                 :aria-pressed="showCurrentPassword"
                 @click="showCurrentPassword = !showCurrentPassword"
               >
-                <svg
-                  v-if="showCurrentPassword"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                  />
-                </svg>
+                <PhEyeSlash :size="16" v-if="showCurrentPassword" />
 
-                <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
+                <PhEye :size="16" v-else />
               </button>
             </div>
           </div>
 
           <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300">
               New password
             </label>
 
@@ -335,7 +312,7 @@ async function confirmDeleteAccount() {
                 required
                 :maxlength="MAX_PASSWORD_LENGTH"
                 autocomplete="new-password"
-                class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
                 @focus="newPasswordFocused = true"
                 @blur="newPasswordFocused = false"
               />
@@ -347,41 +324,15 @@ async function confirmDeleteAccount() {
                 :aria-pressed="showNewPasswords"
                 @click="showNewPasswords = !showNewPasswords"
               >
-                <svg
-                  v-if="showNewPasswords"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                  />
-                </svg>
+                <PhEyeSlash :size="16" v-if="showNewPasswords" />
 
-                <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
+                <PhEye :size="16" v-else />
               </button>
             </div>
 
             <div
               v-if="newPasswordFocused || newPassword.length > 0"
-              class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-xs"
+              class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-gray-100 dark:border-white/[0.08] bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-xs"
             >
               <span :class="hasUpper ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'">
                 {{ hasUpper ? '✓' : '○' }} Uppercase
@@ -408,7 +359,7 @@ async function confirmDeleteAccount() {
           </div>
 
           <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300">
               Confirm new password
             </label>
 
@@ -419,7 +370,7 @@ async function confirmDeleteAccount() {
                 required
                 :maxlength="MAX_PASSWORD_LENGTH"
                 autocomplete="new-password"
-                class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
               />
 
               <button
@@ -429,35 +380,9 @@ async function confirmDeleteAccount() {
                 :aria-pressed="showNewPasswords"
                 @click="showNewPasswords = !showNewPasswords"
               >
-                <svg
-                  v-if="showNewPasswords"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                  />
-                </svg>
+                <PhEyeSlash :size="16" v-if="showNewPasswords" />
 
-                <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
+                <PhEye :size="16" v-else />
               </button>
             </div>
 
@@ -472,7 +397,7 @@ async function confirmDeleteAccount() {
 
           <button
             type="submit"
-            class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            class="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
             :disabled="!canSubmit"
           >
             {{ isChangingPassword ? 'Saving…' : 'Update password' }}
@@ -482,7 +407,7 @@ async function confirmDeleteAccount() {
     </div>
 
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07] xl:col-start-1"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Delete account</h2>
@@ -491,12 +416,12 @@ async function confirmDeleteAccount() {
         </p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
       <div class="px-4 sm:px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleDeleteAccount">
           <div>
-            <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300">
               Current password
             </label>
 
@@ -506,7 +431,7 @@ async function confirmDeleteAccount() {
                 :type="showDeletePassword ? 'text' : 'password'"
                 required
                 autocomplete="current-password"
-                class="w-full rounded-md border px-3 py-1.5 pr-10 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
               />
 
               <button
@@ -514,35 +439,9 @@ async function confirmDeleteAccount() {
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
                 @click="showDeletePassword = !showDeletePassword"
               >
-                <svg
-                  v-if="showDeletePassword"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                  />
-                </svg>
+                <PhEyeSlash :size="16" v-if="showDeletePassword" />
 
-                <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
+                <PhEye :size="16" v-else />
               </button>
             </div>
           </div>
@@ -564,11 +463,11 @@ async function confirmDeleteAccount() {
       <Teleport to="body">
         <div
           v-if="showDeleteModal"
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
           @click.self="showDeleteModal = false"
         >
           <div
-            class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+            class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
           >
             <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Delete account?</h3>
             <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -578,7 +477,7 @@ async function confirmDeleteAccount() {
             <div class="mt-5 flex justify-end gap-2">
               <button
                 type="button"
-                class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+                class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
                 :disabled="isDeletingAccount"
                 @click="showDeleteModal = false"
               >

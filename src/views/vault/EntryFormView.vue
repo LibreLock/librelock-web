@@ -35,6 +35,8 @@ import {
   originSection,
   returnRouteFor,
 } from '@/router/origin'
+import SegmentedTabs from '@/components/SegmentedTabs.vue'
+import { PhCaretDown, PhCaretRight, PhCheck, PhCopy, PhEye, PhEyeSlash } from '@phosphor-icons/vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -119,7 +121,15 @@ function requestedType(): EntryType | null {
 }
 
 // Without ?type=, fall back to the list the form was opened from — that covers the topbar's Add
-// entry button and the `n` shortcut, which are global and carry no type of their own
+// entry button, which is global and carries no type of its own
+const FORM_TYPES = ['password', 'card', 'note'] as const
+const FORM_TYPE_LABELS: Record<EntryType, string> = {
+  password: 'Password',
+  card: 'Card',
+  note: 'Secure Note',
+}
+const SCOPES = ['private', 'shared'] as const
+const SCOPE_LABELS = { private: 'Private', shared: 'Shared' }
 const entryType = ref<EntryType>(
   requestedType() ?? (originList && SECTION_TYPE[originList]) ?? 'password',
 )
@@ -138,11 +148,12 @@ const iconName = computed(() =>
 const iconUrl = computed(() => (entryType.value === 'password' ? account.url : ''))
 
 type IconTab = 'all' | 'brands' | 'general'
-const ICON_TABS: { id: IconTab; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'brands', label: 'Brands' },
-  { id: 'general', label: 'General' },
-]
+const ICON_TAB_IDS = ['all', 'brands', 'general'] as const
+const ICON_TAB_LABELS: Record<IconTab, string> = {
+  all: 'All',
+  brands: 'Brands',
+  general: 'General',
+}
 const iconTab = ref<IconTab>('brands')
 const iconSearch = ref('')
 const filteredIcons = computed(() => {
@@ -199,7 +210,8 @@ const account = reactive({
 
 const usesSso = computed(() => account.ssoProvider !== '')
 
-const showAdvanced = ref(false)
+// Editing is when the extra settings matter most, so they start open there
+const showAdvanced = ref(isEditMode)
 
 const advancedSummary = computed(() => {
   const parts: string[] = []
@@ -602,7 +614,6 @@ onMounted(async () => {
       account.ssoLabel = entry.ssoLabel
       account.ssoEntryId = entry.ssoEntryId
       account.excludeFromAnalytics = entry.excludeFromAnalytics
-      showAdvanced.value = Boolean(entry.ssoProvider) || entry.excludeFromAnalytics
     } else if (entry.type === 'card') {
       card.name = entry.name
       card.cardholderName = entry.cardholderName
@@ -656,7 +667,9 @@ let pendingLeave: string | null = null
 // Any way out of a dirty form - the sidebar, Add entry, the back button, a typed URL - stops at
 // the same dialog; a clean form leaves without comment
 onBeforeRouteLeave((to) => {
-  if (leavingOnPurpose || !isDirty()) return true
+  // Signed out underneath us (session expired): nothing here can be saved any more, so asking
+  // would only strand the user on a dead form
+  if (leavingOnPurpose || !isDirty() || !auth.isAuthenticated) return true
   pendingLeave = to.fullPath
   showLeaveConfirm.value = true
   return false
@@ -874,8 +887,10 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 </script>
 
 <template>
-  <div class="overflow-y-auto h-full p-4 sm:p-6">
-    <div class="w-full">
+  <!-- On wide screens the page itself stays put: the fields column scrolls on its own while the
+       appearance column (colour, icon, category, save) stays in view -->
+  <div class="overflow-y-auto h-full p-4 sm:p-6 lg:flex lg:flex-col lg:overflow-hidden">
+    <div class="w-full lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
       <div class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
         <div>
           <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -883,93 +898,36 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
           </h1>
         </div>
 
-        <div
+        <SegmentedTabs
           v-if="!isEditMode"
-          class="flex w-fit gap-1 rounded-lg bg-gray-100 dark:bg-gray-800 p-1 shrink-0"
-        >
-          <button
-            type="button"
-            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
-            :class="
-              entryType === 'password'
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-            "
-            :disabled="readOnly"
-            @click="switchType('password')"
-          >
-            Password
-          </button>
-          <button
-            type="button"
-            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
-            :class="
-              entryType === 'card'
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-            "
-            :disabled="readOnly"
-            @click="switchType('card')"
-          >
-            Card
-          </button>
-          <button
-            type="button"
-            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
-            :class="
-              entryType === 'note'
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-            "
-            :disabled="readOnly"
-            @click="switchType('note')"
-          >
-            Secure Note
-          </button>
-        </div>
+          class="shrink-0"
+          :tabs="FORM_TYPES"
+          :labels="FORM_TYPE_LABELS"
+          :active="entryType"
+          :disabled="readOnly ? { password: true, card: true, note: true } : {}"
+          @select="switchType"
+        />
 
         <!-- Scope: choosable at creation and when promoting a private entry. -->
-        <div
+        <SegmentedTabs
           v-if="canChooseScope"
-          class="flex w-fit gap-1 rounded-lg bg-gray-100 dark:bg-gray-800 p-1 shrink-0"
-        >
-          <button
-            type="button"
-            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-            :class="
-              !isShared
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-            "
-            :disabled="makePrivateBlocked"
-            :title="
-              makePrivateBlocked
-                ? 'Only admins can move a shared entry back to a private vault'
-                : undefined
-            "
-            @click="isShared = false"
-          >
-            Private
-          </button>
-          <button
-            type="button"
-            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-            :class="
-              isShared
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-            "
-            :disabled="shareBlocked"
-            :title="shareBlocked ? 'Only admins can add entries to the shared vault' : undefined"
-            @click="isShared = true"
-          >
-            Shared
-          </button>
-        </div>
+          class="shrink-0"
+          :tabs="SCOPES"
+          :labels="SCOPE_LABELS"
+          :active="isShared ? 'shared' : 'private'"
+          :disabled="{ private: makePrivateBlocked, shared: shareBlocked }"
+          :titles="{
+            private: makePrivateBlocked
+              ? 'Only admins can move a shared entry back to a private vault'
+              : undefined,
+            shared: shareBlocked ? 'Only admins can add entries to the shared vault' : undefined,
+          }"
+          @select="isShared = $event === 'shared'"
+        />
 
         <span
           v-if="wasShared && !canChooseScope"
-          class="rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 px-2.5 py-0.5 text-xs font-semibold"
+          class="rounded-full bg-gray-900/[0.06] text-gray-700 dark:bg-white/[0.08] dark:text-gray-200 px-2.5 py-0.5 text-xs font-semibold"
         >
           Shared
         </span>
@@ -996,7 +954,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
       <p
         v-if="isEditMode && isShared && !wasShared"
-        class="mb-4 rounded-lg bg-blue-50 dark:bg-blue-950/40 px-4 py-2.5 text-xs text-blue-700 dark:text-blue-300"
+        class="mb-4 rounded-lg bg-gray-900/[0.04] dark:bg-white/[0.05] px-4 py-2.5 text-xs text-gray-600 dark:text-gray-300"
       >
         Saving moves this entry into the shared vault, where every member with access can see it.
       </p>
@@ -1026,16 +984,21 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
       <div
         v-else
-        class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 overflow-hidden"
+        class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07] overflow-hidden lg:flex lg:min-h-0 lg:flex-col"
       >
-        <form ref="formEl" @submit.prevent="handleSubmit()">
+        <form
+          ref="formEl"
+          class="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col"
+          @submit.prevent="handleSubmit()"
+        >
           <div
-            class="grid grid-cols-1 lg:grid-cols-[1fr_360px] lg:divide-x lg:divide-gray-100 dark:lg:divide-gray-700"
+            class="grid grid-cols-1 lg:min-h-0 lg:flex-1 lg:grid-cols-[1fr_360px] lg:grid-rows-[minmax(0,1fr)] lg:divide-x lg:divide-gray-100 dark:lg:divide-white/[0.06]"
           >
-            <div class="px-5 py-5 space-y-3">
+            <div class="px-5 py-5 space-y-3 lg:overflow-y-auto">
               <template v-if="entryType === 'password'">
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                  <label
+                    class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                     >Name<span class="text-red-400">*</span></label
                   >
                   <input
@@ -1044,38 +1007,40 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     v-model="account.name"
                     type="text"
                     required
-                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                    <label
+                      class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                       >Username</label
                     >
                     <input
                       :disabled="readOnly"
                       v-model="account.username"
                       type="text"
-                      class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                    <label
+                      class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                       >Email</label
                     >
                     <input
                       :disabled="readOnly"
                       v-model="account.email"
                       type="email"
-                      class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
                 </div>
 
                 <div>
                   <div class="mb-1 flex items-center">
-                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                    <label class="block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                       >Password</label
                     >
                     <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 px-1"
@@ -1096,7 +1061,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                       v-model="account.password"
                       :type="showPassword ? 'text' : 'password'"
                       autocomplete="new-password"
-                      class="w-full rounded-md border px-3 py-1.5 font-mono border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                       :class="canCopyPassword ? 'pr-16' : 'pr-10'"
                     />
                     <div
@@ -1111,34 +1076,8 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                         aria-label="Copy password"
                         @click="copyPassword"
                       >
-                        <svg
-                          v-if="!passwordCopied"
-                          class="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                          />
-                        </svg>
-                        <svg
-                          v-else
-                          class="h-4 w-4 text-emerald-500"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        <PhCopy :size="16" v-if="!passwordCopied" />
+                        <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
                       </button>
 
                       <button
@@ -1148,40 +1087,8 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                         :aria-pressed="showPassword"
                         @click="showPassword = !showPassword"
                       >
-                        <svg
-                          v-if="showPassword"
-                          class="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                          />
-                        </svg>
-                        <svg
-                          v-else
-                          class="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                          />
-                        </svg>
+                        <PhEyeSlash :size="16" v-if="showPassword" />
+                        <PhEye :size="16" v-else />
                       </button>
                     </div>
                   </div>
@@ -1212,10 +1119,10 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
                       <span
                         v-if="showReusedTooltip"
-                        class="absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 shadow-lg"
+                        class="absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
                       >
                         <span
-                          class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                          class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                           >Also used by</span
                         >
                         <span class="block space-y-0.5">
@@ -1251,19 +1158,21 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                 </div>
 
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                  <label
+                    class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                     >URL</label
                   >
                   <input
                     :disabled="readOnly"
                     v-model="account.url"
                     type="text"
-                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
 
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                  <label
+                    class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                     >Notes</label
                   >
                   <NoteEditor
@@ -1282,21 +1191,12 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     aria-controls="entry-advanced"
                     @click="showAdvanced = !showAdvanced"
                   >
-                    <svg
-                      class="h-3.5 w-3.5 shrink-0 text-gray-400 transition-transform"
+                    <PhCaretRight
+                      :size="14"
+                      class="shrink-0 text-gray-400 transition-transform"
                       :class="showAdvanced ? 'rotate-90' : ''"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
                       aria-hidden="true"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    />
                     <span class="text-xs font-semibold text-gray-500 dark:text-gray-400"
                       >Advanced</span
                     >
@@ -1312,13 +1212,13 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     <div>
                       <label
                         id="sso-label"
-                        class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                        class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                         >Single sign-on</label
                       >
                       <div ref="ssoMenu" class="relative">
                         <button
                           type="button"
-                          class="flex w-full items-center gap-2 rounded-md border px-3 py-1.5 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 disabled:cursor-not-allowed disabled:opacity-60"
+                          class="flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 transition cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
                           aria-haspopup="listbox"
                           :aria-expanded="ssoMenuOpen"
                           aria-labelledby="sso-label"
@@ -1340,28 +1240,19 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                           >
                             {{ getSsoProvider(suggestedProvider)?.label }}?
                           </span>
-                          <svg
-                            class="h-3.5 w-3.5 shrink-0 text-gray-400"
+                          <PhCaretDown
+                            :size="14"
+                            class="shrink-0 text-gray-400"
                             :class="suggestedProvider ? '' : 'ml-auto'"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
                             aria-hidden="true"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
+                          />
                         </button>
 
                         <Teleport to="body">
                           <div
                             v-if="ssoMenuOpen"
                             ref="ssoPanel"
-                            class="fixed z-50 flex flex-col overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg"
+                            class="fixed z-50 flex flex-col overflow-hidden rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 shadow-lg"
                             :style="ssoMenuStyle"
                           >
                             <input
@@ -1369,7 +1260,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                               v-model="ssoSearch"
                               type="text"
                               placeholder="Search providers…"
-                              class="w-full shrink-0 border-b border-gray-100 dark:border-gray-700 bg-transparent px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none"
+                              class="w-full shrink-0 border-b border-gray-100 dark:border-white/[0.08] bg-transparent px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none"
                               @keydown.down.prevent="moveSsoHighlight(1)"
                               @keydown.up.prevent="moveSsoHighlight(-1)"
                               @keydown.enter.prevent="chooseHighlightedSso"
@@ -1406,21 +1297,13 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                                     class="ml-auto shrink-0 text-xs text-emerald-600 dark:text-emerald-400"
                                     >suggested</span
                                   >
-                                  <svg
+                                  <PhCheck
+                                    :size="14"
+                                    weight="bold"
                                     v-else-if="account.ssoProvider === option.id"
-                                    class="ml-auto h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                                    class="ml-auto shrink-0 text-gray-500 dark:text-gray-400"
                                     aria-hidden="true"
-                                  >
-                                    <path
-                                      stroke-linecap="round"
-                                      stroke-linejoin="round"
-                                      stroke-width="2"
-                                      d="M5 13l4 4L19 7"
-                                    />
-                                  </svg>
+                                  />
                                 </button>
                               </li>
                               <li
@@ -1440,20 +1323,20 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                         v-model="account.ssoLabel"
                         type="text"
                         placeholder="Provider name"
-                        class="mt-2 w-full rounded-md border px-3 py-1.5 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                        class="mt-2 w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                       />
 
                       <div v-if="usesSso" class="mt-2">
                         <label
                           for="sso-entry"
-                          class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                          class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                           >Login entry</label
                         >
                         <select
                           :disabled="readOnly"
                           id="sso-entry"
                           v-model="account.ssoEntryId"
-                          class="w-full rounded-md border px-3 py-1.5 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                          class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <option :value="null">Not linked</option>
                           <option
@@ -1527,7 +1410,8 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
               <!-- Card form -->
               <template v-else-if="entryType === 'card'">
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                  <label
+                    class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                     >Name<span class="text-red-400">*</span></label
                   >
                   <input
@@ -1536,24 +1420,26 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     v-model="card.name"
                     type="text"
                     required
-                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
 
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                  <label
+                    class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                     >Cardholder name</label
                   >
                   <input
                     :disabled="readOnly"
                     v-model="card.cardholderName"
                     type="text"
-                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
 
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                  <label
+                    class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                     >Card number<span class="text-red-400">*</span></label
                   >
                   <div class="relative">
@@ -1564,7 +1450,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                       required
                       inputmode="numeric"
                       placeholder="1234 5678 9012 3456"
-                      class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono tracking-wider border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 font-mono tracking-wider border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                       @input="handleCardNumberInput"
                     />
                     <div class="absolute right-3 top-1/2 -translate-y-1/2">
@@ -1575,7 +1461,8 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                    <label
+                      class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                       >Expiration<span class="text-red-400">*</span></label
                     >
                     <input
@@ -1586,12 +1473,13 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                       inputmode="numeric"
                       placeholder="MM/YY"
                       maxlength="5"
-                      class="w-full rounded-md border px-3 py-1.5 font-mono border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                       @input="handleExpiryInput"
                     />
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                    <label
+                      class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                       >CVV<span class="text-red-400">*</span></label
                     >
                     <div class="relative">
@@ -1603,54 +1491,23 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                         inputmode="numeric"
                         placeholder="•••"
                         maxlength="4"
-                        class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                        class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                       />
                       <button
                         type="button"
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
                         @click="showCvv = !showCvv"
                       >
-                        <svg
-                          v-if="showCvv"
-                          class="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                          />
-                        </svg>
-                        <svg
-                          v-else
-                          class="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                          />
-                        </svg>
+                        <PhEyeSlash :size="16" v-if="showCvv" />
+                        <PhEye :size="16" v-else />
                       </button>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                  <label
+                    class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                     >Notes</label
                   >
                   <NoteEditor
@@ -1664,7 +1521,8 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
               <template v-else>
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                  <label
+                    class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                     >Name<span class="text-red-400">*</span></label
                   >
                   <input
@@ -1673,11 +1531,12 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     v-model="note.name"
                     type="text"
                     required
-                    class="w-full rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                  <label
+                    class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                     >Content<span class="text-red-400">*</span></label
                   >
                   <NoteEditor
@@ -1691,10 +1550,10 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
             </div>
 
             <div
-              class="flex flex-col gap-5 px-5 py-5 border-t border-gray-100 dark:border-gray-700 lg:border-t-0"
+              class="flex flex-col gap-5 px-5 py-5 border-t border-gray-100 dark:border-white/[0.08] lg:min-h-0 lg:gap-4 lg:overflow-y-auto lg:border-t-0"
             >
               <div>
-                <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                   >Color</label
                 >
                 <div class="flex flex-wrap gap-2">
@@ -1716,9 +1575,13 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                 </div>
               </div>
 
-              <div v-if="entryType !== 'card'">
-                <div class="mb-1 flex items-center gap-2">
-                  <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400"
+              <!-- Takes whatever height the column has left, so the column itself never scrolls -->
+              <div
+                v-if="entryType !== 'card'"
+                class="lg:flex lg:min-h-[11.5rem] lg:flex-1 lg:basis-0 lg:flex-col"
+              >
+                <div class="mb-2 flex h-7 shrink-0 items-center gap-2">
+                  <label class="block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                     >Icon</label
                   >
                   <EntryIcon
@@ -1735,26 +1598,19 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                   v-model="iconSearch"
                   type="text"
                   placeholder="Search icons…"
-                  class="mb-1.5 w-full rounded-md border px-3 py-1.5 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                  class="mb-1.5 w-full shrink-0 rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
                 />
-                <div class="mb-1.5 flex gap-1 rounded-lg bg-gray-100 dark:bg-gray-800 p-0.5">
-                  <button
-                    v-for="tab in ICON_TABS"
-                    :key="tab.id"
-                    type="button"
-                    class="flex-1 rounded-md px-2 py-1 text-xs font-medium transition-colors cursor-pointer"
-                    :class="
-                      iconTab === tab.id
-                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                    "
-                    @click="iconTab = tab.id"
-                  >
-                    {{ tab.label }}
-                  </button>
-                </div>
+                <SegmentedTabs
+                  class="mb-1.5 shrink-0"
+                  stretch
+                  size="sm"
+                  :tabs="ICON_TAB_IDS"
+                  :labels="ICON_TAB_LABELS"
+                  :active="iconTab"
+                  @select="iconTab = $event"
+                />
                 <div
-                  class="grid max-h-40 grid-cols-7 gap-1.5 overflow-y-auto rounded-lg border border-gray-100 dark:border-gray-700 p-2"
+                  class="grid max-h-40 grid-cols-7 content-start gap-1.5 overflow-y-auto rounded-lg border border-gray-100 dark:border-white/[0.08] p-2 lg:max-h-none lg:min-h-0 lg:flex-1 lg:basis-0"
                 >
                   <button
                     v-if="!iconSearch.trim()"
@@ -1763,7 +1619,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     :class="
                       selectedIcon === null
                         ? 'border-gray-800 dark:border-gray-100 text-gray-800 dark:text-gray-100'
-                        : 'border-dashed border-gray-300 dark:border-gray-600 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                        : 'border-dashed border-gray-200 dark:border-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                     "
                     title="Auto: detect brand or use the first letter"
                     :disabled="readOnly"
@@ -1779,7 +1635,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     :class="
                       selectedIcon === ic.id
                         ? 'border-gray-800 ring-1 ring-gray-800 dark:border-gray-100 dark:ring-gray-100'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
+                        : 'border-gray-200 dark:border-white/[0.08] hover:border-gray-400 dark:hover:border-gray-500'
                     "
                     :title="ic.label"
                     :disabled="readOnly"
@@ -1797,7 +1653,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
               </div>
 
               <div>
-                <label class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                   >Category<span v-if="isShared" class="ml-1 font-normal text-gray-400"
                     >(shared)</span
                   ></label
@@ -1832,7 +1688,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                   <button
                     v-if="!showNewCategory && !categoriesLocked"
                     type="button"
-                    class="rounded-full border border-dashed border-gray-300 dark:border-gray-600 px-2.5 py-0.5 text-xs font-medium text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                    class="rounded-full border border-dashed border-gray-200 dark:border-white/10 px-2.5 py-0.5 text-xs font-medium text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                     @click="showNewCategory = true"
                   >
                     + New
@@ -1847,13 +1703,13 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     v-model="newCategoryName"
                     type="text"
                     placeholder="Name"
-                    class="min-w-0 flex-1 rounded-md border px-3 py-1.5 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                    class="min-w-0 flex-1 rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
                     @keydown.enter.prevent="handleAddCategory"
                     @keydown.escape="cancelNewCategory"
                   />
                   <button
                     type="button"
-                    class="rounded-lg bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-gray-700 disabled:opacity-50 cursor-pointer transition-colors disabled:cursor-not-allowed"
+                    class="rounded-lg bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-gray-700 disabled:opacity-50 cursor-pointer transition-colors disabled:cursor-not-allowed dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
                     :disabled="!newCategoryName.trim() || isAddingCategory"
                     @click="handleAddCategory"
                   >
@@ -1869,13 +1725,14 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                 </div>
               </div>
 
-              <div class="flex-1" />
+              <!-- Narrow: pushes Save down. Wide: the icon grid takes the spare height instead -->
+              <div class="flex-1 lg:hidden" />
 
               <div>
                 <p v-if="error" class="mb-2 text-xs text-red-600">{{ error }}</p>
                 <button
                   type="submit"
-                  class="w-full flex items-center justify-center gap-2 rounded-lg bg-gray-800 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                  class="w-full flex items-center justify-center gap-2 rounded-lg bg-gray-800 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
                   :disabled="isSubmitting || saveBlocked"
                   :title="
                     editBlocked
@@ -1899,11 +1756,13 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
   <Teleport to="body">
     <div
       v-if="showDeleteConfirm"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
+      class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
       @click.self="showDeleteConfirm = false"
     >
-      <div class="w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 p-4 shadow-xl">
-        <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100">
+      <div
+        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+      >
+        <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
           Delete
           {{ entryType === 'password' ? 'password' : entryType === 'card' ? 'card' : 'note' }}?
         </h2>
@@ -1923,14 +1782,14 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
         <div class="mt-5 flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer transition-colors"
+            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
             @click="showDeleteConfirm = false"
           >
             Cancel
           </button>
           <button
             type="button"
-            class="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-50 cursor-pointer transition-colors"
+            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-50 cursor-pointer transition-colors"
             :disabled="isDeleting"
             @click="handleDelete"
           >
@@ -1942,11 +1801,11 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
     <div
       v-if="showExposureConfirm"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
       @click.self="showExposureConfirm = false"
     >
       <div
-        class="w-full max-w-lg rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700"
+        class="max-w-lg w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
       >
         <h3 class="text-lg font-semibold text-amber-600 dark:text-amber-400">
           {{
@@ -1974,7 +1833,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
             </p>
             <div>
               <div class="mb-1 flex items-center">
-                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                <label class="block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                   >New password</label
                 >
                 <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 px-1">·</span>
@@ -1990,7 +1849,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                 <input
                   v-model="rotationCandidate"
                   autocomplete="new-password"
-                  class="w-full rounded-md border px-3 py-1.5 pr-10 font-mono border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition"
+                  class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
                 />
                 <div class="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2.5">
                   <button
@@ -2000,34 +1859,8 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     aria-label="Copy password"
                     @click="copyRotationCandidate"
                   >
-                    <svg
-                      v-if="!rotationCopied"
-                      class="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <svg
-                      v-else
-                      class="h-4 w-4 text-emerald-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    <PhCopy :size="16" v-if="!rotationCopied" />
+                    <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
                   </button>
                 </div>
               </div>
@@ -2048,9 +1881,10 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
                   <span
                     v-if="showCandidateReusedTooltip"
-                    class="absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 shadow-lg"
+                    class="absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
                   >
-                    <span class="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400"
+                    <span
+                      class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
                       >Also used by</span
                     >
                     <span class="block space-y-0.5">
@@ -2089,7 +1923,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
         <div class="mt-5 flex flex-wrap justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
             :disabled="isSubmitting"
             @click="showExposureConfirm = false"
           >
@@ -2122,14 +1956,16 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
     <div
       v-if="showPrivateLinkConfirm && linkedEntry"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
+      class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
       @click.self="showPrivateLinkConfirm = false"
     >
-      <div class="w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 p-4 shadow-xl">
-        <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100">
+      <div
+        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+      >
+        <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
           Login entry stays private
         </h2>
-        <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
+        <p class="mb-6 text-sm text-gray-500 dark:text-gray-400">
           {{ account.name || 'This entry' }} signs in through {{ linkedEntry.name }}, which is in
           your private vault. Other members will see the link but cannot copy its password. Share
           {{ linkedEntry.name }} too if they need it.
@@ -2137,7 +1973,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
         <div class="flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer transition-colors"
+            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
             @click="showPrivateLinkConfirm = false"
           >
             Cancel
@@ -2145,7 +1981,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
           <button
             ref="privateLinkButton"
             type="button"
-            class="rounded-lg bg-gray-900 dark:bg-gray-100 px-3 py-1.5 text-sm font-medium text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-white disabled:opacity-50 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+            class="rounded-lg bg-gray-900 dark:bg-gray-100 px-3 py-1.5 text-sm font-medium text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-white disabled:opacity-50 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             :disabled="isSubmitting"
             @click="handleSubmit({ exposure: true, privateLink: true })"
           >
@@ -2157,20 +1993,22 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
     <div
       v-if="showLeaveConfirm"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
+      class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
       @click.self="keepEditing"
     >
-      <div class="w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 p-4 shadow-xl">
-        <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100">
+      <div
+        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+      >
+        <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
           Discard {{ isEditMode ? 'changes' : 'this entry' }}?
         </h2>
-        <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
+        <p class="mb-6 text-sm text-gray-500 dark:text-gray-400">
           Your unsaved changes will be lost
         </p>
         <div class="flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer transition-colors"
+            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
             @click="keepEditing"
           >
             Keep editing
@@ -2178,7 +2016,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
           <button
             ref="discardButton"
             type="button"
-            class="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             @click="discardAndLeave"
           >
             Discard

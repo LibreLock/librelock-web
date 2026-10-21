@@ -23,7 +23,7 @@ const strokeWidth = computed(() => {
 <template>
   <svg
     v-if="icon"
-    viewBox="0 0 24 24"
+    :viewBox="icon.viewBox ?? '0 0 24 24'"
     :fill="icon.mode === 'fill' ? 'currentColor' : 'none'"
     :fill-rule="icon.fillRule ?? 'nonzero'"
     :stroke="strokeColor"

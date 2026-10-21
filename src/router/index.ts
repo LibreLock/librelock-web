@@ -7,6 +7,7 @@ import { setUnauthorizedHandler } from '@/services/api'
 import { isChunkLoadError, markServerUnreachable } from '@/services/connectivity'
 import { listenTabSync, broadcastKeyResponse } from '@/services/tabsync'
 import { getVaultKey, getPrivateKey, getOrgKey } from '@/services/keyring'
+import { startSessionWatch } from '@/services/sessionWatch'
 
 import AppLayout from '../layouts/AppLayout.vue'
 import NotFoundView from '../views/not-found/NotFoundView.vue'
@@ -174,14 +175,19 @@ router.onError((error) => {
   if (isChunkLoadError(error)) markServerUnreachable()
 })
 
-setUnauthorizedHandler(async () => {
+async function expireSession() {
   const auth = useAuthStore(pinia)
   if (!auth.isAuthenticated) return
   await auth.logOut()
   // Flag in memory (not the URL) so the login screen can explain the bounce; a manual refresh clears it
   auth.sessionExpired = true
   router.push({ name: 'login' })
-})
+}
+
+// Both paths end the same way: a request that came back 401, or the session deadline passing while
+// the tab sat idle
+setUnauthorizedHandler(expireSession)
+startSessionWatch(expireSession)
 
 listenTabSync(async (msg) => {
   const auth = useAuthStore(pinia)

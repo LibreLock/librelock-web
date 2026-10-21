@@ -1,13 +1,26 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, type Component } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useOrganizationStore } from '@/stores/organization'
 import { useOrgVaultStore } from '@/stores/orgVault'
 import { navPath } from '@/router/origin'
-import { shortcutFor } from '@/composables/useNavShortcuts'
+import { APP_NAME } from '@/constants'
+import {
+  PhBuildings,
+  PhCreditCard,
+  PhGear,
+  PhKey,
+  PhNote,
+  PhShieldCheck,
+  PhSidebarSimple,
+  PhSignOut,
+  PhSquaresFour,
+  PhUsersThree,
+} from '@phosphor-icons/vue'
 import AppBrand from './AppBrand.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
+import UserAvatar from './UserAvatar.vue'
 
 const STORAGE_KEY = 'sidebar-collapsed'
 const auth = useAuthStore()
@@ -23,13 +36,18 @@ const showSharedVault = computed(() => sharedVault.hasAccess)
 // collapsed only matters on desktop
 const collapsed = ref(false)
 
-onMounted(() => {
-  collapsed.value = localStorage.getItem(STORAGE_KEY) === 'true'
-})
-
 function toggleCollapse() {
+  // While the rail resizes, the highlight tracks every frame without easing of its own; a second,
+  // slower animation chasing the first is what made collapsing look laggy
+  indicatorReady.value = false
   collapsed.value = !collapsed.value
   localStorage.setItem(STORAGE_KEY, String(collapsed.value))
+}
+
+function onAsideTransitionEnd(e: TransitionEvent) {
+  if (e.target !== asideEl.value || e.propertyName !== 'width') return
+  measure()
+  requestAnimationFrame(() => (indicatorReady.value = true))
 }
 
 async function handleLogout() {
@@ -49,231 +67,217 @@ function isActive(to: string) {
   return activePath.value === to || activePath.value.startsWith(to + '/')
 }
 
-// Tooltip doubles as the label when collapsed, so it always carries the name
-function navTitle(name: string, to: string) {
-  const key = shortcutFor(to)
-  return key ? `${name} (${key})` : name
+const ICONS: Record<string, Component> = {
+  vault: PhSquaresFour,
+  password: PhKey,
+  card: PhCreditCard,
+  note: PhNote,
+  shared: PhUsersThree,
+  security: PhShieldCheck,
+  organization: PhBuildings,
+  settings: PhGear,
 }
 
-const navItems = [
+type NavItem = { name: string; to: string; icon: string }
+
+const vaultItems = computed<NavItem[]>(() => [
   { name: 'All Items', to: '/vault', icon: 'vault' },
   { name: 'Passwords', to: '/passwords', icon: 'password' },
   { name: 'Cards', to: '/cards', icon: 'card' },
   { name: 'Notes', to: '/notes', icon: 'note' },
-]
+  ...(showSharedVault.value ? [{ name: 'Shared', to: '/shared', icon: 'shared' }] : []),
+])
+
+const toolItems = computed<NavItem[]>(() => [
+  { name: 'Security Center', to: '/security', icon: 'security' },
+  ...(showOrganization.value
+    ? [{ name: 'Organization', to: '/organization', icon: 'organization' }]
+    : []),
+  { name: 'Settings', to: '/settings', icon: 'settings' },
+])
+
+const groups = computed(() => [
+  { label: 'Vault', items: vaultItems.value },
+  { label: 'Manage', items: toolItems.value },
+])
+
+const accountSubtitle = computed(() => {
+  const role = auth.user?.role
+  if (!org.isOrganization || !role) return 'Personal vault'
+  const roleLabel = `${role.charAt(0).toUpperCase()}${role.slice(1)}`
+  // The default name is just the product's; only a name the organization chose says anything
+  return org.name === APP_NAME ? roleLabel : `${roleLabel} · ${org.name}`
+})
+
+// One highlight that glides between rows instead of each row lighting up on its own: the move
+// shows where you came from and where you landed. Measured from the DOM so it follows collapse,
+// items appearing (Shared, Organization) and the scroll position of the nav
+const asideEl = ref<HTMLElement | null>(null)
+const navEl = ref<HTMLElement | null>(null)
+const indicator = ref<{ x: number; y: number; w: number; h: number } | null>(null)
+const indicatorReady = ref(false)
+
+function measure() {
+  const aside = asideEl.value
+  const el = aside?.querySelector<HTMLElement>('[data-active="true"]')
+  if (!aside || !el) {
+    indicator.value = null
+    return
+  }
+  const a = aside.getBoundingClientRect()
+  const r = el.getBoundingClientRect()
+  indicator.value = { x: r.left - a.left, y: r.top - a.top, w: r.width, h: r.height }
+}
+
+watch([activePath, collapsed, vaultItems, toolItems], () => nextTick(measure))
+
+let observer: ResizeObserver | undefined
+
+onMounted(() => {
+  collapsed.value = localStorage.getItem(STORAGE_KEY) === 'true'
+  nextTick(() => {
+    measure()
+    // First placement lands without a slide; only later moves animate
+    requestAnimationFrame(() => (indicatorReady.value = true))
+  })
+  observer = new ResizeObserver(measure)
+  if (asideEl.value) observer.observe(asideEl.value)
+})
+
+onBeforeUnmount(() => observer?.disconnect())
 </script>
 
 <template>
   <aside
-    class="hidden h-dvh shrink-0 flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 transition-all duration-200 md:flex"
-    :class="collapsed ? 'w-16' : 'w-60'"
+    ref="asideEl"
+    class="relative hidden h-dvh shrink-0 flex-col transition-[width] duration-200 ease-[var(--ease-out)] motion-reduce:transition-none md:flex"
+    :class="collapsed ? 'w-[76px]' : 'w-[272px]'"
+    @transitionend="onAsideTransitionEnd"
   >
     <div
-      class="flex shrink-0 border-b border-gray-100 dark:border-gray-700/60 p-3"
+      v-if="indicator"
+      aria-hidden="true"
+      class="pointer-events-none absolute left-0 top-0 rounded-[10px] bg-white shadow-[0_1px_2px_rgb(17_17_19/0.06),0_0_0_0.5px_rgb(17_17_19/0.06)] motion-reduce:transition-none dark:bg-white/[0.08] dark:shadow-[inset_0_0.5px_0_rgb(255_255_255/0.08)]"
       :class="
-        collapsed ? 'h-auto flex-col items-center gap-2' : 'h-14 items-center gap-3 pl-4 pr-2'
+        indicatorReady
+          ? 'transition-[transform,width] duration-[380ms] ease-[cubic-bezier(0.32,0.72,0,1)]'
+          : ''
       "
+      :style="{
+        transform: `translate(${indicator.x}px, ${indicator.y}px)`,
+        width: `${indicator.w}px`,
+        height: `${indicator.h}px`,
+      }"
+    />
+
+    <div
+      class="flex shrink-0 items-center"
+      :class="collapsed ? 'h-16 justify-center px-3' : 'h-16 gap-3 pl-5 pr-3'"
     >
-      <RouterLink to="/" class="flex items-center gap-3" :class="collapsed ? 'justify-center' : ''">
+      <RouterLink v-if="!collapsed" to="/" class="flex min-w-0 items-center" aria-label="Home">
         <AppBrand
           size="md"
-          :show-name="!collapsed"
-          name-class="truncate text-lg font-semibold text-gray-900 dark:text-gray-100"
+          name-class="truncate text-base font-semibold tracking-[-0.01em] text-gray-900 dark:text-gray-100"
         />
       </RouterLink>
       <button
         type="button"
+        :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
         :class="[
-          'flex items-center justify-center rounded-lg px-2 py-2 text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer',
+          'flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-900/[0.05] hover:text-gray-700 dark:text-gray-500 dark:hover:bg-white/[0.06] dark:hover:text-gray-200 cursor-pointer',
           !collapsed && 'ml-auto',
         ]"
         @click="toggleCollapse"
       >
-        <svg
-          class="h-5 w-5 transition-transform duration-200"
-          :class="collapsed ? 'rotate-180' : ''"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-          />
-        </svg>
+        <PhSidebarSimple :size="20" />
       </button>
     </div>
 
-    <nav class="flex-1 space-y-1 p-2 pt-3">
-      <RouterLink
-        v-for="item in navItems"
-        :key="item.to"
-        :to="item.to"
-        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-        :class="
-          isActive(item.to)
-            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'
-            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
-        "
-        :title="navTitle(item.name, item.to)"
-      >
-        <template v-if="item.icon === 'vault'">
-          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-            />
-          </svg>
-        </template>
-        <template v-else-if="item.icon === 'password'">
-          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-            />
-          </svg>
-        </template>
-        <template v-else-if="item.icon === 'card'">
-          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-            />
-          </svg>
-        </template>
-        <template v-else-if="item.icon === 'note'">
-          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 10.414V19a2 2 0 01-2 2z"
-            />
-          </svg>
-        </template>
-        <span v-if="!collapsed">{{ item.name }}</span>
-      </RouterLink>
+    <nav
+      ref="navEl"
+      class="flex-1 overflow-y-auto px-3 pb-3"
+      aria-label="Primary"
+      @scroll.passive="measure"
+    >
+      <div v-for="(group, gi) in groups" :key="group.label" :class="gi > 0 && 'mt-6'">
+        <p
+          v-if="!collapsed"
+          class="mb-1.5 px-3 text-xs font-medium text-gray-400 dark:text-gray-500"
+        >
+          {{ group.label }}
+        </p>
+        <div
+          v-else-if="gi > 0"
+          class="mx-auto mb-3 h-px w-6 bg-gray-900/[0.08] dark:bg-white/[0.08]"
+        />
 
-      <RouterLink
-        v-if="showSharedVault"
-        to="/shared"
-        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-        :class="
-          isActive('/shared')
-            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'
-            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
-        "
-        :title="navTitle('Shared', '/shared')"
-      >
-        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-          />
-        </svg>
-        <span v-if="!collapsed">Shared</span>
-      </RouterLink>
-
-      <RouterLink
-        to="/security"
-        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-        :class="
-          isActive('/security')
-            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'
-            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
-        "
-        :title="navTitle('Security Center', '/security')"
-      >
-        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-          />
-        </svg>
-        <span v-if="!collapsed">Security Center</span>
-      </RouterLink>
+        <div class="space-y-1">
+          <RouterLink
+            v-for="item in group.items"
+            :key="item.to"
+            :to="item.to"
+            :data-active="isActive(item.to)"
+            class="group relative flex h-10 items-center gap-3 rounded-[10px] text-[14.5px] font-medium"
+            :class="[
+              collapsed ? 'justify-center' : 'px-3',
+              isActive(item.to)
+                ? 'text-gray-900 dark:text-white'
+                : 'text-gray-600 hover:bg-gray-900/[0.035] hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.04] dark:hover:text-gray-100',
+            ]"
+            :title="collapsed ? item.name : undefined"
+          >
+            <component
+              :is="ICONS[item.icon]"
+              :size="20"
+              :weight="isActive(item.to) ? 'fill' : 'regular'"
+              class="shrink-0 transition-colors"
+              :class="
+                isActive(item.to)
+                  ? 'text-gray-900 dark:text-white'
+                  : 'text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300'
+              "
+            />
+            <span v-if="!collapsed" class="truncate">{{ item.name }}</span>
+          </RouterLink>
+        </div>
+      </div>
     </nav>
 
-    <div class="shrink-0 space-y-1 border-t border-gray-100 dark:border-gray-700/60 p-2">
-      <RouterLink
-        v-if="showOrganization"
-        to="/organization"
-        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+    <!-- Who is signed in, and the way out, in one place -->
+    <div class="shrink-0 p-3">
+      <div
+        class="flex items-center gap-2.5 rounded-xl"
         :class="
-          isActive('/organization')
-            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'
-            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+          collapsed
+            ? 'flex-col py-1'
+            : 'bg-white/60 p-2 shadow-[0_0_0_0.5px_rgb(17_17_19/0.06)] dark:bg-white/[0.03] dark:shadow-[0_0_0_0.5px_rgb(255_255_255/0.06)]'
         "
-        :title="collapsed ? 'Organization' : undefined"
       >
-        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-          />
-        </svg>
-        <span v-if="!collapsed">Organization</span>
-      </RouterLink>
-
-      <RouterLink
-        to="/settings"
-        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-        :class="
-          isActive('/settings')
-            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'
-            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
-        "
-        :title="collapsed ? 'Settings' : undefined"
-      >
-        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-          />
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-        <span v-if="!collapsed">Settings</span>
-      </RouterLink>
-
-      <button
-        type="button"
-        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-950/40 disabled:opacity-50 cursor-pointer"
-        :disabled="auth.isSubmitting"
-        :title="collapsed ? 'Log out' : undefined"
-        @click="handleLogout"
-      >
-        <LoadingSpinner v-if="auth.isSubmitting" size="sm" class="shrink-0" />
-        <svg v-else class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-          />
-        </svg>
-        <span v-if="!collapsed">{{ auth.isSubmitting ? 'Logging out...' : 'Log out' }}</span>
-      </button>
+        <UserAvatar
+          :name="auth.user?.username"
+          :title="collapsed ? auth.user?.username : undefined"
+        />
+        <div v-if="!collapsed" class="min-w-0 flex-1 leading-tight">
+          <p class="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+            {{ auth.user?.username }}
+          </p>
+          <p class="truncate text-xs text-gray-500 dark:text-gray-400">
+            {{ accountSubtitle }}
+          </p>
+        </div>
+        <button
+          type="button"
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:bg-red-500/[0.08] hover:text-red-600 disabled:opacity-50 cursor-pointer dark:text-gray-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+          :disabled="auth.isSubmitting"
+          aria-label="Log out"
+          title="Log out"
+          @click="handleLogout"
+        >
+          <LoadingSpinner v-if="auth.isSubmitting" size="sm" />
+          <PhSignOut v-else :size="19" />
+        </button>
+      </div>
     </div>
   </aside>
 </template>

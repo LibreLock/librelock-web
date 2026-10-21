@@ -3,9 +3,17 @@ import { computed, ref } from 'vue'
 import { usePasswordGenerator } from '@/composables/usePasswordGenerator'
 import { scoreSync } from '@/services/passwordStrength'
 import PasswordStrengthMeter from '@/components/PasswordStrengthMeter.vue'
+import { PhArrowsClockwise } from '@phosphor-icons/vue'
 
 const { length, useUppercase, useLowercase, useNumbers, useSymbols, generated, generate } =
   usePasswordGenerator()
+
+const CHARSETS = [
+  { label: 'Uppercase', sample: 'A-Z', model: useUppercase },
+  { label: 'Lowercase', sample: 'a-z', model: useLowercase },
+  { label: 'Numbers', sample: '0-9', model: useNumbers },
+  { label: 'Symbols', sample: '!@#…', model: useSymbols },
+]
 
 const copied = ref(false)
 const strength = computed(() => scoreSync(generated.value))
@@ -20,12 +28,12 @@ async function copy() {
 
 <template>
   <div
-    class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 p-5 space-y-5"
+    class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07] p-5 space-y-5 @container"
   >
     <div>
       <div class="flex gap-2">
         <div
-          class="flex-1 min-w-0 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 font-mono text-sm text-gray-900 dark:text-gray-100 truncate cursor-pointer transition-colors"
+          class="flex-1 min-w-0 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-gray-50 dark:bg-white/[0.04] px-3 py-2 font-mono text-[15px] tracking-wide text-gray-900 dark:text-gray-100 truncate cursor-pointer transition-colors"
           :class="
             copied
               ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700'
@@ -39,23 +47,20 @@ async function copy() {
         <button
           type="button"
           title="Regenerate"
-          class="shrink-0 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer"
+          class="shrink-0 rounded-lg border border-gray-200 bg-white p-2 text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors cursor-pointer dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-400 dark:hover:bg-white/[0.08] dark:hover:text-gray-200"
           @click="generate"
         >
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
+          <PhArrowsClockwise :size="16" />
         </button>
         <button
           type="button"
           :disabled="!generated"
           class="shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          :class="copied ? 'bg-emerald-600 text-white' : 'bg-gray-800 text-white hover:bg-gray-700'"
+          :class="
+            copied
+              ? 'bg-emerald-600 text-white'
+              : 'bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white'
+          "
           @click="copy"
           title="Copy"
         >
@@ -67,13 +72,19 @@ async function copy() {
     </div>
 
     <div>
-      <div class="mb-2 flex items-center justify-between">
-        <label class="text-xs font-semibold text-gray-400"
-          >Length:
-          <span class="font-bold">{{ length }}</span>
+      <div class="mb-2.5 flex items-baseline justify-between">
+        <label
+          for="generator-length"
+          class="text-[13px] font-medium text-gray-700 dark:text-gray-300"
+        >
+          Length
         </label>
+        <span class="text-[13px] font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+          {{ length }}
+        </span>
       </div>
       <input
+        id="generator-length"
         v-model.number="length"
         type="range"
         min="1"
@@ -83,42 +94,32 @@ async function copy() {
       />
     </div>
 
-    <div>
-      <label class="mb-2 block text-xs font-semibold text-gray-400">Characters used</label>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 sm:gap-y-2">
-        <label class="flex cursor-pointer items-center gap-2.5">
-          <input
-            v-model="useUppercase"
-            type="checkbox"
-            class="h-4 w-4 rounded accent-gray-800 cursor-pointer"
-          />
-          <span class="text-sm text-gray-700 dark:text-gray-300">Uppercase (A-Z)</span>
-        </label>
-        <label class="flex cursor-pointer items-center gap-2.5">
-          <input
-            v-model="useLowercase"
-            type="checkbox"
-            class="h-4 w-4 rounded accent-gray-800 cursor-pointer"
-          />
-          <span class="text-sm text-gray-700 dark:text-gray-300">Lowercase (a-z)</span>
-        </label>
-        <label class="flex cursor-pointer items-center gap-2.5">
-          <input
-            v-model="useNumbers"
-            type="checkbox"
-            class="h-4 w-4 rounded accent-gray-800 cursor-pointer"
-          />
-          <span class="text-sm text-gray-700 dark:text-gray-300">Numbers (0-9)</span>
-        </label>
-        <label class="flex cursor-pointer items-center gap-2.5">
-          <input
-            v-model="useSymbols"
-            type="checkbox"
-            class="h-4 w-4 rounded accent-gray-800 cursor-pointer"
-          />
-          <span class="text-sm text-gray-700 dark:text-gray-300">Symbols (!@#…)</span>
+    <fieldset>
+      <legend class="mb-2.5 text-[13px] font-medium text-gray-700 dark:text-gray-300">
+        Characters
+      </legend>
+      <div class="grid grid-cols-2 gap-2 @lg:grid-cols-4">
+        <label
+          v-for="opt in CHARSETS"
+          :key="opt.label"
+          class="flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 transition-colors"
+          :class="
+            opt.model.value
+              ? 'border-gray-300 bg-white dark:border-white/15 dark:bg-white/[0.06]'
+              : 'border-gray-200 bg-gray-50 hover:border-gray-300 dark:border-white/[0.06] dark:bg-transparent dark:hover:border-white/12'
+          "
+        >
+          <input v-model="opt.model.value" type="checkbox" class="check" />
+          <span class="min-w-0 leading-tight">
+            <span class="block text-[13px] font-medium text-gray-900 dark:text-gray-100">
+              {{ opt.label }}
+            </span>
+            <span class="block font-mono text-[11.5px] text-gray-500 dark:text-gray-400">
+              {{ opt.sample }}
+            </span>
+          </span>
         </label>
       </div>
-    </div>
+    </fieldset>
   </div>
 </template>

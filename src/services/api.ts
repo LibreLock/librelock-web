@@ -11,6 +11,13 @@ export function setUnauthorizedHandler(handler: () => void) {
   unauthorizedHandler = handler
 }
 
+// Every authenticated response carries the session's current deadline (see sessionWatch)
+let sessionExpiryListener: ((expiresAt: string) => void) | null = null
+
+export function setSessionExpiryListener(listener: (expiresAt: string) => void) {
+  sessionExpiryListener = listener
+}
+
 export interface ApiRequestInit extends RequestInit {
   timeoutMs?: number
 }
@@ -100,6 +107,9 @@ export async function apiRequest<T>(path: string, init: ApiRequestInit = {}) {
   }
 
   markServerReachable()
+
+  const sessionExpires = response.headers.get('X-Session-Expires')
+  if (sessionExpires) sessionExpiryListener?.(sessionExpires)
 
   const rawBody = await response.text()
   let payload: T | undefined

@@ -3,11 +3,14 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useVaultStore } from '@/stores/vault'
 import AppBrand from '@/components/AppBrand.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
-import { isTyping, shortcutFor } from '@/composables/useNavShortcuts'
+import { PhMagnifyingGlass, PhPlus } from '@phosphor-icons/vue'
 
 const vault = useVaultStore()
 
 const searchInput = ref<HTMLInputElement | null>(null)
+
+// Hint the modifier people actually press: Cmd on Apple platforms, Ctrl everywhere else
+const modKey = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'
 
 // Matched on code, since Alt/Shift rewrite e.key. The numpad counts too, as a way around
 // desktops that grab the number row.
@@ -17,7 +20,7 @@ function digitIndex(code: string): number {
 }
 
 async function handleKeydown(e: KeyboardEvent) {
-  if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !isTyping(e.target))) {
+  if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
     e.preventDefault()
     searchInput.value?.focus()
     searchInput.value?.select()
@@ -58,7 +61,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 
 <template>
   <header
-    class="flex h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 items-center gap-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 pt-[env(safe-area-inset-top)] sm:gap-4 sm:px-4"
+    class="material relative z-10 flex h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 items-center gap-3 border-b border-gray-200/70 px-3 pt-[env(safe-area-inset-top)] sm:gap-3 sm:px-4 dark:border-white/[0.06]"
   >
     <!-- The sidebar (and its logo) is hidden on mobile, so show the brand here -->
     <RouterLink to="/" class="shrink-0 md:hidden" aria-label="Home">
@@ -66,39 +69,30 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
     </RouterLink>
 
     <div class="relative w-full max-w-xs lg:max-w-md">
-      <svg
-        class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
+      <PhMagnifyingGlass
+        :size="16"
+        class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
+      />
 
       <input
         ref="searchInput"
         v-model="vault.globalSearch"
         type="search"
         placeholder="Search vault"
-        class="w-full rounded-md border px-3 py-1.5 pl-9 pr-16 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition [&::-webkit-search-cancel-button]:hidden text-sm"
+        class="h-9 w-full rounded-lg border border-transparent bg-gray-900/[0.05] pl-8.5 pr-16 text-sm text-gray-900 placeholder:text-gray-500 transition-[background-color,border-color,box-shadow] duration-200 focus:border-gray-300 focus:bg-white focus:shadow-[0_0_0_3px_rgb(17_17_19/0.06)] focus:outline-none dark:bg-white/[0.07] dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-white/15 dark:focus:bg-gray-800 dark:focus:shadow-[0_0_0_3px_rgb(255_255_255/0.06)] [&::-webkit-search-cancel-button]:hidden"
       />
 
       <div
         v-if="!vault.globalSearch"
-        class="absolute right-2.5 top-1/2 hidden -translate-y-1/2 py-0.5 rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-1.5 text-[10px] text-gray-400 dark:text-gray-500 sm:block"
+        class="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md bg-white px-1.5 py-0.5 font-sans text-[11px] font-medium text-gray-500 shadow-xs ring-1 ring-gray-900/[0.06] sm:block dark:bg-white/[0.06] dark:text-gray-400 dark:ring-white/[0.06]"
       >
-        Ctrl K
+        {{ modKey }} K
       </div>
 
       <button
         v-if="vault.globalSearch"
         type="button"
-        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
+        class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-1.5 py-0.5 text-xs font-medium text-gray-500 hover:bg-gray-900/[0.05] hover:text-gray-800 dark:hover:bg-white/[0.08] dark:hover:text-gray-200 cursor-pointer"
         @click="vault.globalSearch = ''"
         :title="
           vault.copyableResults.length > 0
@@ -112,18 +106,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 
     <RouterLink
       to="/vault/new"
-      class="ml-auto flex shrink-0 items-center justify-center gap-0 rounded-md bg-gray-800 p-2 text-white hover:bg-gray-700 sm:gap-2 sm:px-3 sm:py-1.5 md:ml-0"
+      class="ml-auto flex h-9 shrink-0 items-center justify-center gap-0 rounded-lg bg-gray-900 px-2.5 text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.1),0_1px_2px_rgb(17_17_19/0.16)] hover:bg-gray-800 sm:gap-1.5 sm:pl-2.5 sm:pr-3.5 md:ml-0 dark:bg-gray-100 dark:text-gray-900 dark:shadow-none dark:hover:bg-white"
       aria-label="Add entry"
-      :title="`Add entry (${shortcutFor('/vault/new')})`"
+      title="Add entry"
     >
-      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
+      <PhPlus :size="16" weight="bold" />
 
-      <span class="hidden sm:inline text-sm font-semibold"> Add entry </span>
+      <span class="hidden text-[13.5px] font-medium sm:inline">Add entry</span>
     </RouterLink>
 
     <!-- On mobile the theme toggle lives in the bottom nav's More sheet -->
-    <ThemeToggle class="ml-auto hidden md:block" />
+    <ThemeToggle class="ml-auto hidden md:flex" />
   </header>
 </template>

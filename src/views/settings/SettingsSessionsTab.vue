@@ -4,6 +4,8 @@ import { ApiError, apiRequest } from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import router from '@/router'
+import PaginationBar from '@/components/PaginationBar.vue'
+import { usePagination } from '@/composables/usePagination'
 
 interface Session {
   id: string
@@ -21,6 +23,7 @@ interface SessionsResponse {
 }
 
 const sessions = ref<Session[]>([])
+const { page, pageSize, paged: pagedSessions } = usePagination(sessions, 8)
 const sessionsLoading = ref(false)
 const sessionsError = ref<string | null>(null)
 const revokingId = ref<string | null>(null)
@@ -158,7 +161,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    class="rounded-xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"
+    class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
   >
     <div class="px-4 sm:px-6 pt-6 pb-1 flex items-center justify-between">
       <div>
@@ -186,7 +189,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <hr class="mt-3 border-gray-100 dark:border-gray-700" />
+    <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
 
     <div class="px-4 sm:px-6 py-5">
       <div
@@ -210,9 +213,9 @@ onBeforeUnmount(() => {
 
       <div v-else class="space-y-2">
         <div
-          v-for="session in sessions"
+          v-for="session in pagedSessions"
           :key="session.id"
-          class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-4"
+          class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 rounded-lg border border-gray-200 dark:border-white/[0.08] px-4 py-4"
         >
           <div class="flex items-center justify-between sm:block sm:w-22 sm:shrink-0">
             <span
@@ -257,20 +260,28 @@ onBeforeUnmount(() => {
             </button>
           </div>
         </div>
+        <PaginationBar
+          v-model:page="page"
+          :page-size="pageSize"
+          :total="sessions.length"
+          class="pt-2"
+        />
       </div>
     </div>
   </div>
 
   <div
     v-if="showLogoutWarning"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
+    class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
     @click.self="showLogoutWarning = false"
   >
-    <div class="w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 p-4 shadow-xl">
-      <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100">
+    <div
+      class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+    >
+      <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
         {{ logoutWarningMode === 'revokeAll' ? 'Revoke all sessions?' : 'Revoke this session?' }}
       </h2>
-      <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
+      <p class="mb-6 text-sm text-gray-500 dark:text-gray-400">
         {{
           logoutWarningMode === 'revokeAll'
             ? 'All sessions will be revoked. You will be logged out of this device.'
@@ -280,14 +291,14 @@ onBeforeUnmount(() => {
       <div class="flex justify-end gap-2">
         <button
           type="button"
-          class="rounded-lg px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer transition-colors"
+          class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
           @click="showLogoutWarning = false"
         >
           Cancel
         </button>
         <button
           type="button"
-          class="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 cursor-pointer transition-colors"
+          class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 cursor-pointer transition-colors"
           @click="confirmLogoutWarning"
         >
           Revoke
