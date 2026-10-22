@@ -20,10 +20,10 @@ const run = promisify(execFile)
 const PUBLIC_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'public')
 
 // The app mark: a graphite tile lit from above with a padlock (Phosphor "Lock" on its 256
-// grid). These are the dark-theme colours of components/icons/IconPadlock.vue, which is
+// grid). These are the light-theme colours of components/icons/IconPadlock.vue, which is
 // what every static copy (favicon, PWA icons, READMEs) uses. Keep the two in step.
-const TOP = '#6e6e76'
-const BOTTOM = '#26262a'
+const TOP = '#535359'
+const BOTTOM = '#1a1a1d'
 const FG = '#ffffff'
 // Regular weight for the mark; the 16px favicon keeps the bold cut, since a thinner stroke turns to
 // mush at that size
