@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import type { VaultEntry } from '@/api/vault'
 import { ssoLabel } from '@/services/sso'
 import { useVaultStore } from '@/stores/vault'
@@ -12,7 +13,16 @@ import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
 import { SORT_OPTIONS, sortLabel, useEntrySort, type SortId } from '@/composables/useEntrySort'
 import SegmentedTabs from '@/components/SegmentedTabs.vue'
-import { PhCaretDown, PhCheck, PhCopy, PhSortAscending } from '@phosphor-icons/vue'
+import { useEntries } from '@/composables/useEntries'
+import { toast } from '@/composables/useToast'
+import {
+  PhCaretDown,
+  PhCheck,
+  PhCopy,
+  PhPencilSimple,
+  PhSortAscending,
+  PhTrash,
+} from '@phosphor-icons/vue'
 
 const props = withDefaults(
   defineProps<{
@@ -35,6 +45,9 @@ const categoriesStore = useCategoriesStore()
 const orgCategoriesStore = useOrgCategoriesStore()
 const auth = useAuthStore()
 const orgStore = useOrganizationStore()
+const route = useRoute()
+const router = useRouter()
+const entriesApi = useEntries()
 
 // Filter chips draw from the store matching this sidebar's scope
 // Shared categories take both shared-vault permissions (Organization -> Management -> Access)
@@ -193,9 +206,84 @@ function handleArrowNav(e: KeyboardEvent) {
   revealEntry(target.id)
 }
 
+// Right-click menu: the same actions the detail pane and form offer, one click closer
+const MENU_WIDTH = 192
+const MENU_HEIGHT = 128
+const menu = ref<{ entry: VaultEntry; x: number; y: number } | null>(null)
+
+// Mirrors the gates on the detail pane's Edit button and the form's Delete button
+const canEditEntry = (entry: VaultEntry) =>
+  !entry.shared || auth.isAdmin || orgStore.memberEditShared || orgStore.memberManageShared
+const canDeleteEntry = (entry: VaultEntry) =>
+  !entry.shared || auth.isAdmin || orgStore.memberManageShared
+
+function openMenu(e: MouseEvent, entry: VaultEntry) {
+  e.preventDefault()
+  sortOpen.value = false
+  menu.value = {
+    entry,
+    x: Math.max(8, Math.min(e.clientX, window.innerWidth - MENU_WIDTH - 8)),
+    y: Math.max(8, Math.min(e.clientY, window.innerHeight - MENU_HEIGHT - 8)),
+  }
+}
+
+function closeMenu() {
+  menu.value = null
+}
+
+function menuCopy(entry: VaultEntry) {
+  closeMenu()
+  vault.copyEntry(entry)
+}
+
+function menuEdit(entry: VaultEntry) {
+  closeMenu()
+  router.push({ name: 'vault-edit', params: { id: entry.id } })
+}
+
+const pendingDelete = ref<VaultEntry | null>(null)
+const isDeleting = ref(false)
+
+function menuDelete(entry: VaultEntry) {
+  closeMenu()
+  pendingDelete.value = entry
+}
+
+// Passwords that sign in through the entry being deleted lose their link
+const pendingLinkers = computed(() => {
+  const target = pendingDelete.value
+  if (!target || target.type !== 'password') return []
+  return entriesApi.passwords.filter((e) => e.id !== target.id && e.ssoEntryId === target.id)
+})
+
+const deleteNoun = computed(() => pendingDelete.value?.type ?? 'entry')
+
+async function confirmDelete() {
+  const entry = pendingDelete.value
+  if (!entry) return
+  isDeleting.value = true
+  try {
+    await entriesApi.removeEntry(entry)
+    // The open entry is gone: fall back to the list without a selection
+    if (entry.id === props.selectedId && typeof route.name === 'string') {
+      router.replace({ name: route.name.replace(/-entry$/, '') })
+    }
+    toast.success(`Deleted ${entry.name}`)
+  } catch {
+    toast.error(`Could not delete ${entry.name}`)
+  } finally {
+    isDeleting.value = false
+    pendingDelete.value = null
+  }
+}
+
 function handleKeydown(e: KeyboardEvent) {
   syncModifiers(e)
-  if (e.key === 'Escape' && sortOpen.value) sortOpen.value = false
+  if (e.key === 'Escape') {
+    if (sortOpen.value) sortOpen.value = false
+    if (menu.value) closeMenu()
+    else if (pendingDelete.value && !isDeleting.value) pendingDelete.value = null
+  }
   handleArrowNav(e)
 }
 
@@ -203,12 +291,14 @@ onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
   window.addEventListener('keyup', syncModifiers)
   window.addEventListener('blur', releaseModifiers)
+  window.addEventListener('resize', closeMenu)
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
   window.removeEventListener('keyup', syncModifiers)
   window.removeEventListener('blur', releaseModifiers)
+  window.removeEventListener('resize', closeMenu)
 })
 
 const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
@@ -342,11 +432,15 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
         :data-entry-id="entry.id"
         class="relative group"
         :title="isSearching && index < 9 ? `Copy with Ctrl+${index + 1}` : undefined"
+        @contextmenu="openMenu($event, entry)"
       >
         <button
           type="button"
           class="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-gray-900/[0.04] dark:hover:bg-white/[0.05] cursor-pointer"
           :class="[
+            menu?.entry.id === entry.id && entry.id !== selectedId
+              ? 'bg-gray-900/[0.04] dark:bg-white/[0.05]'
+              : '',
             entry.id === selectedId
               ? 'bg-gray-900/[0.07] hover:bg-gray-900/[0.07] dark:bg-white/[0.1] dark:hover:bg-white/[0.1]'
               : '',
@@ -407,5 +501,98 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
         </span>
       </li>
     </ul>
+
+    <Teleport to="body">
+      <template v-if="menu">
+        <div class="fixed inset-0 z-40" @click="closeMenu" @contextmenu.prevent="closeMenu" />
+        <div
+          role="menu"
+          class="fixed z-50 w-48 overflow-hidden rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-gray-900/[0.07] backdrop-blur-xl dark:bg-gray-800/95 dark:ring-white/[0.08]"
+          :style="{ left: `${menu.x}px`, top: `${menu.y}px` }"
+        >
+          <button
+            v-if="vault.canCopy(menu.entry)"
+            type="button"
+            role="menuitem"
+            class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/[0.07]"
+            @click="menuCopy(menu.entry)"
+          >
+            <PhCopy :size="14" class="shrink-0" aria-hidden="true" />
+            {{ copyLabel(menu.entry) }}
+          </button>
+          <button
+            v-if="canEditEntry(menu.entry)"
+            type="button"
+            role="menuitem"
+            class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/[0.07]"
+            @click="menuEdit(menu.entry)"
+          >
+            <PhPencilSimple :size="14" class="shrink-0" aria-hidden="true" />
+            Edit
+          </button>
+          <button
+            v-if="canDeleteEntry(menu.entry)"
+            type="button"
+            role="menuitem"
+            class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+            @click="menuDelete(menu.entry)"
+          >
+            <PhTrash :size="14" class="shrink-0" aria-hidden="true" />
+            Delete
+          </button>
+        </div>
+      </template>
+
+      <div
+        v-if="pendingDelete"
+        class="fixed inset-0 z-50 flex items-center justify-center modal-scrim bg-gray-950/40 backdrop-blur-[2px] p-4 dark:bg-black/60"
+        @click.self="!isDeleting && (pendingDelete = null)"
+      >
+        <div
+          class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+        >
+          <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
+            Delete {{ deleteNoun }}?
+          </h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            <span class="font-medium text-gray-700 dark:text-gray-200">{{
+              pendingDelete.name
+            }}</span>
+            will be removed. This cannot be undone
+          </p>
+          <div
+            v-if="pendingLinkers.length > 0"
+            class="mt-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-xs text-amber-700 dark:text-amber-300"
+          >
+            <p>
+              {{ pendingLinkers.length }}
+              {{ pendingLinkers.length === 1 ? 'entry signs' : 'entries sign' }} in through this one
+              and will lose access to the password if you delete it:
+            </p>
+            <ul class="mt-1 list-inside list-disc">
+              <li v-for="e in pendingLinkers" :key="e.id" class="truncate">{{ e.name }}</li>
+            </ul>
+          </div>
+          <div class="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+              :disabled="isDeleting"
+              @click="pendingDelete = null"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-50 cursor-pointer transition-colors"
+              :disabled="isDeleting"
+              @click="confirmDelete"
+            >
+              {{ isDeleting ? 'Deleting…' : 'Delete' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </aside>
 </template>
