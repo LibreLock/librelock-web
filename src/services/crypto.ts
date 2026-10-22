@@ -1,4 +1,5 @@
 import { argon2id } from 'hash-wasm'
+import type { Argon2Request } from './argon2.worker'
 
 const enc = new TextEncoder()
 const dec = new TextDecoder()
@@ -71,6 +72,25 @@ export async function deriveFromMasterKey(
   return { wrappingKey, authCredential }
 }
 
+// Argon2id blocks for seconds, so it runs in a worker to keep the UI (login spinner) animating.
+// Falls back to the main thread where workers are unavailable
+async function argon2idOffThread(req: Argon2Request): Promise<Uint8Array<ArrayBuffer>> {
+  if (typeof Worker === 'undefined') {
+    return (await argon2id({ ...req, hashLength: 32, outputType: 'binary' })) as Uint8Array<ArrayBuffer>
+  }
+  const worker = new Worker(new URL('./argon2.worker.ts', import.meta.url), { type: 'module' })
+  try {
+    return await new Promise((resolve, reject) => {
+      worker.onmessage = (e: MessageEvent<{ hash?: Uint8Array<ArrayBuffer>; error?: string }>) =>
+        e.data.hash ? resolve(e.data.hash) : reject(new Error(e.data.error ?? 'Key derivation failed'))
+      worker.onerror = (e) => reject(new Error(e.message || 'Key derivation failed'))
+      worker.postMessage(req)
+    })
+  } finally {
+    worker.terminate()
+  }
+}
+
 export async function deriveKeys(
   password: string,
   params: KdfParams,
@@ -81,15 +101,13 @@ export async function deriveKeys(
 }> {
   const salt = hexToBytes(params.kdfSalt)
 
-  const masterKeyBytes = (await argon2id({
+  const masterKeyBytes = await argon2idOffThread({
     password,
     salt,
     parallelism: params.kdfParallelism,
     iterations: params.kdfIter,
     memorySize: params.kdfMemory,
-    hashLength: 32,
-    outputType: 'binary',
-  })) as Uint8Array<ArrayBuffer>
+  })
 
   // Handed back so a caller that just re-authenticated can enrol biometric unlock without a
   // second password prompt. It is password-equivalent: never store or log it outside that path

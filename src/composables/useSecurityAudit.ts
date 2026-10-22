@@ -15,8 +15,10 @@ const breachCache = new Map<string, boolean>()
 const BREACH_CONCURRENCY = 4
 
 // Deep scoring is synchronous CPU work once the dictionaries are in. Awaiting it only drains the
-// microtask queue, so without a real macrotask break a few hundred entries freeze the page
-const DEEP_SCORE_YIELD_EVERY = 20
+// microtask queue, so without a real macrotask break a few hundred entries freeze the page.
+// Yield on elapsed time, not count: per-password cost varies 10-50ms, so a fixed count can block
+// for a second at a time
+const DEEP_SCORE_BUDGET_MS = 12
 const yieldToPaint = () => new Promise((resolve) => setTimeout(resolve, 0))
 
 export function useSecurityAudit(scope: Ref<SecurityScope> = ref('personal')) {
@@ -63,9 +65,13 @@ export function useSecurityAudit(scope: Ref<SecurityScope> = ref('personal')) {
     try {
       const unique = [...new Set(auditable.value.map((e) => e.password))]
       const scores = new Map<string, number>()
-      for (const [i, pw] of unique.entries()) {
+      let sliceStart = performance.now()
+      for (const pw of unique) {
         scores.set(pw, await scoreDeep(pw))
-        if (i % DEEP_SCORE_YIELD_EVERY === DEEP_SCORE_YIELD_EVERY - 1) await yieldToPaint()
+        if (performance.now() - sliceStart >= DEEP_SCORE_BUDGET_MS) {
+          await yieldToPaint()
+          sliceStart = performance.now()
+        }
       }
       for (const e of auditable.value) {
         const score = scores.get(e.password)
