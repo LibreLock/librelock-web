@@ -5,11 +5,11 @@ import { useToast, type ToastVariant } from '@/composables/useToast'
 
 const { toasts, dismiss } = useToast()
 
-// One inverse HUD surface for every toast; the variant only picks and tints the glyph
+// One themed surface for every toast, the same card surface as the rest of the app; the variant only picks and tints the glyph
 const GLYPHS: Record<ToastVariant, { icon: Component; tint: string }> = {
-  success: { icon: PhCheckCircle, tint: 'text-emerald-400 dark:text-emerald-600' },
-  error: { icon: PhWarningCircle, tint: 'text-red-400 dark:text-red-600' },
-  info: { icon: PhInfo, tint: 'text-gray-400 dark:text-gray-500' },
+  success: { icon: PhCheckCircle, tint: 'text-emerald-500 dark:text-emerald-400' },
+  error: { icon: PhWarningCircle, tint: 'text-red-500 dark:text-red-400' },
+  info: { icon: PhInfo, tint: 'text-gray-400 dark:text-gray-400' },
 }
 </script>
 
@@ -26,7 +26,7 @@ const GLYPHS: Record<ToastVariant, { icon: Component; tint: string }> = {
           v-for="t in toasts"
           :key="t.id"
           type="button"
-          class="pointer-events-auto flex max-w-[min(28rem,calc(100vw-2rem))] cursor-pointer items-center gap-2 rounded-full bg-gray-900/90 py-2.5 pl-3 pr-4 text-sm font-medium text-white shadow-xl ring-1 ring-white/10 backdrop-blur-xl dark:bg-white/90 dark:text-gray-900 dark:ring-gray-900/10"
+          class="pointer-events-auto flex max-w-[min(28rem,calc(100vw-2rem))] cursor-pointer items-center gap-2 rounded-xl bg-white/95 py-2.5 pl-3 pr-4 text-sm font-medium text-gray-800 shadow-lg shadow-gray-900/10 ring-1 ring-gray-900/[0.08] backdrop-blur-xl dark:bg-gray-800/95 dark:text-gray-100 dark:shadow-black/40 dark:ring-white/[0.1]"
           @click="dismiss(t.id)"
         >
           <component

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ApiError, apiRequest } from '@/services/api'
+import { PhCheck, PhCopy } from '@phosphor-icons/vue'
 
 interface Invite {
   id: string
@@ -122,6 +123,18 @@ function formatDate(iso: string | null) {
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString()
 }
 
+function relativeTime(iso: string | null) {
+  if (!iso) return ''
+  const diff = new Date(iso).getTime() - Date.now()
+  if (Number.isNaN(diff)) return ''
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+  const mins = Math.round(diff / 60000)
+  if (Math.abs(mins) < 60) return rtf.format(mins, 'minute')
+  const hours = Math.round(mins / 60)
+  if (Math.abs(hours) < 24) return rtf.format(hours, 'hour')
+  return rtf.format(Math.round(hours / 24), 'day')
+}
+
 const statusClasses: Record<Invite['status'], string> = {
   pending: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
   used: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
@@ -177,64 +190,84 @@ const statusClasses: Record<Invite['status'], string> = {
         </button>
       </form>
 
-      <div
-        v-if="lastLink"
-        class="rounded-lg border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-3"
-      >
-        <p class="mb-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-          Copy invite link now, it won't be shown again
-        </p>
-        <div class="flex items-center gap-2">
-          <code
-            class="flex-1 truncate rounded bg-white dark:bg-gray-900 px-2 py-1.5 text-xs text-gray-700 dark:text-gray-300"
-            >{{ lastLink }}</code
-          >
+      <div v-if="lastLink">
+        <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
+          >Invite link</label
+        >
+        <div class="relative">
+          <input
+            :value="lastLink"
+            readonly
+            class="w-full rounded-lg border border-gray-200 bg-white py-2 pl-3 pr-11 font-mono text-xs cursor-pointer selection:bg-transparent text-gray-700 focus:border-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-900/[0.06] dark:border-white/10 dark:bg-white/[0.04] dark:text-gray-300 dark:focus:border-white/25 dark:focus:ring-white/[0.06]"
+            @click="copyLink"
+          />
           <button
             type="button"
-            class="rounded-md px-2.5 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-300 dark:ring-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 cursor-pointer"
+            class="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md transition-colors cursor-pointer"
+            :class="
+              copied
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-gray-600 hover:bg-gray-900/[0.05] dark:text-gray-300 dark:hover:bg-white/[0.08]'
+            "
             @click="copyLink"
+            :aria-label="copied ? 'Copied' : 'Copy invite link'"
           >
-            {{ copied ? 'Copied' : 'Copy' }}
+            <PhCheck v-if="copied" :size="16" weight="bold" />
+            <PhCopy v-else :size="16" />
           </button>
         </div>
+        <p class="mt-1.5 text-xs text-gray-400">This link is shown only once. Copy it now.</p>
       </div>
 
       <div v-if="isLoading" class="py-4 text-center text-sm text-gray-400">Loading…</div>
 
       <template v-else-if="invites.length">
-        <div class="flex items-center justify-end gap-2">
-          <button
-            type="button"
-            class="rounded-md px-2.5 py-1 text-xs font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-900/[0.1] dark:ring-white/[0.12] transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
-            :disabled="isPruning || spentCount === 0"
-            :title="spentCount === 0 ? 'No used or expired invites to remove' : undefined"
-            @click="prune('spent')"
-          >
-            Revoke spent{{ spentCount ? ` (${spentCount})` : '' }}
-          </button>
-          <button
-            type="button"
-            class="rounded-md px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 ring-1 ring-red-200 dark:ring-red-900/60 transition-colors hover:bg-red-50 dark:hover:bg-red-950/40 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
-            :disabled="isPruning"
-            @click="confirmClearAll = true"
-          >
-            Revoke all
-          </button>
+        <div class="flex items-center justify-between pt-1">
+          <h3 class="text-[13px] font-medium text-gray-500 dark:text-gray-400">
+            {{ invites.length }} {{ invites.length === 1 ? 'invite' : 'invites' }}
+          </h3>
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              class="rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer text-gray-500 hover:bg-gray-900/[0.05] hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-100"
+              :disabled="isPruning || spentCount === 0"
+              :title="spentCount === 0 ? 'No used or expired invites to remove' : undefined"
+              @click="prune('spent')"
+            >
+              Revoke spent{{ spentCount ? ` (${spentCount})` : '' }}
+            </button>
+            <button
+              type="button"
+              class="rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer text-red-600 hover:bg-red-500/10 dark:text-red-400"
+              :disabled="isPruning"
+              @click="confirmClearAll = true"
+            >
+              Revoke all
+            </button>
+          </div>
         </div>
 
         <ul class="divide-y divide-gray-100 dark:divide-white/[0.06]">
           <li
             v-for="invite in invites"
             :key="invite.id"
-            class="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+            class="flex items-center gap-3 py-4 first:pt-2 last:pb-0"
           >
-            <div class="min-w-0 flex-1">
+            <div class="min-w-0 flex-1" :class="{ 'opacity-60': invite.status !== 'pending' }">
               <p class="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
                 {{ invite.note || 'Invite' }}
               </p>
-              <p class="text-xs text-gray-400">
-                Created {{ formatDate(invite.created_at) }} · Expires
-                {{ formatDate(invite.expires_at) }}
+              <p class="mt-0.5 flex flex-wrap gap-x-3 text-xs text-gray-500 dark:text-gray-400">
+                <span :title="formatDate(invite.created_at)"
+                  >Created {{ relativeTime(invite.created_at) }}</span
+                >
+                <span v-if="invite.status === 'used' && invite.used_at"
+                  >Used {{ relativeTime(invite.used_at) }}</span
+                >
+                <span v-else :title="formatDate(invite.expires_at)"
+                  >{{ invite.status === 'expired' ? 'Expired' : 'Expires' }}
+                  {{ relativeTime(invite.expires_at) }}</span
+                >
               </p>
             </div>
 
@@ -247,7 +280,7 @@ const statusClasses: Record<Invite['status'], string> = {
 
             <button
               type="button"
-              class="rounded-md px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 ring-1 ring-red-200 dark:ring-red-900/60 transition-colors hover:bg-red-50 dark:hover:bg-red-950/40 disabled:opacity-40 cursor-pointer"
+              class="rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer shrink-0 text-red-600 hover:bg-red-500/10 dark:text-red-400"
               :disabled="busyId === invite.id"
               @click="revoke(invite)"
             >

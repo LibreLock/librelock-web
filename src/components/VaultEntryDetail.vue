@@ -170,7 +170,7 @@ async function copy(text: string, field: string) {
       <span
         v-if="entry.type === 'card'"
         class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-        :class="entry.network ? 'dark:bg-gray-700' : entry.color"
+        :class="entry.network ? '' : entry.color"
       >
         <CardNetworkLogo :network="entry.network" size="md" />
       </span>
@@ -426,19 +426,20 @@ async function copy(text: string, field: string) {
 
               <div
                 v-if="showReusedTooltip && isReused && reusedWith.length > 0"
-                class="absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
+                class="absolute bottom-full left-0 z-50 mb-2 before:absolute before:inset-x-0 before:top-full before:h-2 before:content-[''] w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
               >
                 <p class="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
                   Also used by
                 </p>
                 <ul class="space-y-0.5">
-                  <li
-                    v-for="e in reusedWith"
-                    :key="e.id"
-                    class="flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300"
-                  >
-                    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500"></span>
-                    <span class="truncate">{{ e.name }}</span>
+                  <li v-for="e in reusedWith" :key="e.id">
+                    <RouterLink
+                      :to="`${e.shared ? '/shared' : '/passwords'}/${e.id}`"
+                      class="flex items-center gap-1.5 rounded px-1 py-0.5 -mx-1 text-xs text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-white/[0.06]"
+                    >
+                      <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500"></span>
+                      <span class="truncate">{{ e.name }}</span>
+                    </RouterLink>
                   </li>
                 </ul>
               </div>

@@ -6,6 +6,7 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import router from '@/router'
 import PaginationBar from '@/components/PaginationBar.vue'
 import { usePagination } from '@/composables/usePagination'
+import { PhArrowClockwise, PhDesktop, PhDeviceMobile } from '@phosphor-icons/vue'
 
 interface Session {
   id: string
@@ -143,6 +144,22 @@ function shortDeviceName(deviceName: string): string {
   return deviceName.length > 32 ? deviceName.slice(0, 32) + '…' : deviceName
 }
 
+function isMobile(deviceName: string): boolean {
+  return /Android|iPhone|iPad|Mobile/i.test(deviceName)
+}
+
+function relativeTime(dateStr: string): string {
+  const diff = new Date(dateStr).getTime() - Date.now()
+  if (Number.isNaN(diff)) return dateStr
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+  const mins = Math.round(diff / 60000)
+  if (Math.abs(mins) < 1) return 'just now'
+  if (Math.abs(mins) < 60) return rtf.format(mins, 'minute')
+  const hours = Math.round(mins / 60)
+  if (Math.abs(hours) < 24) return rtf.format(hours, 'hour')
+  return rtf.format(Math.round(hours / 24), 'day')
+}
+
 function onVisibilityChange() {
   if (document.visibilityState === 'visible' && !sessionsLoading.value) {
     loadSessions()
@@ -172,7 +189,7 @@ onBeforeUnmount(() => {
         <button
           v-if="sessions.length > 1"
           type="button"
-          class="text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 mr-2 transition-colors cursor-pointer disabled:opacity-50"
+          class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400 cursor-pointer disabled:opacity-50"
           :disabled="revokingAll"
           @click="revokeAllSessions"
         >
@@ -180,10 +197,16 @@ onBeforeUnmount(() => {
         </button>
         <button
           type="button"
-          class="text-xs text-gray-500 dark:text-gray-400 mr-4 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer disabled:opacity-50"
+          class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-900/[0.05] hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-100 cursor-pointer disabled:opacity-50"
           :disabled="sessionsLoading"
           @click="loadSessions"
         >
+          <PhArrowClockwise
+            :size="14"
+            weight="bold"
+            class="transition-transform duration-500"
+            :class="{ 'animate-spin': sessionsLoading }"
+          />
           Refresh
         </button>
       </div>
@@ -211,60 +234,57 @@ onBeforeUnmount(() => {
         No active sessions found.
       </div>
 
-      <div v-else class="space-y-2">
+      <div v-else class="divide-y divide-gray-100 dark:divide-white/[0.08]">
         <div
           v-for="session in pagedSessions"
           :key="session.id"
-          class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 rounded-lg border border-gray-200 dark:border-white/[0.08] px-4 py-4"
+          class="flex items-center gap-4 py-4 first:pt-0 last:pb-0"
         >
-          <div class="flex items-center justify-between sm:block sm:w-22 sm:shrink-0">
-            <span
-              class="text-sm font-medium text-gray-800 dark:text-gray-200"
-              :title="`Session ID: ${session.id}`"
-              >{{ shortDeviceName(session.device_name) }}</span
-            >
-            <button
-              type="button"
-              class="sm:hidden text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
-              :disabled="revokingId === session.id"
-              @click="revokeSession(session.id)"
-            >
-              {{ revokingId === session.id ? 'Revoking…' : 'Revoke' }}
-            </button>
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-900/[0.05] text-gray-500 dark:bg-white/[0.06] dark:text-gray-400"
+          >
+            <PhDeviceMobile v-if="isMobile(session.device_name)" :size="20" />
+            <PhDesktop v-else :size="20" />
           </div>
 
-          <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-500">
-            <span v-if="session.ip"><span class="text-gray-500">IP:</span> {{ session.ip }}</span>
-            <span
-              ><span class="text-gray-500">Created:</span>
-              {{ formatDate(session.created_at) }}</span
-            >
-            <span v-if="session.last_used_at"
-              ><span class="text-gray-500">Last active:</span>
-              {{ formatDate(session.last_used_at) }}</span
-            >
-            <span v-if="session.expires_at"
-              ><span class="text-gray-500">Expires:</span>
-              {{ formatDate(session.expires_at) }}</span
-            >
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-baseline gap-x-2">
+              <span
+                class="text-sm font-medium text-gray-800 dark:text-gray-200"
+                :title="`Session ID: ${session.id}`"
+                >{{ shortDeviceName(session.device_name) }}</span
+              >
+              <span v-if="session.ip" class="font-mono text-xs text-gray-400">{{
+                session.ip
+              }}</span>
+            </div>
+            <p class="mt-0.5 flex flex-wrap gap-x-3 text-xs text-gray-500 dark:text-gray-400">
+              <span v-if="session.last_used_at" :title="formatDate(session.last_used_at)"
+                >Active {{ relativeTime(session.last_used_at) }}</span
+              >
+              <span :title="formatDate(session.created_at)"
+                >Signed in {{ relativeTime(session.created_at) }}</span
+              >
+              <span v-if="session.expires_at" :title="formatDate(session.expires_at)"
+                >Expires {{ relativeTime(session.expires_at) }}</span
+              >
+            </p>
           </div>
 
-          <div class="hidden sm:block shrink-0 pt-0.5">
-            <button
-              type="button"
-              class="text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
-              :disabled="revokingId === session.id"
-              @click="revokeSession(session.id)"
-            >
-              {{ revokingId === session.id ? 'Revoking…' : 'Revoke' }}
-            </button>
-          </div>
+          <button
+            type="button"
+            class="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400 cursor-pointer disabled:opacity-50"
+            :disabled="revokingId === session.id"
+            @click="revokeSession(session.id)"
+          >
+            {{ revokingId === session.id ? 'Revoking…' : 'Revoke' }}
+          </button>
         </div>
         <PaginationBar
           v-model:page="page"
           :page-size="pageSize"
           :total="sessions.length"
-          class="pt-2"
+          class="pt-4"
         />
       </div>
     </div>

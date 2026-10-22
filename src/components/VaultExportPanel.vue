@@ -225,13 +225,16 @@ const passwordInputClass = `${inputClass} pr-10`
               <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300">
                 Confirm backup password
               </label>
-              <input
-                v-model="exportConfirm"
-                :type="showExportPassword ? 'text' : 'password'"
-                :maxlength="MAX_PASSWORD_LENGTH"
-                autocomplete="new-password"
-                :class="inputClass"
-              />
+              <div class="relative">
+                <input
+                  v-model="exportConfirm"
+                  :type="showExportPassword ? 'text' : 'password'"
+                  :maxlength="MAX_PASSWORD_LENGTH"
+                  autocomplete="new-password"
+                  :class="passwordInputClass"
+                />
+                <PasswordVisibilityToggle v-model="showExportPassword" />
+              </div>
               <p v-if="exportMismatch" class="mt-1.5 text-xs text-red-600">
                 Passwords do not match.
               </p>

@@ -439,10 +439,10 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
           class="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-gray-900/[0.04] dark:hover:bg-white/[0.05] cursor-pointer"
           :class="[
             menu?.entry.id === entry.id && entry.id !== selectedId
-              ? 'bg-gray-900/[0.04] dark:bg-white/[0.05]'
+              ? 'bg-gray-900/4 dark:bg-white/5'
               : '',
             entry.id === selectedId
-              ? 'bg-gray-900/[0.07] hover:bg-gray-900/[0.07] dark:bg-white/[0.1] dark:hover:bg-white/[0.1]'
+              ? 'bg-gray-900/[0.07] hover:bg-gray-900/[0.07] dark:bg-white/10 dark:hover:bg-white/[0.1]'
               : '',
             'pr-10',
           ]"
@@ -451,7 +451,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
           <span
             v-if="entry.type === 'card'"
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-            :class="entry.network ? 'dark:bg-gray-700' : entry.color"
+            :class="entry.network ? '' : entry.color"
           >
             <CardNetworkLogo :network="entry.network" size="sm" />
           </span>

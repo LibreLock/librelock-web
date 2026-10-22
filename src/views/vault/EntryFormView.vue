@@ -1119,7 +1119,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
                       <span
                         v-if="showReusedTooltip"
-                        class="absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
+                        class="absolute bottom-full left-0 z-50 mb-2 before:absolute before:inset-x-0 before:top-full before:h-2 before:content-[''] w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
                       >
                         <span
                           class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
@@ -1881,7 +1881,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
                   <span
                     v-if="showCandidateReusedTooltip"
-                    class="absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
+                    class="absolute bottom-full left-0 z-50 mb-2 before:absolute before:inset-x-0 before:top-full before:h-2 before:content-[''] w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
                   >
                     <span
                       class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"

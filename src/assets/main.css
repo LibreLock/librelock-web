@@ -104,6 +104,17 @@ html.dark {
   color-scheme: dark;
 }
 
+/* Select popups don't always inherit color-scheme (Chromium on Linux), and the translucent select
+   background leaves options white with near-invisible text; give them an opaque themed surface */
+html.dark select option {
+  background-color: var(--color-gray-800);
+  color: var(--color-gray-100);
+}
+
+html.dark select option:disabled {
+  color: var(--color-gray-500);
+}
+
 .boot-fade {
   opacity: 0;
   animation: boot-fade 0.2s ease-in 0.4s forwards;
