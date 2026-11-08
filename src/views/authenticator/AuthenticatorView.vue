@@ -200,7 +200,7 @@ function setCode(id: string, el: unknown) {
         v-if="withCodes.length > 0 && !loading"
         class="mt-3 px-1 text-xs text-gray-400 dark:text-gray-500"
       >
-        Click a row to copy its code.
+        Click a code to copy it.
       </p>
     </div>
 

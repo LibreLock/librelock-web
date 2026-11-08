@@ -2,9 +2,10 @@
 import { computed, ref } from 'vue'
 import { PhCamera, PhImage } from '@phosphor-icons/vue'
 import QrScannerModal from '@/components/QrScannerModal.vue'
+import TotpCode from '@/components/TotpCode.vue'
 import { useTotp } from '@/composables/useTotp'
 import { decodeQrFromFile } from '@/services/qr'
-import { formatCode, parseOtpInput, type TotpParams } from '@/services/totp'
+import { parseOtpInput, type TotpParams } from '@/services/totp'
 
 const props = defineProps<{ disabled?: boolean }>()
 const model = defineModel<string>({ required: true })
@@ -20,7 +21,7 @@ const text = computed(() => model.value.trim())
 const parsed = computed(() => (text.value ? parseOtpInput(text.value) : null))
 const problem = computed(() => (parsed.value && !parsed.value.ok ? parsed.value.error : null))
 
-const { code, remaining } = useTotp(() => (parsed.value?.ok ? text.value : null))
+const { code } = useTotp(() => (parsed.value?.ok ? text.value : null))
 
 function accept(value: string): boolean {
   const result = parseOtpInput(value)
@@ -126,10 +127,7 @@ const iconBtn =
       class="mt-1.5 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
     >
       <span>Current code:</span>
-      <span class="font-mono text-sm font-medium tabular-nums text-gray-900 dark:text-gray-100">{{
-        formatCode(code)
-      }}</span>
-      <span class="tabular-nums">{{ remaining }}s</span>
+      <TotpCode :uri="text" />
     </p>
 
     <p class="mt-1.5 text-xs text-gray-400">
