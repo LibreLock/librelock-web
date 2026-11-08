@@ -10,7 +10,7 @@ const from = computed(() => (props.total === 0 ? 0 : (props.page - 1) * props.pa
 const to = computed(() => Math.min(props.page * props.pageSize, props.total))
 
 const BUTTON =
-  'flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:pointer-events-none disabled:opacity-35 cursor-pointer dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-100'
+  'flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:pointer-events-none disabled:opacity-35 cursor-pointer dark:text-gray-400 dark:hover:bg-white/7 dark:hover:text-gray-100'
 </script>
 
 <template>

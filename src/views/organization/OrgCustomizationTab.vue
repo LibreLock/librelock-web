@@ -113,7 +113,7 @@ async function removeLogo() {
   <div class="card-columns">
     <!-- Logo -->
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Company logo</h2>
@@ -122,7 +122,7 @@ async function removeLogo() {
         </p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+      <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
       <div class="px-4 sm:px-6 py-5">
         <div class="flex items-center gap-4">
@@ -139,7 +139,7 @@ async function removeLogo() {
             <button
               v-if="org.hasLogo"
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-900/[0.1] dark:ring-white/[0.12] transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
+              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-900/10 dark:ring-white/12 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
               :disabled="isUploadingLogo"
               @click="removeLogo"
             >
@@ -161,14 +161,14 @@ async function removeLogo() {
 
     <!-- Details -->
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Branding</h2>
         <p class="mt-0.5 text-sm text-gray-400">Company name and support details</p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+      <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
       <div class="px-4 sm:px-6 py-5">
         <form class="space-y-4" @submit.prevent="saveDetails">
@@ -181,7 +181,7 @@ async function removeLogo() {
               type="text"
               placeholder="LibreLock"
               maxlength="200"
-              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
             />
             <p class="mt-1 text-xs text-gray-400">Leave blank to fall back to “LibreLock”</p>
           </div>
@@ -195,7 +195,7 @@ async function removeLogo() {
               type="email"
               placeholder="support@company.com"
               maxlength="200"
-              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
             />
           </div>
 
@@ -208,7 +208,7 @@ async function removeLogo() {
               type="text"
               placeholder="help.company.com"
               maxlength="300"
-              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
             />
           </div>
 
@@ -221,7 +221,7 @@ async function removeLogo() {
               rows="2"
               placeholder="Shown under the logo on the login screen"
               maxlength="500"
-              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
             />
           </div>
 

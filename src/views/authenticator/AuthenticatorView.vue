@@ -55,7 +55,7 @@ function entryLink(id: string, shared: boolean) {
 }
 
 const actionButton =
-  'inline-flex h-9 items-center gap-1.5 rounded-lg bg-gray-900/[0.05] px-2.5 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]'
+  'inline-flex h-9 items-center gap-1.5 rounded-lg bg-gray-900/5 px-2.5 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12'
 
 // A row copies its code wherever it is clicked, so each row needs a handle on its code button
 const codes = new Map<string, InstanceType<typeof TotpCode>>()
@@ -90,7 +90,7 @@ function setCode(id: string, el: unknown) {
               type="search"
               placeholder="Search"
               autocomplete="off"
-              class="w-full rounded-lg border border-gray-200 bg-white py-1.5 pl-8 pr-3 text-[15px] text-gray-900 transition focus:border-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-900/[0.06] sm:text-sm dark:border-white/10 dark:bg-white/[0.04] dark:text-gray-100 dark:focus:border-white/25 dark:focus:ring-white/[0.06]"
+              class="w-full rounded-lg border border-gray-200 bg-white py-1.5 pl-8 pr-3 text-[15px] text-gray-900 transition focus:border-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-900/6 sm:text-sm dark:border-white/10 dark:bg-white/4 dark:text-gray-100 dark:focus:border-white/25 dark:focus:ring-white/6"
             />
           </label>
 
@@ -153,12 +153,12 @@ function setCode(id: string, el: unknown) {
 
       <ul
         v-else
-        class="divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:divide-white/[0.08] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07]"
+        class="divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:divide-white/8 dark:bg-gray-900 dark:shadow-none dark:ring-white/7"
       >
         <li
           v-for="entry in shown"
           :key="entry.id"
-          class="flex cursor-pointer items-center gap-3 px-3.5 py-3 transition-colors hover:bg-gray-50 sm:px-4 dark:hover:bg-white/[0.03]"
+          class="flex cursor-pointer items-center gap-3 px-3.5 py-3 transition-colors hover:bg-gray-50 sm:px-4 dark:hover:bg-white/3"
           @click="codes.get(entry.id)?.copy()"
         >
           <EntryIcon
@@ -182,7 +182,7 @@ function setCode(id: string, el: unknown) {
               </RouterLink>
               <span
                 v-if="entry.shared"
-                class="shrink-0 rounded-full bg-gray-900/[0.06] px-2 py-0.5 text-[11px] font-semibold text-gray-700 dark:bg-white/[0.08] dark:text-gray-200"
+                class="shrink-0 rounded-full bg-gray-900/6 px-2 py-0.5 text-[11px] font-semibold text-gray-700 dark:bg-white/8 dark:text-gray-200"
               >
                 Shared
               </span>

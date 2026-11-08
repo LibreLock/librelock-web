@@ -253,7 +253,7 @@ const DIVIDER = 'mx-1 h-5 w-px shrink-0 bg-gray-200 dark:bg-gray-700'
       v-if="editor && !disabled"
       role="toolbar"
       :aria-label="`${ariaLabel} formatting`"
-      class="flex flex-wrap items-center gap-0.5 border-b border-gray-200 dark:border-white/[0.08] px-1.5 py-1"
+      class="flex flex-wrap items-center gap-0.5 border-b border-gray-200 dark:border-white/8 px-1.5 py-1"
     >
       <template v-for="(group, index) in TOOL_GROUPS" :key="index">
         <span v-if="index > 0" :class="DIVIDER" aria-hidden="true" />
@@ -302,7 +302,7 @@ const DIVIDER = 'mx-1 h-5 w-px shrink-0 bg-gray-200 dark:bg-gray-700'
 
     <div
       v-if="linkOpen"
-      class="flex items-center gap-2 border-b border-gray-200 dark:border-white/[0.08] px-2 py-1.5"
+      class="flex items-center gap-2 border-b border-gray-200 dark:border-white/8 px-2 py-1.5"
     >
       <label class="sr-only" for="note-link-url">Link URL</label>
       <input
@@ -311,7 +311,7 @@ const DIVIDER = 'mx-1 h-5 w-px shrink-0 bg-gray-200 dark:bg-gray-700'
         v-model="linkDraft"
         type="url"
         placeholder="example.com"
-        class="min-w-0 flex-1 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-2 py-1.5 text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06]"
+        class="min-w-0 flex-1 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-2 py-1.5 text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6"
         @keydown.enter.prevent="applyLink()"
         @keydown.esc.prevent="linkOpen = false"
       />

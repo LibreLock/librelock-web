@@ -210,14 +210,14 @@ async function confirmDeleteAccount() {
        other, so deleting the account is never the first thing in view -->
   <div class="grid items-start gap-4 xl:grid-cols-2">
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Profile</h2>
         <p class="mt-0.5 text-sm text-gray-400">Update your profile settings</p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+      <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
       <div class="px-4 sm:px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleSaveUsername">
@@ -230,7 +230,7 @@ async function confirmDeleteAccount() {
               type="text"
               :maxlength="MAX_USERNAME_LENGTH"
               placeholder="Your username"
-              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
             />
           </div>
 
@@ -251,14 +251,14 @@ async function confirmDeleteAccount() {
     </div>
 
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07] xl:col-start-2 xl:row-span-2 xl:row-start-1"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7 xl:col-start-2 xl:row-span-2 xl:row-start-1"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Master password</h2>
         <p class="mt-0.5 text-sm text-gray-400">Change the password used to unlock your vault</p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+      <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
       <div class="px-4 sm:px-6 py-5">
         <div
@@ -281,7 +281,7 @@ async function confirmDeleteAccount() {
                 required
                 :maxlength="MAX_PASSWORD_LENGTH"
                 autocomplete="current-password"
-                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
               />
 
               <button
@@ -312,7 +312,7 @@ async function confirmDeleteAccount() {
                 required
                 :maxlength="MAX_PASSWORD_LENGTH"
                 autocomplete="new-password"
-                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
                 @focus="newPasswordFocused = true"
                 @blur="newPasswordFocused = false"
               />
@@ -332,7 +332,7 @@ async function confirmDeleteAccount() {
 
             <div
               v-if="newPasswordFocused || newPassword.length > 0"
-              class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-gray-100 dark:border-white/[0.08] bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-xs"
+              class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-gray-100 dark:border-white/8 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-xs"
             >
               <span :class="hasUpper ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'">
                 {{ hasUpper ? '✓' : '○' }} Uppercase
@@ -370,7 +370,7 @@ async function confirmDeleteAccount() {
                 required
                 :maxlength="MAX_PASSWORD_LENGTH"
                 autocomplete="new-password"
-                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
               />
 
               <button
@@ -407,7 +407,7 @@ async function confirmDeleteAccount() {
     </div>
 
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07] xl:col-start-1"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7 xl:col-start-1"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Delete account</h2>
@@ -416,7 +416,7 @@ async function confirmDeleteAccount() {
         </p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+      <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
       <div class="px-4 sm:px-6 py-5">
         <form class="space-y-4" @submit.prevent="handleDeleteAccount">
@@ -431,7 +431,7 @@ async function confirmDeleteAccount() {
                 :type="showDeletePassword ? 'text' : 'password'"
                 required
                 autocomplete="current-password"
-                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
               />
 
               <button
@@ -467,7 +467,7 @@ async function confirmDeleteAccount() {
           @click.self="showDeleteModal = false"
         >
           <div
-            class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+            class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
           >
             <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Delete account?</h3>
             <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -477,7 +477,7 @@ async function confirmDeleteAccount() {
             <div class="mt-5 flex justify-end gap-2">
               <button
                 type="button"
-                class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+                class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
                 :disabled="isDeletingAccount"
                 @click="showDeleteModal = false"
               >

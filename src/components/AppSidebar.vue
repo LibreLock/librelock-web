@@ -153,17 +153,17 @@ onBeforeUnmount(() => observer?.disconnect())
 <template>
   <aside
     ref="asideEl"
-    class="relative hidden h-dvh shrink-0 flex-col transition-[width] duration-200 ease-[var(--ease-out)] motion-reduce:transition-none md:flex"
-    :class="collapsed ? 'w-[76px]' : 'w-[272px]'"
+    class="relative hidden h-dvh shrink-0 flex-col transition-[width] duration-200 ease-out motion-reduce:transition-none md:flex"
+    :class="collapsed ? 'w-19' : 'w-68'"
     @transitionend="onAsideTransitionEnd"
   >
     <div
       v-if="indicator"
       aria-hidden="true"
-      class="pointer-events-none absolute left-0 top-0 rounded-[10px] bg-white shadow-[0_1px_2px_rgb(17_17_19/0.06),0_0_0_0.5px_rgb(17_17_19/0.06)] motion-reduce:transition-none dark:bg-white/[0.08] dark:shadow-[inset_0_0.5px_0_rgb(255_255_255/0.08)]"
+      class="pointer-events-none absolute left-0 top-0 rounded-lg bg-white shadow-[0_1px_2px_rgb(17_17_19/0.06),0_0_0_0.5px_rgb(17_17_19/0.06)] motion-reduce:transition-none dark:bg-white/8 dark:shadow-[inset_0_0.5px_0_rgb(255_255_255/0.08)]"
       :class="
         indicatorReady
-          ? 'transition-[transform,width] duration-[380ms] ease-[cubic-bezier(0.32,0.72,0,1)]'
+          ? 'transition-[transform,width] duration-380 ease-[cubic-bezier(0.32,0.72,0,1)]'
           : ''
       "
       :style="{
@@ -188,7 +188,7 @@ onBeforeUnmount(() => observer?.disconnect())
         :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
         :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
         :class="[
-          'flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-900/[0.05] hover:text-gray-700 dark:text-gray-500 dark:hover:bg-white/[0.06] dark:hover:text-gray-200 cursor-pointer',
+          'flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-900/5 hover:text-gray-700 dark:text-gray-500 dark:hover:bg-white/6 dark:hover:text-gray-200 cursor-pointer',
           !collapsed && 'ml-auto',
         ]"
         @click="toggleCollapse"
@@ -210,10 +210,7 @@ onBeforeUnmount(() => observer?.disconnect())
         >
           {{ group.label }}
         </p>
-        <div
-          v-else-if="gi > 0"
-          class="mx-auto mb-3 h-px w-6 bg-gray-900/[0.08] dark:bg-white/[0.08]"
-        />
+        <div v-else-if="gi > 0" class="mx-auto mb-3 h-px w-6 bg-gray-900/8 dark:bg-white/8" />
 
         <div class="space-y-1">
           <RouterLink
@@ -221,12 +218,12 @@ onBeforeUnmount(() => observer?.disconnect())
             :key="item.to"
             :to="item.to"
             :data-active="isActive(item.to)"
-            class="group relative flex h-10 items-center gap-3 rounded-[10px] text-[14.5px] font-medium"
+            class="group relative flex h-10 items-center gap-3 rounded-lg text-[14.5px] font-medium"
             :class="[
               collapsed ? 'justify-center' : 'px-3',
               isActive(item.to)
                 ? 'text-gray-900 dark:text-white'
-                : 'text-gray-600 hover:bg-gray-900/[0.035] hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.04] dark:hover:text-gray-100',
+                : 'text-gray-600 hover:bg-gray-900/3.5 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/4 dark:hover:text-gray-100',
             ]"
             :title="collapsed ? item.name : undefined"
           >
@@ -254,7 +251,7 @@ onBeforeUnmount(() => observer?.disconnect())
         :class="
           collapsed
             ? 'flex-col py-1'
-            : 'bg-white/60 p-2 shadow-[0_0_0_0.5px_rgb(17_17_19/0.06)] dark:bg-white/[0.03] dark:shadow-[0_0_0_0.5px_rgb(255_255_255/0.06)]'
+            : 'bg-white/60 p-2 shadow-[0_0_0_0.5px_rgb(17_17_19/0.06)] dark:bg-white/3 dark:shadow-[0_0_0_0.5px_rgb(255_255_255/0.06)]'
         "
       >
         <UserAvatar
@@ -271,7 +268,7 @@ onBeforeUnmount(() => observer?.disconnect())
         </div>
         <button
           type="button"
-          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:bg-red-500/[0.08] hover:text-red-600 disabled:opacity-50 cursor-pointer dark:text-gray-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:bg-red-500/8 hover:text-red-600 disabled:opacity-50 cursor-pointer dark:text-gray-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
           :disabled="auth.isSubmitting"
           aria-label="Log out"
           title="Log out"

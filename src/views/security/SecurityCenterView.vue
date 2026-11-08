@@ -185,7 +185,7 @@ function openTile(id: string) {
         <div class="min-w-0 space-y-4">
           <!-- Score + summary -->
           <div
-            class="flex flex-col items-center gap-6 rounded-xl bg-white p-5 shadow-xs ring-1 ring-gray-900/[0.06] sm:flex-row sm:p-6 dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07]"
+            class="flex flex-col items-center gap-6 rounded-xl bg-white p-5 shadow-xs ring-1 ring-gray-900/6 sm:flex-row sm:p-6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7"
           >
             <div class="relative h-36 w-36 shrink-0">
               <svg class="h-full w-full -rotate-90" viewBox="0 0 120 120">
@@ -195,7 +195,7 @@ function openTile(id: string) {
                   r="54"
                   fill="none"
                   stroke-width="10"
-                  class="stroke-gray-100 dark:stroke-white/[0.07]"
+                  class="stroke-gray-100 dark:stroke-white/7"
                 />
                 <circle
                   cx="60"
@@ -231,7 +231,7 @@ function openTile(id: string) {
                   v-for="tile in tiles"
                   :key="tile.id"
                   type="button"
-                  class="group relative rounded-lg bg-gray-50 p-3 text-left transition-colors hover:bg-gray-100 cursor-pointer dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+                  class="group relative rounded-lg bg-gray-50 p-3 text-left transition-colors hover:bg-gray-100 cursor-pointer dark:bg-white/4 dark:hover:bg-white/8"
                   :title="
                     tile.id === 'passwords'
                       ? 'Open passwords'
@@ -282,11 +282,11 @@ function openTile(id: string) {
             v-for="section in visibleSections"
             :id="`issues-${section.id}`"
             :key="section.id"
-            class="scroll-mt-4 overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07]"
+            class="scroll-mt-4 overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7"
           >
             <button
               type="button"
-              class="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-gray-50 cursor-pointer dark:hover:bg-white/[0.03]"
+              class="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-gray-50 cursor-pointer dark:hover:bg-white/3"
               :aria-expanded="!collapsed.has(section.id)"
               :aria-controls="`issues-${section.id}-list`"
               @click="toggleSection(section.id)"
@@ -321,12 +321,12 @@ function openTile(id: string) {
               <div class="min-h-0 overflow-hidden">
                 <ul
                   v-if="section.entries.length > 0"
-                  class="grid gap-0.5 border-t border-gray-100 px-3 py-2 sm:grid-cols-2 dark:border-white/[0.06]"
+                  class="grid gap-0.5 border-t border-gray-100 px-3 py-2 sm:grid-cols-2 dark:border-white/6"
                 >
                   <li v-for="entry in section.entries" :key="entry.id">
                     <button
                       type="button"
-                      class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-gray-900/[0.04] cursor-pointer dark:hover:bg-white/[0.05]"
+                      class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-gray-900/4 cursor-pointer dark:hover:bg-white/5"
                       @click="openEntry(entry)"
                     >
                       <EntryIcon
@@ -355,7 +355,7 @@ function openTile(id: string) {
                 </ul>
                 <p
                   v-else
-                  class="border-t border-gray-100 px-5 py-4 text-sm text-gray-500 dark:border-white/[0.06] dark:text-gray-400"
+                  class="border-t border-gray-100 px-5 py-4 text-sm text-gray-500 dark:border-white/6 dark:text-gray-400"
                 >
                   {{ section.pending ? 'Checking…' : section.empty }}
                 </p>

@@ -97,9 +97,6 @@ async function handleSubmit() {
     class="relative isolate min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gray-50 dark:bg-gray-950"
   >
     <div class="auth-backdrop" aria-hidden="true" />
-    <ThemeToggle
-      class="absolute right-3 top-[calc(0.75rem+env(safe-area-inset-top))] sm:right-5 sm:top-5"
-    />
     <div class="mb-8 flex flex-col items-center gap-3">
       <AppBrand
         size="lg"
@@ -109,7 +106,7 @@ async function handleSubmit() {
     </div>
 
     <div
-      class="w-full max-w-[400px] rounded-2xl bg-white px-6 pb-6 pt-7 shadow-md ring-1 ring-gray-900/[0.05] sm:px-7 dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07]"
+      class="w-full max-w-[400px] rounded-2xl bg-white px-6 pb-6 pt-7 shadow-md ring-1 ring-gray-900/5 sm:px-7 dark:bg-gray-900 dark:shadow-none dark:ring-white/7"
     >
       <h1 class="mb-5 text-[22px] font-semibold text-gray-900 dark:text-gray-50">Create account</h1>
 
@@ -141,7 +138,7 @@ async function handleSubmit() {
             type="text"
             required
             placeholder="Paste your invite code"
-            class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+            class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
           />
           <p class="mt-1 text-xs text-gray-400">Registration is invite-only.</p>
         </div>
@@ -155,7 +152,7 @@ async function handleSubmit() {
             required
             :maxlength="MAX_USERNAME_LENGTH"
             autocomplete="username"
-            class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+            class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
           />
         </div>
 
@@ -170,7 +167,7 @@ async function handleSubmit() {
               required
               :maxlength="MAX_PASSWORD_LENGTH"
               autocomplete="new-password"
-              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
               @focus="passwordFocused = true"
               @blur="passwordFocused = false"
             />
@@ -187,7 +184,7 @@ async function handleSubmit() {
           </div>
           <div
             v-if="passwordFocused"
-            class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-gray-100 dark:border-white/[0.08] bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-xs"
+            class="mt-2.5 grid grid-cols-1 gap-y-1 rounded-lg border border-gray-100 dark:border-white/8 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-xs"
           >
             <ul class="space-y-1">
               <li :class="hasUpper ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'">
@@ -222,7 +219,7 @@ async function handleSubmit() {
               required
               :maxlength="MAX_PASSWORD_LENGTH"
               autocomplete="new-password"
-              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+              class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
             />
             <button
               type="button"
@@ -261,5 +258,8 @@ async function handleSubmit() {
     </div>
 
     <AppSupportLinks />
+    <ThemeToggle
+      class="absolute right-3 top-[calc(0.75rem+env(safe-area-inset-top))] sm:right-5 sm:top-5"
+    />
   </div>
 </template>

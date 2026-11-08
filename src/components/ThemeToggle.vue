@@ -34,8 +34,8 @@ const GLYPH =
     class="cursor-pointer rounded-lg transition-colors duration-150"
     :class="
       props.label
-        ? 'flex min-h-11 w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-600 active:bg-gray-100 dark:text-gray-400 dark:active:bg-white/[0.06]'
-        : 'flex h-9 w-9 items-center justify-center text-gray-500 hover:bg-gray-900/[0.05] hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-100'
+        ? 'flex min-h-11 w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-600 active:bg-gray-100 dark:text-gray-400 dark:active:bg-white/6'
+        : 'flex h-9 w-9 items-center justify-center text-gray-500 hover:bg-gray-900/5 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/7 dark:hover:text-gray-100'
     "
     :title="`${dark ? 'Dark' : 'Light'} theme`"
     :aria-label="`Switch to ${dark ? 'light' : 'dark'} theme`"
@@ -43,7 +43,7 @@ const GLYPH =
   >
     <span
       class="relative block shrink-0"
-      :class="props.label ? 'size-5' : 'size-[18px]'"
+      :class="props.label ? 'size-5' : 'size-4.5'"
       aria-hidden="true"
     >
       <PhSun

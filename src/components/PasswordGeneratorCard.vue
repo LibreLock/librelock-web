@@ -28,12 +28,12 @@ async function copy() {
 
 <template>
   <div
-    class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07] p-5 space-y-5 @container"
+    class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7 p-5 space-y-5 @container"
   >
     <div>
       <div class="flex gap-2">
         <div
-          class="flex-1 min-w-0 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-gray-50 dark:bg-white/[0.04] px-3 py-2 font-mono text-[15px] tracking-wide text-gray-900 dark:text-gray-100 truncate cursor-pointer transition-colors"
+          class="flex-1 min-w-0 rounded-lg border border-gray-200 dark:border-white/8 bg-gray-50 dark:bg-white/4 px-3 py-2 font-mono text-[15px] tracking-wide text-gray-900 dark:text-gray-100 truncate cursor-pointer transition-colors"
           :class="
             copied
               ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700'
@@ -47,7 +47,7 @@ async function copy() {
         <button
           type="button"
           title="Regenerate"
-          class="shrink-0 rounded-lg border border-gray-200 bg-white p-2 text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors cursor-pointer dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-400 dark:hover:bg-white/[0.08] dark:hover:text-gray-200"
+          class="shrink-0 rounded-lg border border-gray-200 bg-white p-2 text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors cursor-pointer dark:border-white/8 dark:bg-white/4 dark:text-gray-400 dark:hover:bg-white/8 dark:hover:text-gray-200"
           @click="generate"
         >
           <PhArrowsClockwise :size="16" />

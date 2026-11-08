@@ -313,7 +313,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
 
 <template>
   <aside
-    class="shrink-0 flex-col border-r border-gray-200/80 bg-white dark:border-white/[0.06] dark:bg-gray-900/60"
+    class="shrink-0 flex-col border-r border-gray-200/80 bg-white dark:border-white/6 dark:bg-gray-900/60"
     :class="selectedId ? 'hidden sm:flex sm:w-72' : 'flex w-full sm:w-72'"
   >
     <!-- Header + filters share one bottom border so the divider is present even when there are no categories -->
@@ -352,7 +352,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
               <div class="fixed inset-0 z-40" @click="sortOpen = false" />
               <div
                 role="menu"
-                class="absolute right-0 z-50 mt-1 w-44 origin-top-right overflow-hidden rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-gray-900/[0.07] backdrop-blur-xl dark:bg-gray-800/95 dark:ring-white/[0.08]"
+                class="absolute right-0 z-50 mt-1 w-44 origin-top-right overflow-hidden rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-gray-900/7 backdrop-blur-xl dark:bg-gray-800/95 dark:ring-white/8"
               >
                 <button
                   v-for="opt in SORT_OPTIONS"
@@ -364,7 +364,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
                   :class="
                     sortId === opt.value
                       ? 'text-gray-900 dark:text-gray-100'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.07]'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/7'
                   "
                   @click="chooseSort(opt.value)"
                 >
@@ -397,7 +397,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
 
       <div
         v-if="categoryList.length > 0"
-        class="border-b border-gray-100 px-3 pb-3 dark:border-white/[0.05]"
+        class="border-b border-gray-100 px-3 pb-3 dark:border-white/5"
       >
         <div class="flex flex-wrap gap-1">
           <button
@@ -406,7 +406,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
             :class="
               activeCategories.size === 0
                 ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
-                : 'bg-gray-900/[0.05] text-gray-600 hover:bg-gray-900/[0.09] dark:bg-white/[0.07] dark:text-gray-300 dark:hover:bg-white/[0.12]'
+                : 'bg-gray-900/5 text-gray-600 hover:bg-gray-900/9 dark:bg-white/7 dark:text-gray-300 dark:hover:bg-white/12'
             "
             @click="activeCategories = new Set()"
           >
@@ -443,13 +443,13 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
       >
         <button
           type="button"
-          class="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-gray-900/[0.04] dark:hover:bg-white/[0.05] cursor-pointer"
+          class="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-gray-900/4 dark:hover:bg-white/5 cursor-pointer"
           :class="[
             menu?.entry.id === entry.id && entry.id !== selectedId
               ? 'bg-gray-900/4 dark:bg-white/5'
               : '',
             entry.id === selectedId
-              ? 'bg-gray-900/[0.07] hover:bg-gray-900/[0.07] dark:bg-white/10 dark:hover:bg-white/[0.1]'
+              ? 'bg-gray-900/7 hover:bg-gray-900/7 dark:bg-white/10 dark:hover:bg-white/10'
               : '',
             showCode(entry) ? 'pr-10 max-sm:pr-36' : 'pr-10',
           ]"
@@ -490,7 +490,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
           :class="
             vault.copiedEntryId === entry.id
               ? 'opacity-100 text-emerald-500'
-              : 'opacity-0 group-hover:opacity-100 text-gray-400 hover:bg-gray-900/[0.06] dark:hover:bg-white/[0.08] hover:text-gray-700 dark:hover:text-gray-200'
+              : 'opacity-0 group-hover:opacity-100 text-gray-400 hover:bg-gray-900/6 dark:hover:bg-white/8 hover:text-gray-700 dark:hover:text-gray-200'
           "
           :title="vault.copiedEntryId === entry.id ? 'Copied!' : copyLabel(entry)"
           @click="vault.copyEntry(entry)"
@@ -521,14 +521,14 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
         <div class="fixed inset-0 z-40" @click="closeMenu" @contextmenu.prevent="closeMenu" />
         <div
           role="menu"
-          class="fixed z-50 w-48 overflow-hidden rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-gray-900/[0.07] backdrop-blur-xl dark:bg-gray-800/95 dark:ring-white/[0.08]"
+          class="fixed z-50 w-48 overflow-hidden rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-gray-900/7 backdrop-blur-xl dark:bg-gray-800/95 dark:ring-white/8"
           :style="{ left: `${menu.x}px`, top: `${menu.y}px` }"
         >
           <button
             v-if="vault.canCopy(menu.entry)"
             type="button"
             role="menuitem"
-            class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/[0.07]"
+            class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/7"
             @click="menuCopy(menu.entry)"
           >
             <PhCopy :size="14" class="shrink-0" aria-hidden="true" />
@@ -538,7 +538,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
             v-if="canEditEntry(menu.entry)"
             type="button"
             role="menuitem"
-            class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/[0.07]"
+            class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/7"
             @click="menuEdit(menu.entry)"
           >
             <PhPencilSimple :size="14" class="shrink-0" aria-hidden="true" />
@@ -563,7 +563,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
         @click.self="!isDeleting && (pendingDelete = null)"
       >
         <div
-          class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+          class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
         >
           <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
             Delete {{ deleteNoun }}?
@@ -590,7 +590,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+              class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
               :disabled="isDeleting"
               @click="pendingDelete = null"
             >

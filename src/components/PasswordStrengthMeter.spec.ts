@@ -13,10 +13,10 @@ describe('PasswordStrengthMeter', () => {
   })
 
   it.each([
-    [10, 'Excellent · 10/10'],
-    [8, 'Strong · 8/10'],
-    [5, 'Fair · 5/10'],
-    [0, 'Weak · 0/10'],
+    [10, 'Excellent'],
+    [8, 'Strong'],
+    [5, 'Fair'],
+    [0, 'Weak'],
   ])('renders score %i as %s', (score, text) => {
     expect(
       mount(PasswordStrengthMeter, { props: { score } }).text().replace(/\s+/g, ' '),

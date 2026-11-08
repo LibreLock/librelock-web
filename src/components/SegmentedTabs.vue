@@ -51,17 +51,15 @@ onBeforeUnmount(() => observer?.disconnect())
   <div
     ref="track"
     role="tablist"
-    class="relative flex max-w-full gap-0.5 overflow-x-auto rounded-[10px] bg-gray-900/[0.05] p-0.5 [scrollbar-width:none] dark:bg-white/[0.06] [&::-webkit-scrollbar]:hidden"
+    class="relative flex max-w-full gap-0.5 overflow-x-auto rounded-lg bg-gray-900/5 p-0.5 [scrollbar-width:none] dark:bg-white/6 [&::-webkit-scrollbar]:hidden"
     :class="stretch ? 'w-full' : 'w-fit'"
   >
     <span
       v-if="thumb && thumb.w"
       aria-hidden="true"
-      class="pointer-events-none absolute bottom-0.5 left-0 top-0.5 rounded-lg bg-white shadow-[0_1px_2px_rgb(17_17_19/0.08),0_0_0_0.5px_rgb(17_17_19/0.06)] motion-reduce:transition-none dark:bg-white/[0.12] dark:shadow-[inset_0_0.5px_0_rgb(255_255_255/0.1)]"
+      class="pointer-events-none absolute bottom-0.5 left-0 top-0.5 rounded-lg bg-white shadow-[0_1px_2px_rgb(17_17_19/0.08),0_0_0_0.5px_rgb(17_17_19/0.06)] motion-reduce:transition-none dark:bg-white/12 dark:shadow-[inset_0_0.5px_0_rgb(255_255_255/0.1)]"
       :class="
-        ready
-          ? 'transition-[transform,width] duration-[380ms] ease-[cubic-bezier(0.32,0.72,0,1)]'
-          : ''
+        ready ? 'transition-[transform,width] duration-380 ease-[cubic-bezier(0.32,0.72,0,1)]' : ''
       "
       :style="{ transform: `translateX(${thumb.x}px)`, width: `${thumb.w}px` }"
     />

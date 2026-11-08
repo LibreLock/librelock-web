@@ -134,7 +134,7 @@ async function runImport() {
 }
 
 const secondary =
-  'inline-flex items-center gap-2 rounded-lg bg-gray-900/[0.05] px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]'
+  'inline-flex items-center gap-2 rounded-lg bg-gray-900/5 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12'
 </script>
 
 <template>
@@ -146,7 +146,7 @@ const secondary =
     @click.self="emit('close')"
   >
     <div
-      class="flex max-h-[90vh] w-full max-w-lg flex-col rounded-2xl bg-white shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+      class="flex max-h-[90vh] w-full max-w-lg flex-col rounded-2xl bg-white shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
     >
       <div class="overflow-y-auto p-5 sm:p-6">
         <h2 class="mb-1 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
@@ -170,7 +170,7 @@ const secondary =
           spellcheck="false"
           autocomplete="off"
           placeholder="otpauth-migration://offline?data=…  or  otpauth://totp/…, one per line"
-          class="w-full rounded-lg border px-3 py-2 font-mono text-[13px] border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:font-sans placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+          class="w-full rounded-lg border px-3 py-2 font-mono text-[13px] border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:font-sans placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
           @paste="onPaste"
         />
 
@@ -221,7 +221,7 @@ const secondary =
             {{ rows.length }} {{ rows.length === 1 ? 'account' : 'accounts' }} found
           </p>
           <ul
-            class="max-h-64 divide-y divide-gray-100 overflow-y-auto rounded-xl ring-1 ring-gray-900/[0.06] dark:divide-white/[0.08] dark:ring-white/[0.07]"
+            class="max-h-64 divide-y divide-gray-100 overflow-y-auto rounded-xl ring-1 ring-gray-900/6 dark:divide-white/8 dark:ring-white/7"
           >
             <li v-for="r in rows" :key="r.params.secret">
               <label
@@ -229,7 +229,7 @@ const secondary =
                 :class="
                   r.status === 'duplicate'
                     ? 'opacity-60'
-                    : 'cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03]'
+                    : 'cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3'
                 "
               >
                 <input
@@ -272,7 +272,7 @@ const secondary =
       </div>
 
       <div
-        class="flex shrink-0 justify-end gap-2 border-t border-gray-100 px-5 py-3.5 sm:px-6 dark:border-white/[0.08]"
+        class="flex shrink-0 justify-end gap-2 border-t border-gray-100 px-5 py-3.5 sm:px-6 dark:border-white/8"
       >
         <button type="button" :class="secondary" @click="emit('close')">Cancel</button>
         <button

@@ -102,7 +102,7 @@ onBeforeUnmount(closeMenu)
     :class="
       active
         ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
-        : 'bg-gray-900/[0.05] text-gray-600 hover:bg-gray-900/[0.09] dark:bg-white/[0.07] dark:text-gray-300 dark:hover:bg-white/[0.12]'
+        : 'bg-gray-900/5 text-gray-600 hover:bg-gray-900/9 dark:bg-white/7 dark:text-gray-300 dark:hover:bg-white/12'
     "
     :disabled="disabled"
     @click="emit('click')"
@@ -114,7 +114,7 @@ onBeforeUnmount(closeMenu)
   <Teleport to="body">
     <div
       v-if="menuOpen"
-      class="fixed z-50 min-w-32.5 rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-gray-900/[0.07] backdrop-blur-xl dark:bg-gray-800/95 dark:ring-white/[0.08]"
+      class="fixed z-50 min-w-32.5 rounded-xl bg-white/95 p-1 shadow-lg ring-1 ring-gray-900/7 backdrop-blur-xl dark:bg-gray-800/95 dark:ring-white/8"
       :style="{ left: menuX + 'px', top: menuY + 'px' }"
       @pointerdown.stop
     >
@@ -140,7 +140,7 @@ onBeforeUnmount(closeMenu)
       @click.self="showRename = false"
     >
       <div
-        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
       >
         <h2 class="mb-4 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
           Rename category
@@ -149,14 +149,14 @@ onBeforeUnmount(closeMenu)
           ref="renameInput"
           v-model="renameName"
           type="text"
-          class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+          class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
           @keydown.enter.prevent="confirmRename"
           @keydown.escape="showRename = false"
         />
         <div class="mt-4 flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+            class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
             @click="showRename = false"
           >
             Cancel
@@ -179,7 +179,7 @@ onBeforeUnmount(closeMenu)
       @click.self="showDelete = false"
     >
       <div
-        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
       >
         <h2
           class="mb-1.5 wrap-break-word text-[17px] font-semibold text-gray-900 dark:text-gray-50"
@@ -192,7 +192,7 @@ onBeforeUnmount(closeMenu)
         <div class="flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+            class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
             @click="showDelete = false"
           >
             Cancel

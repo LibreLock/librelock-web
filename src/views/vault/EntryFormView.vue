@@ -949,7 +949,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
         <span
           v-if="wasShared && !canChooseScope"
-          class="rounded-full bg-gray-900/[0.06] text-gray-700 dark:bg-white/[0.08] dark:text-gray-200 px-2.5 py-0.5 text-xs font-semibold"
+          class="rounded-full bg-gray-900/6 text-gray-700 dark:bg-white/8 dark:text-gray-200 px-2.5 py-0.5 text-xs font-semibold"
         >
           Shared
         </span>
@@ -976,7 +976,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
       <p
         v-if="isEditMode && isShared && !wasShared"
-        class="mb-4 rounded-lg bg-gray-900/[0.04] dark:bg-white/[0.05] px-4 py-2.5 text-xs text-gray-600 dark:text-gray-300"
+        class="mb-4 rounded-lg bg-gray-900/4 dark:bg-white/5 px-4 py-2.5 text-xs text-gray-600 dark:text-gray-300"
       >
         Saving moves this entry into the shared vault, where every member with access can see it.
       </p>
@@ -1006,7 +1006,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
       <div
         v-else
-        class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07] overflow-hidden lg:flex lg:min-h-0 lg:flex-col"
+        class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7 overflow-hidden lg:flex lg:min-h-0 lg:flex-col"
       >
         <form
           ref="formEl"
@@ -1014,7 +1014,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
           @submit.prevent="handleSubmit()"
         >
           <div
-            class="grid grid-cols-1 lg:min-h-0 lg:flex-1 lg:grid-cols-[1fr_360px] lg:grid-rows-[minmax(0,1fr)] lg:divide-x lg:divide-gray-100 dark:lg:divide-white/[0.06]"
+            class="grid grid-cols-1 lg:min-h-0 lg:flex-1 lg:grid-cols-[1fr_360px] lg:grid-rows-[minmax(0,1fr)] lg:divide-x lg:divide-gray-100 dark:lg:divide-white/6"
           >
             <div class="px-5 py-5 space-y-3 lg:overflow-y-auto">
               <template v-if="entryType === 'password'">
@@ -1029,7 +1029,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     v-model="account.name"
                     type="text"
                     required
-                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
 
@@ -1043,7 +1043,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                       :disabled="readOnly"
                       v-model="account.username"
                       type="text"
-                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
                   <div>
@@ -1055,7 +1055,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                       :disabled="readOnly"
                       v-model="account.email"
                       type="email"
-                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
                 </div>
@@ -1083,7 +1083,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                       v-model="account.password"
                       :type="showPassword ? 'text' : 'password'"
                       autocomplete="new-password"
-                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                       :class="canCopyPassword ? 'pr-16' : 'pr-10'"
                     />
                     <div
@@ -1141,7 +1141,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
                       <span
                         v-if="showReusedTooltip"
-                        class="absolute bottom-full left-0 z-50 mb-2 before:absolute before:inset-x-0 before:top-full before:h-2 before:content-[''] w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
+                        class="absolute bottom-full left-0 z-50 mb-2 before:absolute before:inset-x-0 before:top-full before:h-2 before:content-[''] w-48 rounded-lg border border-gray-200 dark:border-white/8 bg-white dark:bg-gray-800 p-2 shadow-lg"
                       >
                         <span
                           class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
@@ -1188,7 +1188,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     :disabled="readOnly"
                     v-model="account.url"
                     type="text"
-                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
 
@@ -1242,7 +1242,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                       <div ref="ssoMenu" class="relative">
                         <button
                           type="button"
-                          class="flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 transition cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
+                          class="flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 transition cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 disabled:cursor-not-allowed disabled:opacity-60"
                           aria-haspopup="listbox"
                           :aria-expanded="ssoMenuOpen"
                           aria-labelledby="sso-label"
@@ -1276,7 +1276,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                           <div
                             v-if="ssoMenuOpen"
                             ref="ssoPanel"
-                            class="fixed z-50 flex flex-col overflow-hidden rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 shadow-lg"
+                            class="fixed z-50 flex flex-col overflow-hidden rounded-lg border border-gray-200 dark:border-white/8 bg-white dark:bg-gray-800 shadow-lg"
                             :style="ssoMenuStyle"
                           >
                             <input
@@ -1284,7 +1284,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                               v-model="ssoSearch"
                               type="text"
                               placeholder="Search providers…"
-                              class="w-full shrink-0 border-b border-gray-100 dark:border-white/[0.08] bg-transparent px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none"
+                              class="w-full shrink-0 border-b border-gray-100 dark:border-white/8 bg-transparent px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none"
                               @keydown.down.prevent="moveSsoHighlight(1)"
                               @keydown.up.prevent="moveSsoHighlight(-1)"
                               @keydown.enter.prevent="chooseHighlightedSso"
@@ -1347,7 +1347,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                         v-model="account.ssoLabel"
                         type="text"
                         placeholder="Provider name"
-                        class="mt-2 w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                        class="mt-2 w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                       />
 
                       <div v-if="usesSso" class="mt-2">
@@ -1360,7 +1360,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                           :disabled="readOnly"
                           id="sso-entry"
                           v-model="account.ssoEntryId"
-                          class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                          class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <option :value="null">Not linked</option>
                           <option
@@ -1444,7 +1444,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     v-model="card.name"
                     type="text"
                     required
-                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
 
@@ -1457,7 +1457,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     :disabled="readOnly"
                     v-model="card.cardholderName"
                     type="text"
-                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
 
@@ -1474,7 +1474,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                       required
                       inputmode="numeric"
                       placeholder="1234 5678 9012 3456"
-                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 font-mono tracking-wider border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 font-mono tracking-wider border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                       @input="handleCardNumberInput"
                     />
                     <div class="absolute right-3 top-1/2 -translate-y-1/2">
@@ -1497,7 +1497,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                       inputmode="numeric"
                       placeholder="MM/YY"
                       maxlength="5"
-                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                      class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                       @input="handleExpiryInput"
                     />
                   </div>
@@ -1515,7 +1515,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                         inputmode="numeric"
                         placeholder="•••"
                         maxlength="4"
-                        class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                        class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                       />
                       <button
                         type="button"
@@ -1555,7 +1555,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     v-model="note.name"
                     type="text"
                     required
-                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
                 <div>
@@ -1574,7 +1574,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
             </div>
 
             <div
-              class="flex flex-col gap-5 px-5 py-5 border-t border-gray-100 dark:border-white/[0.08] lg:min-h-0 lg:gap-4 lg:overflow-y-auto lg:border-t-0"
+              class="flex flex-col gap-5 px-5 py-5 border-t border-gray-100 dark:border-white/8 lg:min-h-0 lg:gap-4 lg:overflow-y-auto lg:border-t-0"
             >
               <div>
                 <label class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
@@ -1622,7 +1622,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                   v-model="iconSearch"
                   type="text"
                   placeholder="Search icons…"
-                  class="mb-1.5 w-full shrink-0 rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+                  class="mb-1.5 w-full shrink-0 rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
                 />
                 <SegmentedTabs
                   class="mb-1.5 shrink-0"
@@ -1634,7 +1634,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                   @select="iconTab = $event"
                 />
                 <div
-                  class="grid max-h-40 grid-cols-7 content-start gap-1.5 overflow-y-auto rounded-lg border border-gray-100 dark:border-white/[0.08] p-2 lg:max-h-none lg:min-h-0 lg:flex-1 lg:basis-0"
+                  class="grid max-h-40 grid-cols-7 content-start gap-1.5 overflow-y-auto rounded-lg border border-gray-100 dark:border-white/8 p-2 lg:max-h-none lg:min-h-0 lg:flex-1 lg:basis-0"
                 >
                   <button
                     v-if="!iconSearch.trim()"
@@ -1659,7 +1659,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     :class="
                       selectedIcon === ic.id
                         ? 'border-gray-800 ring-1 ring-gray-800 dark:border-gray-100 dark:ring-gray-100'
-                        : 'border-gray-200 dark:border-white/[0.08] hover:border-gray-400 dark:hover:border-gray-500'
+                        : 'border-gray-200 dark:border-white/8 hover:border-gray-400 dark:hover:border-gray-500'
                     "
                     :title="ic.label"
                     :disabled="readOnly"
@@ -1727,7 +1727,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     v-model="newCategoryName"
                     type="text"
                     placeholder="Name"
-                    class="min-w-0 flex-1 rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+                    class="min-w-0 flex-1 rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
                     @keydown.enter.prevent="handleAddCategory"
                     @keydown.escape="cancelNewCategory"
                   />
@@ -1784,7 +1784,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
       @click.self="showDeleteConfirm = false"
     >
       <div
-        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
       >
         <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
           Delete
@@ -1806,7 +1806,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
         <div class="mt-5 flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+            class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
             @click="showDeleteConfirm = false"
           >
             Cancel
@@ -1829,7 +1829,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
       @click.self="showExposureConfirm = false"
     >
       <div
-        class="max-w-lg w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+        class="max-w-lg w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
       >
         <h3 class="text-lg font-semibold text-amber-600 dark:text-amber-400">
           {{
@@ -1873,7 +1873,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                 <input
                   v-model="rotationCandidate"
                   autocomplete="new-password"
-                  class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+                  class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 font-mono border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
                 />
                 <div class="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2.5">
                   <button
@@ -1905,7 +1905,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
 
                   <span
                     v-if="showCandidateReusedTooltip"
-                    class="absolute bottom-full left-0 z-50 mb-2 before:absolute before:inset-x-0 before:top-full before:h-2 before:content-[''] w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
+                    class="absolute bottom-full left-0 z-50 mb-2 before:absolute before:inset-x-0 before:top-full before:h-2 before:content-[''] w-48 rounded-lg border border-gray-200 dark:border-white/8 bg-white dark:bg-gray-800 p-2 shadow-lg"
                   >
                     <span
                       class="mb-1.5 block text-[13px] font-medium text-gray-700 dark:text-gray-300"
@@ -1947,7 +1947,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
         <div class="mt-5 flex flex-wrap justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+            class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
             :disabled="isSubmitting"
             @click="showExposureConfirm = false"
           >
@@ -1984,7 +1984,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
       @click.self="showPrivateLinkConfirm = false"
     >
       <div
-        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
       >
         <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
           Login entry stays private
@@ -1997,7 +1997,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
         <div class="flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+            class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
             @click="showPrivateLinkConfirm = false"
           >
             Cancel
@@ -2021,7 +2021,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
       @click.self="keepEditing"
     >
       <div
-        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+        class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
       >
         <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
           Discard {{ isEditMode ? 'changes' : 'this entry' }}?
@@ -2032,7 +2032,7 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
         <div class="flex justify-end gap-2">
           <button
             type="button"
-            class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+            class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
             @click="keepEditing"
           >
             Keep editing

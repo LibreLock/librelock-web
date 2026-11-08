@@ -101,7 +101,7 @@ async function handleRemove() {
 <template>
   <div class="space-y-4">
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Fingerprint unlock</h2>
@@ -111,7 +111,7 @@ async function handleRemove() {
         </p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+      <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
       <div class="px-4 sm:px-6 py-5 space-y-4">
         <p v-if="checking" class="text-sm text-gray-400">Checking this device…</p>
@@ -171,7 +171,7 @@ async function handleRemove() {
                   required
                   :maxlength="MAX_PASSWORD_LENGTH"
                   autocomplete="current-password"
-                  class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+                  class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
                 />
                 <PasswordVisibilityToggle v-model="showPassword" />
               </div>
@@ -214,14 +214,14 @@ async function handleRemove() {
     </div>
 
     <div
-      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7"
     >
       <div class="px-4 sm:px-6 pt-6 pb-1">
         <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Authenticator</h2>
         <p class="mt-0.5 text-sm text-gray-400">How 2FA codes are shown on this device</p>
       </div>
 
-      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+      <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
       <div class="flex items-start justify-between gap-4 px-4 py-5 sm:px-6">
         <div class="min-w-0">

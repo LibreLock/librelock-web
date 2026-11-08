@@ -31,7 +31,7 @@ function download() {
     @click.self="emit('close')"
   >
     <div
-      class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+      class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
     >
       <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
         Export 2FA codes
@@ -50,7 +50,7 @@ function download() {
       <div class="mt-5 flex justify-end gap-2">
         <button
           type="button"
-          class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+          class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
           @click="emit('close')"
         >
           Cancel

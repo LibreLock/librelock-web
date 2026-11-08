@@ -178,7 +178,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
+    class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7"
   >
     <div class="px-4 sm:px-6 pt-6 pb-1 flex items-center justify-between">
       <div>
@@ -197,7 +197,7 @@ onBeforeUnmount(() => {
         </button>
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-900/[0.05] hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-100 cursor-pointer disabled:opacity-50"
+          class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-900/5 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/7 dark:hover:text-gray-100 cursor-pointer disabled:opacity-50"
           :disabled="sessionsLoading"
           @click="loadSessions"
         >
@@ -212,7 +212,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+    <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
     <div class="px-4 sm:px-6 py-5">
       <div
@@ -234,14 +234,14 @@ onBeforeUnmount(() => {
         No active sessions found.
       </div>
 
-      <div v-else class="divide-y divide-gray-100 dark:divide-white/[0.08]">
+      <div v-else class="divide-y divide-gray-100 dark:divide-white/8">
         <div
           v-for="session in pagedSessions"
           :key="session.id"
           class="flex items-center gap-4 py-4 first:pt-0 last:pb-0"
         >
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-900/[0.05] text-gray-500 dark:bg-white/[0.06] dark:text-gray-400"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-900/5 text-gray-500 dark:bg-white/6 dark:text-gray-400"
           >
             <PhDeviceMobile v-if="isMobile(session.device_name)" :size="20" />
             <PhDesktop v-else :size="20" />
@@ -296,7 +296,7 @@ onBeforeUnmount(() => {
     @click.self="showLogoutWarning = false"
   >
     <div
-      class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+      class="max-w-sm w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
     >
       <h2 class="mb-1.5 text-[17px] font-semibold text-gray-900 dark:text-gray-50">
         {{ logoutWarningMode === 'revokeAll' ? 'Revoke all sessions?' : 'Revoke this session?' }}
@@ -311,7 +311,7 @@ onBeforeUnmount(() => {
       <div class="flex justify-end gap-2">
         <button
           type="button"
-          class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+          class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
           @click="showLogoutWarning = false"
         >
           Cancel

@@ -75,7 +75,7 @@ const tabs = computed(() => [
 
 <template>
   <nav
-    class="material shrink-0 border-t border-gray-200/70 pb-[env(safe-area-inset-bottom)] md:hidden dark:border-white/[0.06]"
+    class="material shrink-0 border-t border-gray-200/70 pb-[env(safe-area-inset-bottom)] md:hidden dark:border-white/6"
     aria-label="Primary"
   >
     <div class="flex h-16 items-stretch">
@@ -92,7 +92,7 @@ const tabs = computed(() => [
       >
         <span
           class="flex h-7 w-12 items-center justify-center rounded-full transition-colors"
-          :class="isActive(tab.to) ? 'bg-gray-900/[0.07] dark:bg-white/[0.1]' : ''"
+          :class="isActive(tab.to) ? 'bg-gray-900/7 dark:bg-white/10' : ''"
         >
           <component
             :is="TAB_ICONS[tab.icon]"
@@ -117,7 +117,7 @@ const tabs = computed(() => [
       >
         <span
           class="flex h-7 w-12 items-center justify-center rounded-full transition-colors"
-          :class="moreActive || moreOpen ? 'bg-gray-900/[0.07] dark:bg-white/[0.1]' : ''"
+          :class="moreActive || moreOpen ? 'bg-gray-900/7 dark:bg-white/10' : ''"
         >
           <PhDotsThree :size="20" weight="bold" />
         </span>
@@ -149,7 +149,7 @@ const tabs = computed(() => [
     >
       <div
         v-if="moreOpen"
-        class="fixed inset-x-2 bottom-2 z-50 rounded-[22px] bg-white pb-[max(env(safe-area-inset-bottom),0.5rem)] shadow-xl ring-1 ring-gray-900/[0.06] md:hidden dark:bg-gray-900 dark:ring-white/[0.08]"
+        class="fixed inset-x-2 bottom-2 z-50 rounded-[22px] bg-white pb-[max(env(safe-area-inset-bottom),0.5rem)] shadow-xl ring-1 ring-gray-900/6 md:hidden dark:bg-gray-900 dark:ring-white/8"
         role="dialog"
         aria-label="More options"
       >
@@ -164,7 +164,7 @@ const tabs = computed(() => [
             class="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
             :class="
               isActive('/shared')
-                ? 'bg-gray-100 dark:bg-white/[0.08] text-gray-900 dark:text-gray-100'
+                ? 'bg-gray-100 dark:bg-white/8 text-gray-900 dark:text-gray-100'
                 : 'text-gray-600 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
             "
           >
@@ -178,7 +178,7 @@ const tabs = computed(() => [
             class="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
             :class="
               isActive('/organization')
-                ? 'bg-gray-100 dark:bg-white/[0.08] text-gray-900 dark:text-gray-100'
+                ? 'bg-gray-100 dark:bg-white/8 text-gray-900 dark:text-gray-100'
                 : 'text-gray-600 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
             "
           >

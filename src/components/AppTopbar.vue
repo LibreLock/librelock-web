@@ -61,7 +61,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 
 <template>
   <header
-    class="material relative z-10 flex h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 items-center gap-3 border-b border-gray-200/70 px-3 pt-[env(safe-area-inset-top)] sm:gap-3 sm:px-4 dark:border-white/[0.06]"
+    class="material relative z-10 flex h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 items-center gap-3 border-b border-gray-200/70 px-3 pt-[env(safe-area-inset-top)] sm:gap-3 sm:px-4 dark:border-white/6"
   >
     <!-- The sidebar (and its logo) is hidden on mobile, so show the brand here -->
     <RouterLink to="/" class="shrink-0 md:hidden" aria-label="Home">
@@ -79,12 +79,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
         v-model="vault.globalSearch"
         type="search"
         placeholder="Search vault"
-        class="h-9 w-full rounded-lg border border-transparent bg-gray-900/[0.05] pl-8.5 pr-16 text-sm text-gray-900 placeholder:text-gray-500 transition-[background-color,border-color,box-shadow] duration-200 focus:border-gray-300 focus:bg-white focus:shadow-[0_0_0_3px_rgb(17_17_19/0.06)] focus:outline-none dark:bg-white/[0.07] dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-white/15 dark:focus:bg-gray-800 dark:focus:shadow-[0_0_0_3px_rgb(255_255_255/0.06)] [&::-webkit-search-cancel-button]:hidden"
+        class="h-9 w-full rounded-lg border border-transparent bg-gray-900/5 pl-8.5 pr-16 text-sm text-gray-900 placeholder:text-gray-500 transition-[background-color,border-color,box-shadow] duration-200 focus:border-gray-300 focus:bg-white focus:shadow-[0_0_0_3px_rgb(17_17_19/0.06)] focus:outline-none dark:bg-white/7 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-white/15 dark:focus:bg-gray-800 dark:focus:shadow-[0_0_0_3px_rgb(255_255_255/0.06)] [&::-webkit-search-cancel-button]:hidden"
       />
 
       <div
         v-if="!vault.globalSearch"
-        class="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md bg-white px-1.5 py-0.5 font-sans text-[11px] font-medium text-gray-500 shadow-xs ring-1 ring-gray-900/[0.06] sm:block dark:bg-white/[0.06] dark:text-gray-400 dark:ring-white/[0.06]"
+        class="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md bg-white px-1.5 py-0.5 font-sans text-[11px] font-medium text-gray-500 shadow-xs ring-1 ring-gray-900/6 sm:block dark:bg-white/6 dark:text-gray-400 dark:ring-white/6"
       >
         {{ modKey }} K
       </div>
@@ -92,7 +92,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
       <button
         v-if="vault.globalSearch"
         type="button"
-        class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-1.5 py-0.5 text-xs font-medium text-gray-500 hover:bg-gray-900/[0.05] hover:text-gray-800 dark:hover:bg-white/[0.08] dark:hover:text-gray-200 cursor-pointer"
+        class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-1.5 py-0.5 text-xs font-medium text-gray-500 hover:bg-gray-900/5 hover:text-gray-800 dark:hover:bg-white/8 dark:hover:text-gray-200 cursor-pointer"
         @click="vault.globalSearch = ''"
         :title="
           vault.copyableResults.length > 0

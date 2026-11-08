@@ -15,7 +15,15 @@ import PasswordText from '@/components/PasswordText.vue'
 import TotpCode from '@/components/TotpCode.vue'
 import { displayUrl, externalHref } from '@/services/url'
 import { scoreDeep, strengthLabel, strengthColor, strengthDot } from '@/services/passwordStrength'
-import { PhArrowSquareOut, PhCaretLeft, PhCheck, PhCopy, PhEye, PhEyeSlash, PhPencilSimple } from '@phosphor-icons/vue'
+import {
+  PhArrowSquareOut,
+  PhCaretLeft,
+  PhCheck,
+  PhCopy,
+  PhEye,
+  PhEyeSlash,
+  PhPencilSimple,
+} from '@phosphor-icons/vue'
 
 const { entry } = defineProps<{
   entry: VaultEntry
@@ -140,7 +148,7 @@ onMounted(refineStrength)
 watch(() => entry.id, refineStrength)
 
 // A row that copies its value when clicked anywhere on it
-const rowCopy = 'cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.03]'
+const rowCopy = 'cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/3'
 
 async function copy(text: string, field: string) {
   await navigator.clipboard.writeText(text)
@@ -197,7 +205,7 @@ async function copy(text: string, field: string) {
           </h1>
           <span
             v-if="entry.shared"
-            class="shrink-0 rounded-full bg-gray-900/[0.06] text-gray-700 dark:bg-white/[0.08] dark:text-gray-200 px-2.5 py-0.5 text-xs font-semibold"
+            class="shrink-0 rounded-full bg-gray-900/6 text-gray-700 dark:bg-white/8 dark:text-gray-200 px-2.5 py-0.5 text-xs font-semibold"
           >
             Shared
           </span>
@@ -218,7 +226,7 @@ async function copy(text: string, field: string) {
         <span v-else-if="entry.type === 'card'" class="text-sm text-gray-500">Credit Card</span>
         <span
           v-if="entry.categoryId"
-          class="ml-2 rounded-full bg-gray-900/[0.05] px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-white/[0.08] dark:text-gray-300"
+          class="ml-2 rounded-full bg-gray-900/5 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-white/8 dark:text-gray-300"
         >
           {{ categoryName }}
         </span>
@@ -227,7 +235,7 @@ async function copy(text: string, field: string) {
       <button
         v-if="canOpenForm"
         type="button"
-        class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-white px-3 text-[13.5px] font-medium text-gray-800 shadow-xs ring-1 ring-gray-900/[0.08] transition-colors hover:bg-gray-50 dark:bg-white/[0.07] dark:text-gray-200 dark:shadow-none dark:ring-white/[0.08] dark:hover:bg-white/[0.1] cursor-pointer"
+        class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-white px-3 text-[13.5px] font-medium text-gray-800 shadow-xs ring-1 ring-gray-900/8 transition-colors hover:bg-gray-50 dark:bg-white/7 dark:text-gray-200 dark:shadow-none dark:ring-white/8 dark:hover:bg-white/10 cursor-pointer"
         @click="emit('edit')"
       >
         <PhPencilSimple :size="16" />
@@ -247,10 +255,10 @@ async function copy(text: string, field: string) {
             Credentials
           </h2>
           <div
-            class="overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07]"
+            class="overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7"
           >
             <div
-              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/8 px-3.5 py-3 sm:px-4"
               :class="entry.username ? rowCopy : ''"
               @click="entry.username && copy(entry.username, 'username')"
             >
@@ -263,7 +271,7 @@ async function copy(text: string, field: string) {
               <button
                 v-if="entry.username"
                 type="button"
-                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
+                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/7 dark:hover:text-gray-200 cursor-pointer"
                 title="Copy username"
                 @click.stop="copy(entry.username, 'username')"
               >
@@ -273,7 +281,7 @@ async function copy(text: string, field: string) {
             </div>
 
             <div
-              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/8 px-3.5 py-3 sm:px-4"
               :class="entry.email ? rowCopy : ''"
               @click="entry.email && copy(entry.email, 'email')"
             >
@@ -286,7 +294,7 @@ async function copy(text: string, field: string) {
               <button
                 v-if="entry.email"
                 type="button"
-                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
+                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/7 dark:hover:text-gray-200 cursor-pointer"
                 title="Copy email"
                 @click.stop="copy(entry.email, 'email')"
               >
@@ -297,7 +305,7 @@ async function copy(text: string, field: string) {
 
             <!-- The whole row copies the password; the eye and copy buttons stop the click so it is not copied twice -->
             <div
-              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/8 px-3.5 py-3 sm:px-4"
               :class="hasPassword ? rowCopy : ''"
               @click="hasPassword && copy(entry.password, 'password')"
             >
@@ -343,7 +351,7 @@ async function copy(text: string, field: string) {
             <!-- Live 2FA code, when a setup key is stored on this entry -->
             <div
               v-if="entry.totp"
-              class="cursor-pointer border-b border-gray-100 px-3.5 py-3 transition-colors hover:bg-gray-50 sm:px-4 dark:border-white/[0.08] dark:hover:bg-white/[0.03]"
+              class="cursor-pointer border-b border-gray-100 px-3.5 py-3 transition-colors hover:bg-gray-50 sm:px-4 dark:border-white/8 dark:hover:bg-white/3"
               @click="otp?.copy()"
             >
               <p class="mb-0.5 text-xs text-gray-500 dark:text-gray-400">One-time code</p>
@@ -353,7 +361,7 @@ async function copy(text: string, field: string) {
             <!-- Sign-in method, when this account goes through an identity provider -->
             <div
               v-if="sso"
-              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/8 px-3.5 py-3 sm:px-4"
             >
               <div class="min-w-0">
                 <p class="text-xs text-gray-500 dark:text-gray-400">Sign-in</p>
@@ -375,7 +383,7 @@ async function copy(text: string, field: string) {
                  straight from here -->
             <div
               v-if="entry.type === 'password' && entry.ssoEntryId"
-              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/8 px-3.5 py-3 sm:px-4"
               :class="linked ? rowCopy : ''"
               @click="linked && copy(linked.password, 'ssoEntry')"
             >
@@ -396,7 +404,7 @@ async function copy(text: string, field: string) {
               <button
                 v-if="linked"
                 type="button"
-                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
+                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/7 dark:hover:text-gray-200 cursor-pointer"
                 :title="`Copy ${linked.name}'s password`"
                 @click.stop="copy(linked.password, 'ssoEntry')"
               >
@@ -409,7 +417,7 @@ async function copy(text: string, field: string) {
 
         <p
           v-if="isExcluded"
-          class="rounded-lg border border-dashed border-gray-200 dark:border-white/[0.08] px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400"
+          class="rounded-lg border border-dashed border-gray-200 dark:border-white/8 px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400"
         >
           This entry is excluded from analytics, so it is not included in the Security Center score
           and not checked for weak, reused and breached passwords.
@@ -423,7 +431,7 @@ async function copy(text: string, field: string) {
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
             <div
-              class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
+              class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7 px-3.5 py-3 sm:p-4"
             >
               <p class="mb-1.5 text-xs text-gray-500 dark:text-gray-400">Password strength</p>
               <div class="flex items-center gap-1.5">
@@ -435,7 +443,7 @@ async function copy(text: string, field: string) {
             </div>
 
             <div
-              class="relative rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
+              class="relative rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7 px-3.5 py-3 sm:p-4"
               @mouseenter="showReusedTooltip = true"
               @mouseleave="showReusedTooltip = false"
             >
@@ -452,7 +460,7 @@ async function copy(text: string, field: string) {
 
               <div
                 v-if="showReusedTooltip && isReused && reusedWith.length > 0"
-                class="absolute bottom-full left-0 z-50 mb-2 before:absolute before:inset-x-0 before:top-full before:h-2 before:content-[''] w-48 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-800 p-2 shadow-lg"
+                class="absolute bottom-full left-0 z-50 mb-2 before:absolute before:inset-x-0 before:top-full before:h-2 before:content-[''] w-48 rounded-lg border border-gray-200 dark:border-white/8 bg-white dark:bg-gray-800 p-2 shadow-lg"
               >
                 <p class="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
                   Also used by
@@ -461,7 +469,7 @@ async function copy(text: string, field: string) {
                   <li v-for="e in reusedWith" :key="e.id">
                     <RouterLink
                       :to="`${e.shared ? '/shared' : '/passwords'}/${e.id}`"
-                      class="flex items-center gap-1.5 rounded px-1 py-0.5 -mx-1 text-xs text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-white/[0.06]"
+                      class="flex items-center gap-1.5 rounded px-1 py-0.5 -mx-1 text-xs text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-white/6"
                     >
                       <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500"></span>
                       <span class="truncate">{{ e.name }}</span>
@@ -472,7 +480,7 @@ async function copy(text: string, field: string) {
             </div>
 
             <div
-              class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
+              class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7 px-3.5 py-3 sm:p-4"
             >
               <p class="mb-1.5 text-xs text-gray-500 dark:text-gray-400">Breached</p>
               <div class="flex items-center gap-1.5">
@@ -506,13 +514,13 @@ async function copy(text: string, field: string) {
             Used for sign-in by
           </h2>
           <div
-            class="overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07]"
+            class="overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7"
           >
             <RouterLink
               v-for="e in linkers"
               :key="e.id"
               :to="entryRoute(e)"
-              class="flex items-center gap-3 border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4 last:border-b-0 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+              class="flex items-center gap-3 border-b border-gray-100 dark:border-white/8 px-3.5 py-3 sm:px-4 last:border-b-0 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               <EntryIcon :name="e.name" :color="e.color" :icon="e.icon" :url="e.url" size="sm" />
               <div class="min-w-0 flex-1">
@@ -539,7 +547,7 @@ async function copy(text: string, field: string) {
             Notes
           </h2>
           <div
-            class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
+            class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7 px-3.5 py-3 sm:p-4"
           >
             <MarkdownText :text="entry.notes" />
           </div>
@@ -554,10 +562,10 @@ async function copy(text: string, field: string) {
             Details
           </h2>
           <div
-            class="overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07]"
+            class="overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7"
           >
             <div
-              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/8 px-3.5 py-3 sm:px-4"
               :class="entry.cardNumber ? rowCopy : ''"
               @click="entry.cardNumber && copy(entry.cardNumber.replace(/\s/g, ''), 'cardNumber')"
             >
@@ -592,7 +600,7 @@ async function copy(text: string, field: string) {
             </div>
 
             <div
-              class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              class="flex items-center justify-between border-b border-gray-100 dark:border-white/8 px-3.5 py-3 sm:px-4"
               :class="entry.cardholderName ? rowCopy : ''"
               @click="entry.cardholderName && copy(entry.cardholderName, 'cardholderName')"
             >
@@ -605,7 +613,7 @@ async function copy(text: string, field: string) {
               <button
                 v-if="entry.cardholderName"
                 type="button"
-                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
+                class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/7 dark:hover:text-gray-200 cursor-pointer"
                 title="Copy cardholder name"
                 @click.stop="copy(entry.cardholderName, 'cardholderName')"
               >
@@ -615,7 +623,7 @@ async function copy(text: string, field: string) {
             </div>
 
             <div
-              class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-white/[0.08]"
+              class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-white/8"
             >
               <div
                 class="flex items-center justify-between px-3.5 py-3 sm:px-4"
@@ -682,7 +690,7 @@ async function copy(text: string, field: string) {
             Notes
           </h2>
           <div
-            class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
+            class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7 px-3.5 py-3 sm:p-4"
           >
             <MarkdownText :text="entry.notes" />
           </div>
@@ -697,7 +705,7 @@ async function copy(text: string, field: string) {
             Content
           </h2>
           <div
-            class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:shadow-none dark:ring-white/[0.07] px-3.5 py-3 sm:p-4"
+            class="rounded-xl bg-white shadow-xs ring-1 ring-gray-900/6 dark:bg-gray-900 dark:shadow-none dark:ring-white/7 px-3.5 py-3 sm:p-4"
           >
             <MarkdownText :text="entry.content" />
           </div>

@@ -17,7 +17,7 @@ const percent = computed(() => Math.round((Math.max(0, Math.min(10, score)) / 10
       />
     </div>
     <span class="shrink-0 text-xs font-medium tabular-nums" :class="strengthColor(score)">
-      {{ strengthLabel(score) }} · {{ score }}/10
+      {{ strengthLabel(score) }}
     </span>
   </div>
 </template>

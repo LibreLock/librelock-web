@@ -26,7 +26,7 @@ const GLYPHS: Record<ToastVariant, { icon: Component; tint: string }> = {
           v-for="t in toasts"
           :key="t.id"
           type="button"
-          class="pointer-events-auto flex max-w-[min(28rem,calc(100vw-2rem))] cursor-pointer items-center gap-2 rounded-xl bg-white/95 py-2.5 pl-3 pr-4 text-sm font-medium text-gray-800 shadow-lg shadow-gray-900/10 ring-1 ring-gray-900/[0.08] backdrop-blur-xl dark:bg-gray-800/95 dark:text-gray-100 dark:shadow-black/40 dark:ring-white/[0.1]"
+          class="pointer-events-auto flex max-w-[min(28rem,calc(100vw-2rem))] cursor-pointer items-center gap-2 rounded-xl bg-white/95 py-2.5 pl-3 pr-4 text-sm font-medium text-gray-800 shadow-lg shadow-gray-900/10 ring-1 ring-gray-900/8 backdrop-blur-xl dark:bg-gray-800/95 dark:text-gray-100 dark:shadow-black/40 dark:ring-white/10"
           @click="dismiss(t.id)"
         >
           <component

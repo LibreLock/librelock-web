@@ -71,7 +71,7 @@ async function confirmRevertToPersonal() {
       </p>
     </div>
 
-    <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+    <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
     <div class="px-4 sm:px-6 py-5 space-y-4">
       <div
@@ -100,7 +100,7 @@ async function confirmRevertToPersonal() {
         @click.self="showRevertModal = false"
       >
         <div
-          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
         >
           <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">
             Return to personal mode?
@@ -126,7 +126,7 @@ async function confirmRevertToPersonal() {
                   v-model="revertPassword"
                   :type="showRevertPassword ? 'text' : 'password'"
                   autocomplete="current-password"
-                  class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900 transition"
+                  class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900 transition"
                 />
                 <button
                   type="button"
@@ -153,7 +153,7 @@ async function confirmRevertToPersonal() {
                 type="text"
                 autocomplete="off"
                 :placeholder="confirmPhrase"
-                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900 transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900 transition"
               />
             </div>
           </div>
@@ -163,7 +163,7 @@ async function confirmRevertToPersonal() {
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+              class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
               :disabled="isReverting"
               @click="showRevertModal = false"
             >

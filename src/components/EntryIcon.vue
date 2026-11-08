@@ -33,12 +33,11 @@ const LETTER_TINTS: Record<string, string> = {
   'bg-violet-500': 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
   'bg-pink-500': 'bg-pink-500/15 text-pink-600 dark:text-pink-400',
   'bg-gray-500': 'bg-gray-500/15 text-gray-600 dark:text-gray-300',
-  'bg-gray-700': 'bg-gray-900/[0.07] text-gray-600 dark:bg-white/[0.08] dark:text-gray-300',
+  'bg-gray-700': 'bg-gray-900/7 text-gray-600 dark:bg-white/8 dark:text-gray-300',
 }
 const letterTile = computed(
   () =>
-    LETTER_TINTS[props.color] ??
-    'bg-gray-900/[0.07] text-gray-600 dark:bg-white/[0.08] dark:text-gray-300',
+    LETTER_TINTS[props.color] ?? 'bg-gray-900/7 text-gray-600 dark:bg-white/8 dark:text-gray-300',
 )
 
 // "Revolut Card" -> "RC", "github" -> "G". Leading symbols and a leading "The" carry no identity

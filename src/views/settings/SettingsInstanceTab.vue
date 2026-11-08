@@ -144,7 +144,7 @@ async function confirmSwitchToOrganization() {
 
     <template v-else>
       <div
-        class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
+        class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7"
       >
         <div class="px-4 sm:px-6 pt-6 pb-1">
           <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Sign-up</h2>
@@ -153,7 +153,7 @@ async function confirmSwitchToOrganization() {
           </p>
         </div>
 
-        <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+        <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
         <p v-if="registrationError" class="px-4 sm:px-6 pt-4 text-sm text-red-600">
           {{ registrationError }}
@@ -182,7 +182,7 @@ async function confirmSwitchToOrganization() {
       </div>
 
       <div
-        class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
+        class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/6 dark:shadow-none dark:ring-white/7"
       >
         <div class="px-4 sm:px-6 pt-6 pb-1">
           <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">
@@ -193,7 +193,7 @@ async function confirmSwitchToOrganization() {
           </p>
         </div>
 
-        <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+        <hr class="mt-3 border-gray-100 dark:border-white/8" />
 
         <div class="px-4 sm:px-6 py-5 space-y-4">
           <p class="text-sm text-gray-600 dark:text-gray-300">
@@ -224,7 +224,7 @@ async function confirmSwitchToOrganization() {
         @click.self="showSwitchModal = false"
       >
         <div
-          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
         >
           <h3 class="text-[17px] font-semibold text-gray-900 dark:text-gray-50">
             Switch to organization mode?
@@ -252,7 +252,7 @@ async function confirmSwitchToOrganization() {
                 :type="showSwitchPassword ? 'text' : 'password'"
                 autocomplete="current-password"
                 :maxlength="MAX_PASSWORD_LENGTH"
-                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/[0.06] dark:focus:border-white/25 dark:focus:ring-white/[0.06] transition"
+                class="w-full rounded-lg border px-3 py-2 text-[15px] sm:text-sm pr-10 border-gray-200 dark:border-white/10 bg-white dark:bg-white/4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-900/6 dark:focus:border-white/25 dark:focus:ring-white/6 transition"
                 @keyup.enter="confirmSwitchToOrganization"
               />
               <button
@@ -273,7 +273,7 @@ async function confirmSwitchToOrganization() {
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg bg-gray-900/[0.05] px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/[0.09] cursor-pointer disabled:opacity-50 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.12]"
+              class="rounded-lg bg-gray-900/5 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-900/9 cursor-pointer disabled:opacity-50 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12"
               :disabled="isSwitching"
               @click="showSwitchModal = false"
             >
@@ -299,7 +299,7 @@ async function confirmSwitchToOrganization() {
         @click.self="showRegistrationModal = false"
       >
         <div
-          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/[0.06] dark:bg-gray-900 dark:ring-white/[0.08]"
+          class="max-w-md w-full rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/6 dark:bg-gray-900 dark:ring-white/8"
         >
           <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">Allow new accounts?</h3>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -317,7 +317,7 @@ async function confirmSwitchToOrganization() {
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-900/[0.1] dark:ring-white/[0.12] hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+              class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 ring-1 ring-gray-900/10 dark:ring-white/12 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
               @click="showRegistrationModal = false"
             >
               Cancel
