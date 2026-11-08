@@ -8,6 +8,7 @@ import { navPath } from '@/router/origin'
 import { APP_NAME } from '@/constants'
 import {
   PhBuildings,
+  PhClockCountdown,
   PhCreditCard,
   PhGear,
   PhKey,
@@ -73,6 +74,7 @@ const ICONS: Record<string, Component> = {
   card: PhCreditCard,
   note: PhNote,
   shared: PhUsersThree,
+  authenticator: PhClockCountdown,
   security: PhShieldCheck,
   organization: PhBuildings,
   settings: PhGear,
@@ -86,6 +88,7 @@ const vaultItems = computed<NavItem[]>(() => [
   { name: 'Cards', to: '/cards', icon: 'card' },
   { name: 'Notes', to: '/notes', icon: 'note' },
   ...(showSharedVault.value ? [{ name: 'Shared', to: '/shared', icon: 'shared' }] : []),
+  { name: 'Authenticator', to: '/authenticator', icon: 'authenticator' },
 ])
 
 const toolItems = computed<NavItem[]>(() => [

@@ -12,6 +12,7 @@ import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
 import MarkdownText from '@/components/MarkdownText.vue'
 import PasswordText from '@/components/PasswordText.vue'
+import TotpCode from '@/components/TotpCode.vue'
 import { displayUrl, externalHref } from '@/services/url'
 import { scoreDeep, strengthLabel, strengthColor, strengthDot } from '@/services/passwordStrength'
 import { PhArrowSquareOut, PhCaretLeft, PhCheck, PhCopy, PhEye, PhEyeSlash, PhPencilSimple } from '@phosphor-icons/vue'
@@ -19,6 +20,8 @@ import { PhArrowSquareOut, PhCaretLeft, PhCheck, PhCopy, PhEye, PhEyeSlash, PhPe
 const { entry } = defineProps<{
   entry: VaultEntry
 }>()
+
+const otp = ref<InstanceType<typeof TotpCode> | null>(null)
 
 const linkHref = computed(() => (entry.type === 'password' ? externalHref(entry.url) : ''))
 const linkLabel = computed(() => (entry.type === 'password' ? displayUrl(entry.url) : ''))
@@ -136,6 +139,9 @@ const strength = computed(() =>
 onMounted(refineStrength)
 watch(() => entry.id, refineStrength)
 
+// A row that copies its value when clicked anywhere on it
+const rowCopy = 'cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.03]'
+
 async function copy(text: string, field: string) {
   await navigator.clipboard.writeText(text)
   copiedField.value = field
@@ -245,6 +251,8 @@ async function copy(text: string, field: string) {
           >
             <div
               class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              :class="entry.username ? rowCopy : ''"
+              @click="entry.username && copy(entry.username, 'username')"
             >
               <div class="min-w-0">
                 <p class="text-xs text-gray-500 dark:text-gray-400">Username</p>
@@ -257,7 +265,7 @@ async function copy(text: string, field: string) {
                 type="button"
                 class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
                 title="Copy username"
-                @click="copy(entry.username, 'username')"
+                @click.stop="copy(entry.username, 'username')"
               >
                 <PhCopy :size="16" v-if="copiedField !== 'username'" />
                 <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
@@ -266,6 +274,8 @@ async function copy(text: string, field: string) {
 
             <div
               class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              :class="entry.email ? rowCopy : ''"
+              @click="entry.email && copy(entry.email, 'email')"
             >
               <div class="min-w-0">
                 <p class="text-xs text-gray-500 dark:text-gray-400">Email</p>
@@ -278,15 +288,18 @@ async function copy(text: string, field: string) {
                 type="button"
                 class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
                 title="Copy email"
-                @click="copy(entry.email, 'email')"
+                @click.stop="copy(entry.email, 'email')"
               >
                 <PhCopy :size="16" v-if="copiedField !== 'email'" />
                 <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
               </button>
             </div>
 
+            <!-- The whole row copies the password; the eye and copy buttons stop the click so it is not copied twice -->
             <div
               class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              :class="hasPassword ? rowCopy : ''"
+              @click="hasPassword && copy(entry.password, 'password')"
             >
               <div class="min-w-0 flex-1">
                 <p class="text-xs text-gray-500 dark:text-gray-400">Password</p>
@@ -310,7 +323,7 @@ async function copy(text: string, field: string) {
                   :title="showPassword ? 'Hide password' : 'Show password'"
                   :aria-label="showPassword ? 'Hide password' : 'Show password'"
                   :aria-pressed="showPassword"
-                  @click="showPassword = !showPassword"
+                  @click.stop="showPassword = !showPassword"
                 >
                   <PhEye :size="16" v-if="!showPassword" />
                   <PhEyeSlash :size="16" v-else />
@@ -319,12 +332,22 @@ async function copy(text: string, field: string) {
                   type="button"
                   class="text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
                   title="Copy password"
-                  @click="copy(entry.password, 'password')"
+                  @click.stop="copy(entry.password, 'password')"
                 >
                   <PhCopy :size="16" v-if="copiedField !== 'password'" />
                   <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
                 </button>
               </div>
+            </div>
+
+            <!-- Live 2FA code, when a setup key is stored on this entry -->
+            <div
+              v-if="entry.totp"
+              class="cursor-pointer border-b border-gray-100 px-3.5 py-3 transition-colors hover:bg-gray-50 sm:px-4 dark:border-white/[0.08] dark:hover:bg-white/[0.03]"
+              @click="otp?.copy()"
+            >
+              <p class="mb-0.5 text-xs text-gray-500 dark:text-gray-400">One-time code</p>
+              <TotpCode ref="otp" :uri="entry.totp" spread @click.stop />
             </div>
 
             <!-- Sign-in method, when this account goes through an identity provider -->
@@ -353,12 +376,15 @@ async function copy(text: string, field: string) {
             <div
               v-if="entry.type === 'password' && entry.ssoEntryId"
               class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              :class="linked ? rowCopy : ''"
+              @click="linked && copy(linked.password, 'ssoEntry')"
             >
               <div class="min-w-0">
                 <p class="text-xs text-gray-500 dark:text-gray-400">Login entry</p>
                 <RouterLink
                   v-if="linked"
                   :to="linkedRoute"
+                  @click.stop
                   class="truncate text-sm font-medium text-gray-800 dark:text-gray-200 underline decoration-gray-300 dark:decoration-gray-600 underline-offset-2 hover:decoration-gray-500"
                 >
                   {{ linked.name }}
@@ -372,7 +398,7 @@ async function copy(text: string, field: string) {
                 type="button"
                 class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
                 :title="`Copy ${linked.name}'s password`"
-                @click="copy(linked.password, 'ssoEntry')"
+                @click.stop="copy(linked.password, 'ssoEntry')"
               >
                 <PhCopy :size="16" v-if="copiedField !== 'ssoEntry'" />
                 <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
@@ -532,6 +558,8 @@ async function copy(text: string, field: string) {
           >
             <div
               class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              :class="entry.cardNumber ? rowCopy : ''"
+              @click="entry.cardNumber && copy(entry.cardNumber.replace(/\s/g, ''), 'cardNumber')"
             >
               <div class="min-w-0 flex-1">
                 <p class="text-xs text-gray-500 dark:text-gray-400">Card number</p>
@@ -546,7 +574,7 @@ async function copy(text: string, field: string) {
                   type="button"
                   class="text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
                   :title="showCardNumber ? 'Hide number' : 'Show number'"
-                  @click="showCardNumber = !showCardNumber"
+                  @click.stop="showCardNumber = !showCardNumber"
                 >
                   <PhEye :size="16" v-if="!showCardNumber" />
                   <PhEyeSlash :size="16" v-else />
@@ -555,7 +583,7 @@ async function copy(text: string, field: string) {
                   type="button"
                   class="text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
                   title="Copy card number"
-                  @click="copy(entry.cardNumber.replace(/\s/g, ''), 'cardNumber')"
+                  @click.stop="copy(entry.cardNumber.replace(/\s/g, ''), 'cardNumber')"
                 >
                   <PhCopy :size="16" v-if="copiedField !== 'cardNumber'" />
                   <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
@@ -565,6 +593,8 @@ async function copy(text: string, field: string) {
 
             <div
               class="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.08] px-3.5 py-3 sm:px-4"
+              :class="entry.cardholderName ? rowCopy : ''"
+              @click="entry.cardholderName && copy(entry.cardholderName, 'cardholderName')"
             >
               <div class="min-w-0">
                 <p class="text-xs text-gray-500 dark:text-gray-400">Cardholder name</p>
@@ -577,7 +607,7 @@ async function copy(text: string, field: string) {
                 type="button"
                 class="-mr-1.5 ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/[0.07] dark:hover:text-gray-200 cursor-pointer"
                 title="Copy cardholder name"
-                @click="copy(entry.cardholderName, 'cardholderName')"
+                @click.stop="copy(entry.cardholderName, 'cardholderName')"
               >
                 <PhCopy :size="16" v-if="copiedField !== 'cardholderName'" />
                 <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
@@ -587,13 +617,33 @@ async function copy(text: string, field: string) {
             <div
               class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-white/[0.08]"
             >
-              <div class="px-4 py-3">
-                <p class="text-xs text-gray-500 dark:text-gray-400">Expiration</p>
-                <p class="font-mono text-sm font-medium text-gray-800 dark:text-gray-200">
-                  {{ entry.expiration || '-' }}
-                </p>
+              <div
+                class="flex items-center justify-between px-3.5 py-3 sm:px-4"
+                :class="entry.expiration ? rowCopy : ''"
+                @click="entry.expiration && copy(entry.expiration, 'expiration')"
+              >
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Expiration</p>
+                  <p class="font-mono text-sm font-medium text-gray-800 dark:text-gray-200">
+                    {{ entry.expiration || '-' }}
+                  </p>
+                </div>
+                <button
+                  v-if="entry.expiration"
+                  type="button"
+                  class="text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+                  title="Copy expiration"
+                  @click.stop="copy(entry.expiration, 'expiration')"
+                >
+                  <PhCopy :size="16" v-if="copiedField !== 'expiration'" />
+                  <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />
+                </button>
               </div>
-              <div class="flex items-center justify-between px-3.5 py-3 sm:px-4">
+              <div
+                class="flex items-center justify-between px-3.5 py-3 sm:px-4"
+                :class="entry.cvv ? rowCopy : ''"
+                @click="entry.cvv && copy(entry.cvv, 'cvv')"
+              >
                 <div>
                   <p class="text-xs text-gray-500 dark:text-gray-400">CVV</p>
                   <p class="font-mono text-sm font-medium text-gray-800 dark:text-gray-200">
@@ -605,7 +655,7 @@ async function copy(text: string, field: string) {
                     type="button"
                     class="text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
                     :title="showCvv ? 'Hide CVV' : 'Show CVV'"
-                    @click="showCvv = !showCvv"
+                    @click.stop="showCvv = !showCvv"
                   >
                     <PhEye :size="16" v-if="!showCvv" />
                     <PhEyeSlash :size="16" v-else />
@@ -614,7 +664,7 @@ async function copy(text: string, field: string) {
                     type="button"
                     class="text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
                     title="Copy CVV"
-                    @click="copy(entry.cvv, 'cvv')"
+                    @click.stop="copy(entry.cvv, 'cvv')"
                   >
                     <PhCopy :size="16" v-if="copiedField !== 'cvv'" />
                     <PhCheck :size="16" weight="bold" v-else class="text-emerald-500" />

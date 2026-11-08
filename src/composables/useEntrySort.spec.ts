@@ -15,6 +15,7 @@ function password(over: Partial<VaultPassword> & { id: string; name: string }): 
     ssoLabel: '',
     ssoEntryId: null,
     excludeFromAnalytics: false,
+    totp: null,
     color: 'bg-gray-700',
     icon: null,
     categoryId: null,

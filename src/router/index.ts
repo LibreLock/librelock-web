@@ -85,6 +85,11 @@ const router = createRouter({
           component: () => import('../views/shared/SharedVaultView.vue'),
         },
         {
+          path: 'authenticator',
+          name: 'authenticator',
+          component: () => import('../views/authenticator/AuthenticatorView.vue'),
+        },
+        {
           path: 'security',
           name: 'security',
           component: () => import('../views/security/SecurityCenterView.vue'),

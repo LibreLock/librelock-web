@@ -13,6 +13,8 @@ import {
   type BiometricRecord,
 } from '@/services/biometric'
 import { toast } from '@/composables/useToast'
+import { setShowNextCode, showNextCode } from '@/composables/useTotpPrefs'
+import ToggleSwitch from '@/components/ToggleSwitch.vue'
 import { MAX_PASSWORD_LENGTH } from '@/constants'
 import PasswordVisibilityToggle from '@/components/PasswordVisibilityToggle.vue'
 import FingerprintIcon from '@/components/icons/FingerprintIcon.vue'
@@ -208,6 +210,35 @@ async function handleRemove() {
             Careful! Anyone who can unlock this device can therefore open your vault.
           </p>
         </div>
+      </div>
+    </div>
+
+    <div
+      class="rounded-xl bg-white dark:bg-gray-900 shadow-xs ring-1 ring-gray-900/[0.06] dark:shadow-none dark:ring-white/[0.07]"
+    >
+      <div class="px-4 sm:px-6 pt-6 pb-1">
+        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">Authenticator</h2>
+        <p class="mt-0.5 text-sm text-gray-400">How 2FA codes are shown on this device</p>
+      </div>
+
+      <hr class="mt-3 border-gray-100 dark:border-white/[0.08]" />
+
+      <div class="flex items-start justify-between gap-4 px-4 py-5 sm:px-6">
+        <div class="min-w-0">
+          <p id="show-next-code-label" class="text-sm font-medium text-gray-800 dark:text-gray-200">
+            Show next code
+          </p>
+          <p class="mt-0.5 text-sm text-gray-400">
+            Display the code that follows the current one, so you can use it when the current one is
+            about to expire.
+          </p>
+        </div>
+        <ToggleSwitch
+          :model-value="showNextCode"
+          aria-labelledby="show-next-code-label"
+          class="mt-0.5"
+          @update:model-value="setShowNextCode"
+        />
       </div>
     </div>
   </div>

@@ -6,6 +6,7 @@ import { useOrganizationStore } from '@/stores/organization'
 import { useOrgVaultStore } from '@/stores/orgVault'
 import {
   PhBuildings,
+  PhClockCountdown,
   PhDotsThree,
   PhGear,
   PhShieldCheck,
@@ -43,7 +44,7 @@ function isActive(to: string) {
 
 // Settings lives in the nav bar in both modes; the More sheet holds the rest
 // (Organization link in org mode, plus theme + log out)
-const moreActive = computed(() => isActive('/organization'))
+const moreActive = computed(() => isActive('/organization') || isActive('/shared'))
 
 async function handleLogout() {
   try {
@@ -54,18 +55,19 @@ async function handleLogout() {
   }
 }
 
-// Passwords/Cards/Notes fold into the "Vault" tab (filtered in-page); the freed slots
-// promote Shared and Security up from the More sheet
+// Passwords/Cards/Notes fold into the "Vault" tab (filtered in-page); the freed slots promote
+// Authenticator and Security up from the More sheet. Shared lives in More: All Items already lists
+// shared entries (with a badge), so the Shared page is only a filtered view of them
 const TAB_ICONS: Record<string, Component> = {
   vault: PhSquaresFour,
-  shared: PhUsersThree,
+  authenticator: PhClockCountdown,
   security: PhShieldCheck,
   settings: PhGear,
 }
 
 const tabs = computed(() => [
   { name: 'Vault', to: '/vault', icon: 'vault' },
-  ...(showSharedVault.value ? [{ name: 'Shared', to: '/shared', icon: 'shared' }] : []),
+  { name: 'Authenticator', to: '/authenticator', icon: 'authenticator' },
   { name: 'Security', to: '/security', icon: 'security' },
   { name: 'Settings', to: '/settings', icon: 'settings' },
 ])
@@ -156,6 +158,20 @@ const tabs = computed(() => [
         </div>
 
         <div class="space-y-1 p-3">
+          <RouterLink
+            v-if="showSharedVault"
+            to="/shared"
+            class="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
+            :class="
+              isActive('/shared')
+                ? 'bg-gray-100 dark:bg-white/[0.08] text-gray-900 dark:text-gray-100'
+                : 'text-gray-600 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
+            "
+          >
+            <PhUsersThree :size="20" class="shrink-0" />
+            Shared
+          </RouterLink>
+
           <RouterLink
             v-if="showOrganization"
             to="/organization"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { VaultEntry } from '@/api/vault'
+import { hasTotp, type VaultEntry, type VaultPassword } from '@/api/vault'
 import { ssoLabel } from '@/services/sso'
 import { useVaultStore } from '@/stores/vault'
 import { useCategoriesStore } from '@/stores/categories'
@@ -11,6 +11,7 @@ import { useOrganizationStore } from '@/stores/organization'
 import CategoryPill from '@/components/CategoryPill.vue'
 import CardNetworkLogo from '@/components/CardNetworkLogo.vue'
 import EntryIcon from '@/components/EntryIcon.vue'
+import TotpCode from '@/components/TotpCode.vue'
 import { SORT_OPTIONS, sortLabel, useEntrySort, type SortId } from '@/composables/useEntrySort'
 import SegmentedTabs from '@/components/SegmentedTabs.vue'
 import { useEntries } from '@/composables/useEntries'
@@ -122,6 +123,12 @@ watchEffect(() =>
   vault.setVisibleResults(isSearching.value ? filtered.value : [], props.selectedId),
 )
 onUnmounted(() => vault.setVisibleResults([]))
+
+// Phones only: the list is full width there, so a password's live 2FA code fits at the right end
+// of its row while searching. The desktop sidebar is too narrow for it
+function showCode(entry: VaultEntry): entry is VaultPassword & { totp: string } {
+  return isSearching.value && hasTotp(entry)
+}
 
 function copyLabel(entry: VaultEntry): string {
   if (entry.type === 'card') return 'Copy card number'
@@ -444,7 +451,7 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
             entry.id === selectedId
               ? 'bg-gray-900/[0.07] hover:bg-gray-900/[0.07] dark:bg-white/10 dark:hover:bg-white/[0.1]'
               : '',
-            'pr-10',
+            showCode(entry) ? 'pr-10 max-sm:pr-36' : 'pr-10',
           ]"
           @click="emit('select', entry.id)"
         >
@@ -491,6 +498,13 @@ const showNumbers = computed(() => isSearching.value && modifiersHeld.value)
           <PhCopy :size="14" v-if="vault.copiedEntryId !== entry.id" />
           <PhCheck :size="14" weight="bold" v-else />
         </button>
+
+        <!-- A sibling of the row button (buttons cannot nest), after the copy icon so it sits on top -->
+        <TotpCode
+          v-if="showCode(entry)"
+          :uri="entry.totp"
+          class="absolute right-2 top-1/2 -translate-y-1/2 px-1 sm:hidden"
+        />
 
         <span
           v-if="showNumbers && index < 9"

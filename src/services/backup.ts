@@ -1,5 +1,6 @@
 import { DEFAULT_COLOR, ENTRY_COLORS, KDF_ITER, KDF_MEMORY, KDF_PARALLELISM } from '@/constants'
 import { decryptString, deriveKeys, encryptString, generateKdfSalt } from '@/services/crypto'
+import { normalizeOtpInput } from '@/services/totp'
 import type { CreateEntryPayload, VaultEntry } from '@/api/vault'
 
 export const BACKUP_FORMAT = 'librelock.backup'
@@ -29,6 +30,7 @@ export type BackupEntry =
       ssoLabel?: string
       ssoEntry?: string | null
       excludeFromAnalytics?: boolean
+      totp?: string | null
     })
   | (BackupEntryBase & { type: 'note'; content: string })
   | (BackupEntryBase & {
@@ -121,6 +123,7 @@ export function serializeEntry(
     ssoLabel: entry.ssoLabel,
     ssoEntry: entryName(entry.ssoEntryId) || null,
     excludeFromAnalytics: entry.excludeFromAnalytics,
+    totp: entry.totp,
   }
 }
 
@@ -247,6 +250,8 @@ function parseEntry(raw: unknown): BackupEntry | null {
       ssoLabel: str(raw.ssoLabel),
       ssoEntry: str(raw.ssoEntry).trim() || null,
       excludeFromAnalytics: raw.excludeFromAnalytics === true,
+      // Re-normalized on the way in: a hand-edited or foreign file must not smuggle junk into the vault
+      totp: normalizeOtpInput(str(raw.totp)),
     }
   }
 
@@ -366,6 +371,7 @@ export function toCreatePayload(entry: BackupEntry, categoryId: string | null): 
     ssoLabel: entry.ssoLabel ?? '',
     ssoEntryId: null,
     excludeFromAnalytics: entry.excludeFromAnalytics === true,
+    totp: entry.totp ?? null,
   }
 }
 

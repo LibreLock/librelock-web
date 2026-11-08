@@ -36,6 +36,8 @@ import {
   returnRouteFor,
 } from '@/router/origin'
 import SegmentedTabs from '@/components/SegmentedTabs.vue'
+import TotpField from '@/components/TotpField.vue'
+import { normalizeOtpInput, type TotpParams } from '@/services/totp'
 import { PhCaretDown, PhCaretRight, PhCheck, PhCopy, PhEye, PhEyeSlash } from '@phosphor-icons/vue'
 
 const route = useRoute()
@@ -206,7 +208,20 @@ const account = reactive({
   ssoLabel: '',
   ssoEntryId: null as string | null,
   excludeFromAnalytics: false,
+  totp: '',
 })
+
+// A scanned or pasted otpauth:// link names the service and account: fill the blanks, never overwrite
+function onTotpDetected(p: TotpParams) {
+  if (!account.name.trim() && p.issuer) account.name = p.issuer
+  if (p.account) {
+    if (p.account.includes('@')) {
+      if (!account.email.trim()) account.email = p.account
+    } else if (!account.username.trim()) {
+      account.username = p.account
+    }
+  }
+}
 
 const usesSso = computed(() => account.ssoProvider !== '')
 
@@ -614,6 +629,7 @@ onMounted(async () => {
       account.ssoLabel = entry.ssoLabel
       account.ssoEntryId = entry.ssoEntryId
       account.excludeFromAnalytics = entry.excludeFromAnalytics
+      account.totp = entry.totp ?? ''
     } else if (entry.type === 'card') {
       card.name = entry.name
       card.cardholderName = entry.cardholderName
@@ -803,6 +819,10 @@ function validate(): string | null {
   if (entryType.value === 'password') {
     account.name = account.name.trim()
     if (!account.name) return 'Name is required'
+    account.totp = account.totp.trim()
+    if (account.totp && !normalizeOtpInput(account.totp)) {
+      return 'The two-factor code is not a valid setup key or otpauth:// link'
+    }
     return null
   }
   if (entryType.value === 'card') {
@@ -858,6 +878,8 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
         ...account,
         ssoProvider: account.ssoProvider || null,
         ssoLabel: account.ssoProvider === SSO_OTHER ? account.ssoLabel.trim() : '',
+        // Stored as the normalized otpauth:// URI (null when the field is empty)
+        totp: account.totp ? normalizeOtpInput(account.totp) : null,
         ...meta,
       }
     } else if (entryType.value === 'card') {
@@ -1182,6 +1204,8 @@ async function handleSubmit(confirmed: { exposure?: boolean; privateLink?: boole
                     aria-label="Notes"
                   />
                 </div>
+
+                <TotpField v-model="account.totp" :disabled="readOnly" @detected="onTotpDetected" />
 
                 <div>
                   <button

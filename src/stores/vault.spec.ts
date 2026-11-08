@@ -38,6 +38,7 @@ function pw(over: Partial<VaultPassword> & { id: string; name: string }): VaultP
     ssoLabel: '',
     ssoEntryId: null,
     excludeFromAnalytics: false,
+    totp: null,
     color: 'bg-blue-500',
     icon: null,
     categoryId: null,

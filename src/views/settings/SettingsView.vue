@@ -41,7 +41,7 @@ function onTabChange(tab: Tab) {
 
 <template>
   <div class="overflow-y-auto h-full p-4 sm:p-6">
-    <div class="mx-auto max-w-6xl">
+    <div class="max-w-6xl">
       <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Settings</h1>
       <p class="mt-1 mb-6 text-sm text-gray-500 dark:text-gray-400">
         Manage your account and security preferences

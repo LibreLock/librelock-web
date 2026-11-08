@@ -152,7 +152,7 @@ function openTile(id: string) {
 
 <template>
   <div class="h-full overflow-y-auto p-4 sm:p-6">
-    <div class="mx-auto max-w-6xl">
+    <div class="max-w-6xl">
       <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Security Center</h1>

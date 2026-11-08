@@ -23,6 +23,7 @@ const password: VaultEntry = {
   ssoLabel: '',
   ssoEntryId: null,
   excludeFromAnalytics: false,
+  totp: null,
   color: 'bg-blue-500',
   icon: null,
   categoryId: 'cat-1',
@@ -74,6 +75,7 @@ describe('backup', () => {
       ssoLabel: '',
       ssoEntry: null,
       excludeFromAnalytics: false,
+      totp: null,
       color: 'bg-blue-500',
       icon: null,
       category: 'Work',
@@ -166,6 +168,30 @@ describe('backup', () => {
       ssoLabel: '',
       excludeFromAnalytics: true,
     })
+  })
+
+  it('round-trips a 2FA secret and drops a malformed one on import', () => {
+    const uri = 'otpauth://totp/GitHub:octo?secret=JBSWY3DPEHPK3PXP&issuer=GitHub'
+    const withTotp: VaultEntry = {
+      ...(password as Extract<VaultEntry, { type: 'password' }>),
+      id: '4',
+      totp: uri,
+    }
+
+    const payload = buildPayload([withTotp], [], lookup)
+    const parsed = parseBackupFile(JSON.stringify({ ...blankFile, payload }))
+    if (parsed.encrypted) throw new Error('expected a plaintext file')
+
+    const [entry] = parsed.payload.entries
+    if (!entry || entry.type !== 'password') throw new Error('expected a password entry')
+    expect(toCreatePayload(entry, null)).toMatchObject({ totp: uri })
+
+    const tampered = JSON.parse(JSON.stringify({ ...blankFile, payload }))
+    tampered.payload.entries[0].totp = 'definitely not a key!'
+    const reparsed = parseBackupFile(JSON.stringify(tampered))
+    if (reparsed.encrypted) throw new Error('expected a plaintext file')
+    const [bad] = reparsed.payload.entries
+    expect(bad?.type === 'password' && bad.totp).toBeNull()
   })
 
   it('writes an SSO link as the linked entry name and leaves the id for the import pass', () => {

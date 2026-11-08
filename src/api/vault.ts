@@ -27,6 +27,7 @@ export interface VaultPassword {
   ssoLabel: string
   ssoEntryId: string | null
   excludeFromAnalytics: boolean
+  totp: string | null
   color: string
   icon: string | null
   categoryId: string | null
@@ -83,6 +84,7 @@ export interface CreatePasswordPayload {
   ssoLabel?: string
   ssoEntryId?: string | null
   excludeFromAnalytics?: boolean
+  totp?: string | null
   color?: string
   icon?: string | null
   categoryId?: string | null
@@ -140,6 +142,7 @@ interface VaultBlobData {
   ssoLabel?: string
   ssoEntryId?: string | null
   excludeFromAnalytics?: boolean
+  totp?: string | null
   color: string
   icon?: string | null
 }
@@ -194,6 +197,7 @@ function rawToEntry(raw: RawVaultEntry, blob: VaultBlobData, shared = false): Va
     ssoLabel: blob.ssoLabel ?? '',
     ssoEntryId: blob.ssoEntryId ?? null,
     excludeFromAnalytics: blob.excludeFromAnalytics === true,
+    totp: blob.totp ?? null,
     passwordStrength: scoreSync(password),
     reused: false,
     breached: false,
@@ -235,6 +239,7 @@ export async function encryptEntryBlob(
       ssoLabel: payload.ssoLabel ?? '',
       ssoEntryId: payload.ssoEntryId ?? null,
       excludeFromAnalytics: payload.excludeFromAnalytics === true,
+      totp: payload.totp ?? null,
       color: payload.color ?? DEFAULT_COLOR,
       icon: payload.icon ?? null,
     }
@@ -288,6 +293,7 @@ async function encryptPayload(payload: CreateEntryPayload): Promise<{
       ssoLabel: payload.ssoLabel ?? '',
       ssoEntryId: payload.ssoEntryId ?? null,
       excludeFromAnalytics: payload.excludeFromAnalytics === true,
+      totp: payload.totp ?? null,
       color: payload.color ?? DEFAULT_COLOR,
       icon: payload.icon ?? null,
     }
@@ -322,6 +328,10 @@ export function hasPassword(entry: VaultEntry): entry is VaultPassword {
   return entry.type === 'password' && entry.password.length > 0
 }
 
+export function hasTotp(entry: VaultEntry): entry is VaultPassword & { totp: string } {
+  return entry.type === 'password' && !!entry.totp
+}
+
 // A password entry re-expressed as a payload, so an existing entry can be written back with one
 // field changed (blob writes always replace the whole blob)
 export function toPasswordPayload(entry: VaultPassword): CreatePasswordPayload {
@@ -337,6 +347,7 @@ export function toPasswordPayload(entry: VaultPassword): CreatePasswordPayload {
     ssoLabel: entry.ssoLabel,
     ssoEntryId: entry.ssoEntryId,
     excludeFromAnalytics: entry.excludeFromAnalytics,
+    totp: entry.totp,
     color: entry.color,
     icon: entry.icon,
     categoryId: entry.categoryId,
