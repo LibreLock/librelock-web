@@ -41,3 +41,7 @@ The app calls the API at `/api` on its own origin. Only if you serve the API fro
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for project structure, code style, and security guidelines.
+
+## License
+
+LibreLock is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0). If you run a modified version as a network service, you must offer its source to its users.
