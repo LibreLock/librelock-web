@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { shortcutsHelpOpen } from '@/composables/useShortcutsHelp'
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { useEntries } from '@/composables/useEntries'
@@ -740,7 +741,7 @@ watch(showExposureConfirm, async (open) => {
 
 // Capture phase, so the shortcuts work from inside the form's inputs too
 function handleFormShortcuts(e: KeyboardEvent) {
-  if (isLoading.value || isSubmitting.value) return
+  if (isLoading.value || isSubmitting.value || shortcutsHelpOpen.value) return
 
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
     if (
@@ -776,6 +777,12 @@ onMounted(() => window.addEventListener('keydown', handleFormShortcuts, true))
 onBeforeUnmount(() => window.removeEventListener('keydown', handleFormShortcuts, true))
 
 function switchType(type: EntryType) {
+  if (type !== entryType.value) {
+    const name = iconName.value
+    if (type === 'password') account.name = name
+    else if (type === 'card') card.name = name
+    else note.name = name
+  }
   entryType.value = type
   error.value = null
   // The old Name input is unmounted with its branch, so hand focus to the new one

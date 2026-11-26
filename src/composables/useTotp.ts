@@ -14,20 +14,30 @@ import { generateTotp, parseOtpInput, secondsRemaining, type TotpParams } from '
 // must not run an interval for each. It ticks only while at least one subscriber is alive.
 const now = ref(Date.now())
 let subscribers = 0
-let timer: ReturnType<typeof setInterval> | null = null
+let timer: ReturnType<typeof setTimeout> | null = null
+
+// Ticks land just after each wall-clock second, not on a free-running 1s interval: an interval
+// can sit up to a second out of phase, which would show an expired code for up to a second
+function schedule() {
+  timer = setTimeout(
+    () => {
+      now.value = Date.now()
+      schedule()
+    },
+    1000 - (Date.now() % 1000) + 15,
+  )
+}
 
 function subscribe() {
   subscribers++
   now.value = Date.now()
-  timer ??= setInterval(() => {
-    now.value = Date.now()
-  }, 1000)
+  if (timer === null) schedule()
 }
 
 function unsubscribe() {
   subscribers = Math.max(0, subscribers - 1)
   if (subscribers === 0 && timer !== null) {
-    clearInterval(timer)
+    clearTimeout(timer)
     timer = null
   }
 }

@@ -66,7 +66,7 @@ function setCode(id: string, el: unknown) {
 </script>
 
 <template>
-  <div class="flex-1 overflow-y-auto">
+  <div class="h-full overflow-y-auto">
     <div class="detail-in w-full max-w-3xl px-3 pb-10 pt-4 sm:px-6 sm:pt-6">
       <header class="mb-5 flex flex-wrap items-end justify-between gap-x-4 gap-y-3 px-0.5">
         <div class="min-w-0">

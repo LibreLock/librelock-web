@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useVaultStore } from '@/stores/vault'
 import AppBrand from '@/components/AppBrand.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { PhMagnifyingGlass, PhPlus } from '@phosphor-icons/vue'
 
 const vault = useVaultStore()
+const router = useRouter()
 
 const searchInput = ref<HTMLInputElement | null>(null)
 
@@ -19,7 +21,20 @@ function digitIndex(code: string): number {
   return match ? Number(match[1]) - 1 : -1
 }
 
+// Clearing keeps the user typing: refocus inside the click so mobile raises the keyboard again
+function clearSearch() {
+  vault.globalSearch = ''
+  searchInput.value?.focus()
+}
+
 async function handleKeydown(e: KeyboardEvent) {
+  // Ctrl/Cmd+Alt+N opens the new-entry form. Matched on code since Alt rewrites e.key on macOS.
+  if (e.code === 'KeyN' && (e.ctrlKey || e.metaKey) && e.altKey && !e.shiftKey) {
+    e.preventDefault()
+    router.push('/vault/new')
+    return
+  }
+
   if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
     e.preventDefault()
     searchInput.value?.focus()
@@ -93,7 +108,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
         v-if="vault.globalSearch"
         type="button"
         class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-1.5 py-0.5 text-xs font-medium text-gray-500 hover:bg-gray-900/5 hover:text-gray-800 dark:hover:bg-white/8 dark:hover:text-gray-200 cursor-pointer"
-        @click="vault.globalSearch = ''"
+        @click="clearSearch"
         :title="
           vault.copyableResults.length > 0
             ? 'Ctrl+↑/↓ walks the results, Enter copies the selected one, Ctrl+1…9 the numbered ones'
@@ -108,7 +123,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
       to="/vault/new"
       class="ml-auto flex h-9 shrink-0 items-center justify-center gap-0 rounded-lg bg-gray-900 px-2.5 text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.1),0_1px_2px_rgb(17_17_19/0.16)] hover:bg-gray-800 sm:gap-1.5 sm:pl-2.5 sm:pr-3.5 md:ml-0 dark:bg-gray-100 dark:text-gray-900 dark:shadow-none dark:hover:bg-white"
       aria-label="Add entry"
-      title="Add entry"
+      :title="`Add entry (${modKey}+Alt+N)`"
     >
       <PhPlus :size="16" weight="bold" />
 

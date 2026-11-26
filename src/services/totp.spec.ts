@@ -120,4 +120,9 @@ describe('helpers', () => {
     expect(formatCode('123456')).toBe('123 456')
     expect(formatCode('12345678')).toBe('1234 5678')
   })
+
+  it('keeps a link whose label has a stray percent sign', () => {
+    const r = parseOtpInput('otpauth://totp/100%25%?secret=JBSWY3DPEHPK3PXP')
+    expect(r.ok).toBe(true)
+  })
 })

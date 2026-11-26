@@ -96,7 +96,13 @@ export function parseOtpInput(input: string): ParseResult {
     const secret = cleanBase32(q.get('secret') ?? '')
     if (!isValidSecret(secret)) return { ok: false, error: 'The link has no valid secret.' }
 
-    const label = decodeURIComponent(url.pathname.replace(/^\//, ''))
+    let label: string
+    try {
+      label = decodeURIComponent(url.pathname.replace(/^\//, ''))
+    } catch {
+      // a stray "%" in the label: keep it as written rather than reject a link with a good secret
+      label = url.pathname.replace(/^\//, '')
+    }
     const colon = label.indexOf(':')
     const labelIssuer = colon === -1 ? '' : label.slice(0, colon).trim()
     const account = (colon === -1 ? label : label.slice(colon + 1)).trim()

@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import AppBottomNav from '@/components/AppBottomNav.vue'
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppTopbar from '@/components/AppTopbar.vue'
+import ShortcutsModal from '@/components/ShortcutsModal.vue'
 import { useAppViewport } from '@/composables/useAppViewport'
 import { useThemeStore } from '@/stores/theme'
 import { useVaultStore } from '@/stores/vault'
@@ -31,12 +32,30 @@ const route = useRoute()
 const router = useRouter()
 const vault = useVaultStore()
 
+// Below the sm breakpoint an open entry or form hides the results list, so a search typed there
+// would show nothing. Start from the list instead (a dirty form's leave guard asks first).
+const LIST_FOR_ENTRY: Record<string, string> = {
+  'vault-entry': 'vault',
+  'passwords-entry': 'passwords',
+  'cards-entry': 'cards',
+  'notes-entry': 'notes',
+  'shared-entry': 'shared',
+}
+const isMobile = () => window.matchMedia('(max-width: 639px)').matches
+
 watch(
   () => vault.globalSearch,
-  (q) => {
+  (q, prev) => {
     if (!q.trim()) return
     const name = route.name
-    if (typeof name === 'string' && (SEARCHABLE_NAMES.has(name) || FORM_NAMES.has(name))) return
+    if (typeof name !== 'string') return
+    if (SEARCHABLE_NAMES.has(name) || FORM_NAMES.has(name)) {
+      // Only when the search starts, so "keep editing" is not asked again on every keystroke
+      if (prev.trim() || !isMobile()) return
+      if (name in LIST_FOR_ENTRY) router.push({ name: LIST_FOR_ENTRY[name] })
+      else if (FORM_NAMES.has(name)) router.push({ name: 'vault' })
+      return
+    }
     router.push('/vault')
   },
 )
@@ -72,5 +91,6 @@ watch(
       </div>
       <AppBottomNav />
     </div>
+    <ShortcutsModal />
   </div>
 </template>
